@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.35 2002/03/20 02:07:36 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.36 2002/03/20 19:07:16 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -183,7 +183,7 @@ install: all install-binaries install-libraries install-doc
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
 	if test "x$(SHARED_BUILD)" = "x1"; then \
-	    $(INSTALL_DATA) pkgIndex.tcl $(pkglibdir)
+	    $(INSTALL_DATA) pkgIndex.tcl $(pkglibdir); \
 	fi
 
 #========================================================================

@@ -1,3 +1,8 @@
+2002-03-20  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in (install-binaries): corrected if shell error
+	[Bug #532557] (virden)
+
 2002-03-19  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* README:

@@ -1,3 +1,9 @@
+2005-03-18  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure: regen with later tcl.m4.
+	* Makefile.in: use @AR@ instead of hard-coded 'ar' to fix AIX
+	64-bit static build.
+
 2005-02-08  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure: update for minor tcl.m4 changes.  This is the first

@@ -1,3 +1,7 @@
+2000-06-26  Mike Thomas  <wart@scriptics.com>
+
+	* Makefile.in:  Changed TCLTESTARGS to TESTFLAGS in test: target.
+
 2000-02-03  Mike Thomas  <wart@scriptics.com>
 
 	* tests/:  Added tests subdirectory with sample test files

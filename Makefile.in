@@ -52,14 +52,6 @@ $(TCLSHA_LIB_FILE)_OBJECTS = $(tclsha_OBJECTS)
 OBJECTS = $(tclsha_OBJECTS)
 
 #========================================================================
-# Enumerate the dependency files.  Don't worry about how to make them,
-# that's taken care of automatically.  Just make sure this list of files
-# matches the OBJECTS list above.
-#========================================================================
-
-DEP_FILES =  .deps/sha1.P .deps/tclsha1.P
-
-#========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
 # have been added to the configure script.
 #========================================================================
@@ -74,7 +66,6 @@ SHELL = @SHELL@
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
-VPATH = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 
@@ -98,7 +89,6 @@ pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
 
 top_builddir = .
-AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -135,37 +125,35 @@ SHLIB_LDFLAGS = @SHLIB_LDFLAGS@
 SHLIB_LD_LIBS = @SHLIB_LD_LIBS@
 STLIB_LD = @STLIB_LD@
 TCL_BIN_DIR = @TCL_BIN_DIR@
-TCL_BMAP_DIR = @TCL_BMAP_DIR@
 TCL_BUILD_LIB_SPEC = @TCL_BUILD_LIB_SPEC@
 TCL_BUILD_STUB_LIB_SPEC = @TCL_BUILD_STUB_LIB_SPEC@
 TCL_DBGX = @TCL_DBGX@
 TCL_DEFS = @TCL_DEFS@
 TCL_EXTRA_CFLAGS = @TCL_EXTRA_CFLAGS@
-TCL_GENERIC_DIR = @TCL_GENERIC_DIR@
 TCL_LD_FLAGS = @TCL_LD_FLAGS@
 TCL_LIBS = @TCL_LIBS@
 TCL_LIB_FILE = @TCL_LIB_FILE@
 TCL_LIB_SPEC = @TCL_LIB_SPEC@
-TCL_PLATFORM_DIR = @TCL_PLATFORM_DIR@
 TCL_SHLIB_LD_LIBS = @TCL_SHLIB_LD_LIBS@
 TCL_SRC_DIR = @TCL_SRC_DIR@
 TCL_STUB_LIB_FILE = @TCL_STUB_LIB_FILE@
 TCL_STUB_LIB_SPEC = @TCL_STUB_LIB_SPEC@
-TCL_TOOL_DIR = @TCL_TOOL_DIR@
-TCL_TOP_DIR = @TCL_TOP_DIR@
-TCL_UNIX_DIR = @TCL_UNIX_DIR@
-TCL_WIN_DIR = @TCL_WIN_DIR@
-TK_BIN_DIR = @TK_BIN_DIR@
+TCL_TOOL_DIR_NATIVE = @TCL_TOOL_DIR_NATIVE@
+TCL_TOP_DIR_NATIVE = @TCL_TOP_DIR_NATIVE@
+TCL_UNIX_DIR_NATIVE = @TCL_UNIX_DIR_NATIVE@
+TCL_WIN_DIR_NATIVE = @TCL_WIN_DIR_NATIVE@
+TK_BIN_DIR_NATIVE = @TK_BIN_DIR_NATIVE@
+TCL_BMAP_DIR_NATIVE = @TCL_BMAP_DIR_NATIVE@
+TCL_PLATFORM_DIR_NATIVE = @TCL_PLATFORM_DIR_NATIVE@
+TCL_GENERIC_DIR_NATIVE = @TCL_GENERIC_DIR_NATIVE@
 TK_LIB_FILE = @TK_LIB_FILE@
 TK_SRC_DIR = @TK_SRC_DIR@
 
-ACLOCAL = :
-AUTOMAKE = :
 AUTOCONF = autoconf
 
 LDFLAGS = $(LDFLAGS_DEFAULT)
 
-INCLUDES = -I$(TCL_PLATFORM_DIR) -I$(TCL_GENERIC_DIR) -I$(TCL_BMAP_DIR)
+INCLUDES = -I$(TCL_PLATFORM_DIR_NATIVE) -I$(TCL_GENERIC_DIR_NATIVE) -I$(TCL_BMAP_DIR_NATIVE)
 
 EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS)
 
@@ -182,27 +170,74 @@ CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DIST_COMMON =  README COPYING INSTALL Makefile.in aclocal.m4 \
-configure configure.in install-sh missing mkinstalldirs
+
+#========================================================================
+# Start of user-definable section
+#========================================================================
+
+#========================================================================
+# TEA targets.  Please note that "libraries" refers to platform
+# independant files, and "binaries" inclues executable programs and
+# platform-dependant libraries.  Modify these targets so that they install
+# the various pieces of your package.  The make and install rules
+# for the lib_LIBRARIES that you specified above have already been done.
+#========================================================================
+
+all: binaries libraries doc
+
+binaries: $(LIBRARIES)
+
+libraries:
+
+doc:
+
+install: all install-binaries install-libraries install-doc
+
+install-binaries: install-libLIBRARIES
+
+install-libraries:
+
+install-doc:
+
+#========================================================================
+# Enumerate the names of the object files included in this package.
+# These objects are created and linked into the final library.  In
+# most cases these object files will correspond to the source files
+# above.
+#========================================================================
+
+$(TCLSHA_LIB_FILE): $(tclsha_OBJECTS)
+	-rm -f $(TCLSHA_LIB_FILE)
+	@MAKE_LIB@
+	$(RANLIB) $(TCLSHA_LIB_FILE)
+
+# FIXME: We should only use cygpath when building on Windows,
+# and only if it is available.
+#.c.obj:
+#	$(COMPILE) -c `cygpath -w $<`
+
+# FIXME: We need to enumerate the list of .c to .o lines here.
+# Unfortunately, there does not seem to be any other way to do this
+# in a Makefile-independent way.  We can't use VPATH because it picks up
+# object files that may be located in the source directory.
+
+sha1.$(OBJEXT): $(srcdir)/sha1.c
+	$(COMPILE) -c `@CYGPATH@ $(srcdir)/sha1.c` -o $@
+
+tclsha1.$(OBJEXT): $(srcdir)/tclsha1.c
+	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclsha1.c` -o $@
 
 
-DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+#========================================================================
+# End of user-definable section
+#========================================================================
 
-TAR = gtar
-GZIP_ENV = --best
 
-all: all-redirect
-.SUFFIXES:
-.SUFFIXES: .S .c .o .obj .s
-$(srcdir)/Makefile.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu Makefile
+.SUFFIXES: .c .o .obj
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
-
-$(ACLOCAL_M4):  configure.in 
-	cd $(srcdir) && $(ACLOCAL)
 
 config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -241,16 +276,8 @@ uninstall-libLIBRARIES:
 	  rm -f $(DESTDIR)$(libdir)/$$p; \
 	done
 
-# FIXME: We should only use cygpath when building on Windows,
-# and only if it is available.
-.c.obj:
-	$(COMPILE) -c `cygpath -w $<`
-
-.s.o:
-	$(COMPILE) -c $<
-
-.S.o:
-	$(COMPILE) -c $<
+# FIXME: We need a "make depend" rule
+depend:
 
 mostlyclean-compile:
 	-rm -f *.o core *.core
@@ -263,146 +290,8 @@ distclean-compile:
 
 maintainer-clean-compile:
 
-tags: TAGS
-
-ID: $(HEADERS) $(SOURCES) $(LISP)
-	list='$(SOURCES) $(HEADERS)'; \
-	unique=`for i in $$list; do echo $$i; done | \
-	  awk '    { files[$$0] = 1; } \
-	       END { for (i in files) print i; }'`; \
-	here=`pwd` && cd $(srcdir) \
-	  && mkid -f$$here/ID $$unique $(LISP)
-
-TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
-	tags=; \
-	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS)'; \
-	unique=`for i in $$list; do echo $$i; done | \
-	  awk '    { files[$$0] = 1; } \
-	       END { for (i in files) print i; }'`; \
-	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
-	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
-
-mostlyclean-tags:
-
-clean-tags:
-
-distclean-tags:
-	-rm -f TAGS ID
-
-maintainer-clean-tags:
-
-distdir = $(PACKAGE)-$(VERSION)
-top_distdir = $(distdir)
-
-# This target untars the dist file and tries a VPATH configuration.  Then
-# it guarantees that the distribution is self-contained by making another
-# tarfile.
-distcheck: dist
-	-rm -rf $(distdir)
-	GZIP=$(GZIP_ENV) $(TAR) zxf $(distdir).tar.gz
-	mkdir $(distdir)/=build
-	mkdir $(distdir)/=inst
-	dc_install_base=`cd $(distdir)/=inst && pwd`; \
-	cd $(distdir)/=build \
-	  && ../configure --srcdir=.. --prefix=$$dc_install_base \
-	  && $(MAKE) $(AM_MAKEFLAGS) \
-	  && $(MAKE) $(AM_MAKEFLAGS) dvi \
-	  && $(MAKE) $(AM_MAKEFLAGS) check \
-	  && $(MAKE) $(AM_MAKEFLAGS) install \
-	  && $(MAKE) $(AM_MAKEFLAGS) installcheck \
-	  && $(MAKE) $(AM_MAKEFLAGS) dist
-	-rm -rf $(distdir)
-	@banner="$(distdir).tar.gz is ready for distribution"; \
-	dashes=`echo "$$banner" | sed s/./=/g`; \
-	echo "$$dashes"; \
-	echo "$$banner"; \
-	echo "$$dashes"
-dist: distdir
-	-chmod -R a+r $(distdir)
-	GZIP=$(GZIP_ENV) $(TAR) chozf $(distdir).tar.gz $(distdir)
-	-rm -rf $(distdir)
-dist-all: distdir
-	-chmod -R a+r $(distdir)
-	GZIP=$(GZIP_ENV) $(TAR) chozf $(distdir).tar.gz $(distdir)
-	-rm -rf $(distdir)
-distdir: $(DISTFILES)
-	-rm -rf $(distdir)
-	mkdir $(distdir)
-	-chmod 777 $(distdir)
-	here=`cd $(top_builddir) && pwd`; \
-	top_distdir=`cd $(distdir) && pwd`; \
-	distdir=`cd $(distdir) && pwd`; \
-	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu Makefile
-	@for file in $(DISTFILES); do \
-	  d=$(srcdir); \
-	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
-	  else \
-	    test -f $(distdir)/$$file \
-	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
-	    || cp -p $$d/$$file $(distdir)/$$file || :; \
-	  fi; \
-	done
-
-DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
-
--include $(DEP_FILES)
-
-mostlyclean-depend:
-
-clean-depend:
-
-distclean-depend:
-	-rm -rf .deps
-
-maintainer-clean-depend:
-
-%.o: %.c
-	@echo '$(COMPILE) -c $<'; \
-	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
-	@-cp .deps/$(*F).pp .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm .deps/$(*F).pp
-
-%.lo: %.c
-	@echo '$(LTCOMPILE) -c $<'; \
-	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
-	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
-	  < .deps/$(*F).pp > .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm -f .deps/$(*F).pp
-info-am:
-info: info-am
-dvi-am:
-dvi: dvi-am
-check-am: all-am
-check: check-am
-installcheck-am:
-installcheck: installcheck-am
-install-exec-am: install-libLIBRARIES
-install-exec: install-exec-am
-
-install-data-am:
-install-data: install-data-am
-
-install-am: all-am
-	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
-install: install-am
-uninstall-am: uninstall-libLIBRARIES
-uninstall: uninstall-am
-all-am: Makefile $(LIBRARIES)
-all-redirect: all-am
-install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) INSTALL_STRIP_FLAG=-s install
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir)
-
 
 mostlyclean-generic:
 
@@ -415,24 +304,24 @@ distclean-generic:
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-libLIBRARIES mostlyclean-compile \
-		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
-clean-am:  clean-libLIBRARIES clean-compile clean-tags clean-depend \
+clean-am:  clean-libLIBRARIES clean-compile \
 		clean-generic mostlyclean-am
 
 clean: clean-am
 
-distclean-am:  distclean-libLIBRARIES distclean-compile distclean-tags \
-		distclean-depend distclean-generic clean-am
+distclean-am:  distclean-libLIBRARIES distclean-compile \
+		distclean-generic clean-am
 
 distclean: distclean-am
 	-rm -f config.status
 
 maintainer-clean-am:  maintainer-clean-libLIBRARIES \
-		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-depend maintainer-clean-generic \
+		maintainer-clean-compile \
+		maintainer-clean-generic \
 		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
@@ -443,56 +332,13 @@ maintainer-clean: maintainer-clean-am
 .PHONY: mostlyclean-libLIBRARIES distclean-libLIBRARIES \
 clean-libLIBRARIES maintainer-clean-libLIBRARIES uninstall-libLIBRARIES \
 install-libLIBRARIES mostlyclean-compile distclean-compile \
-clean-compile maintainer-clean-compile tags mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir \
-mostlyclean-depend distclean-depend clean-depend \
-maintainer-clean-depend info-am info dvi-am dvi check check-am \
+clean-compile maintainer-clean-compile \
+distdir info-am info dvi-am dvi check check-am \
 installcheck-am installcheck install-exec-am install-exec \
 install-data-am install-data install-am install uninstall-am uninstall \
 all-redirect all-am all installdirs mostlyclean-generic \
 distclean-generic clean-generic maintainer-clean-generic clean \
 mostlyclean distclean maintainer-clean
-
-#========================================================================
-# The final changes go here.  These need to be at the end of the file
-# because they depend on Makefile variables that are set above.
-#========================================================================
-
-#========================================================================
-# Enumerate the names of the object files included in this package.
-# These objects are created and linked into the final library.  In
-# most cases these object files will correspond to the source files
-# above.
-#========================================================================
-
-$(TCLSHA_LIB_FILE): $(tclsha_OBJECTS)
-	-rm -f $(TCLSHA_LIB_FILE)
-	@MAKE_LIB@
-	$(RANLIB) $(TCLSHA_LIB_FILE)
-
-#========================================================================
-# TEA targets.  Please note that "libraries" refers to platform
-# independant files, and "binaries" inclues executable programs and
-# platform-dependant libraries.  Modify these targets so that they install
-# the various pieces of your package.  The make and install rules
-# for the lib_LIBRARIES that you specified above have already been done.
-#========================================================================
-
-all: binaries libraries doc
-
-binaries: $(LIBRARIES)
-
-libraries:
-
-doc:
-
-install: install-binaries install-libraries install-doc
-
-install-binaries: install-libLIBRARIES
-
-install-libraries:
-
-install-doc:
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

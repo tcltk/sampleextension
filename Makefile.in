@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.21 1999/09/13 19:04:02 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.22 1999/09/14 23:47:35 wart Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -216,6 +216,7 @@ doc:
 install: all install-binaries install-libraries install-doc
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
+	$(TCLSH_PROG) mkIndex.tcl $(exampleA_LIB_FILE)
 
 #========================================================================
 # This rule installs platform-independent files, such as header files.
@@ -347,7 +348,6 @@ install-lib-binaries: installdirs
 	    $(RANLIB) $(DESTDIR)$(bindir)/$$p; \
 	  else :; fi; \
 	done
-	$(TCLSH_PROG) mkIndex.tcl $(lib_BINARIES)
 
 #========================================================================
 # Install binary executables (e.g. .exe files)
@@ -368,12 +368,6 @@ install-bin-binaries: installdirs
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
-
-#config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
-#	$(SHELL) ./config.status --recheck
-#$(srcdir)/configure: $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
-#	cd $(srcdir) && $(AUTOCONF)
-
 
 uninstall-binaries:
 	@$(NORMAL_UNINSTALL)

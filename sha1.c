@@ -115,9 +115,24 @@ static unsigned char workspace[64];
 }
 
 
-/* SHA1Init - Initialize new context */
+/*
+ *----------------------------------------------------------------------
+ *
+ * SHA1Init --
+ *
+ *	 Initialize new context
+ *
+ * Results:
+ *	Contents of context poineter are changed.
+ *
+ * Side effects:
+ *	None.
+ *
+ *----------------------------------------------------------------------
+ */
 
-void SHA1Init(SHA1_CTX* context)
+void SHA1Init(context)
+    SHA1_CTX* context;		/* Context to initialize */
 {
     /* SHA1 initialization constants */
     context->state[0] = 0x67452301;
@@ -129,9 +144,27 @@ void SHA1Init(SHA1_CTX* context)
 }
 
 
-/* Run your data through this. */
+/*
+ *----------------------------------------------------------------------
+ *
+ * SHA1Update
+ *
+ *	 Updates a context.
+ *
+ * Results:
+ *	Unknown.
+ *
+ * Side effects:
+ *	Unknown.
+ *
+ *----------------------------------------------------------------------
+ */
 
-void SHA1Update(SHA1_CTX* context, unsigned char* data, unsigned int len)
+void
+SHA1Update(context, data, len)
+    SHA1_CTX* context;		/* Context to update */
+    unsigned char* data;	/* Data used for update */
+    unsigned int len;		/* Length of data */
 {
 unsigned int i, j;
 
@@ -157,9 +190,26 @@ unsigned int i, j;
 }
 
 
-/* Add padding and return the message digest. */
 
-void SHA1Final(unsigned char digest[20], SHA1_CTX* context)
+/*
+ *----------------------------------------------------------------------
+ *
+ * SHA1Final
+ *
+ *	Add padding and return the message digest.
+ *
+ * Results:
+ *	Unknown.
+ *
+ * Side effects:
+ *	Unknown.
+ *
+ *----------------------------------------------------------------------
+ */
+
+void SHA1Final(context, digest)
+    SHA1_CTX* context;		/* Context to pad */
+    unsigned char digest[20];	/* Returned message digest */
 {
 unsigned long i, j;
 unsigned char finalcount[8];
@@ -187,47 +237,3 @@ unsigned char finalcount[8];
     SHA1Transform(context->state, context->buffer);
 #endif
 }
-
-
-#ifdef DO_MAIN
-/*************************************************************/
-
-
-int main(int argc, char** argv)
-{
-int i, j;
-SHA1_CTX context;
-unsigned char digest[20], buffer[16384];
-FILE* file;
-
-    if (argc > 2) {
-        puts("Public domain SHA-1 implementation - by Steve Reid <steve@edmweb.com>");
-        puts("Produces the SHA-1 hash of a file, or stdin if no file is specified.");
-        exit(0);
-    }
-    if (argc < 2) {
-        file = stdin;
-    }
-    else {
-        if (!(file = fopen(argv[1], "rb"))) {
-            fputs("Unable to open file.", stderr);
-            exit(-1);
-        }
-    } 
-    SHA1Init(&context);
-    while (!feof(file)) {  /* note: what if ferror(file) */
-        i = fread(buffer, 1, 16384, file);
-        SHA1Update(&context, buffer, i);
-    }
-    SHA1Final(digest, &context);
-    fclose(file);
-    for (i = 0; i < 5; i++) {
-        for (j = 0; j < 4; j++) {
-            printf("%02X", digest[i*4+j]);
-        }
-        putchar(' ');
-    }
-    putchar('\n');
-    exit(0);
-}
-#endif

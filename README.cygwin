@@ -6,7 +6,7 @@ First step:  Download and install the Cygnus Cywgin user tools package from
 
 Second step:  Install GNU make for windows.  You can get the GNU make
 	binary from the same location as the TEA sample extension:
-	ftp://ftp.scriptics.com/[???]
+	ftp://ftp.scriptics.com/pub/tcl/examples/tea/extras/gmake.exe
 
 Third step:  Create a directory called "C:\bin".  Copy the sh.exe
 	program from the cygnus bin directory

@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.37 2002/03/28 01:57:26 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.38 2002/03/29 05:07:05 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -132,7 +132,6 @@ TCLSH_PROG	= TCL_LIBRARY=`@CYGPATH@ $(TCL_SRC_DIR)/library` \
 		  LD_LIBRARY_PATH="$(EXTRA_PATH):$(LD_LIBRARY_PATH)" \
 		  LIBPATH="$(EXTRA_PATH):${LIBPATH}" \
 		  SHLIB_PATH="$(EXTRA_PATH):${SHLIB_PATH}" \
-		  TCLLIBPATH="$(top_builddir)" \
 		  PATH="$(EXTRA_PATH):$(PATH)" \
 		  @TCLSH_PROG@
 SHARED_BUILD	= @SHARED_BUILD@
@@ -216,7 +215,13 @@ install-doc: doc
 	    $(INSTALL_DATA) $$i $(mandir)/mann ; \
 	    done
 
+#========================================================================
+# TCLLIBPATH seeds the auto_path in Tcl's init.tcl so we can test our
+# package without installing.
+#========================================================================
+
 test: binaries libraries
+	TCLLIBPATH="$(top_builddir)" \
 	$(TCLSH_PROG) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
 
 depend:
@@ -359,7 +364,7 @@ install-lib-binaries: installdirs
 	            $(INSTALL_DATA) $$lib $(DESTDIR)$(pkglibdir)/$$lib; \
 		fi; \
 	    fi; \
-	  else :; fi; \
+	  fi; \
 	done
 
 #========================================================================

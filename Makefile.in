@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.24 2000/02/03 22:36:04 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.24.2.1 2000/03/02 20:40:19 wart Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -97,6 +97,7 @@ includedir = @includedir@
 oldincludedir = /usr/include
 
 DESTDIR =
+CONFIGDIR = @AUX_DIR@
 
 pkgdatadir = $(datadir)/@PACKAGE@@VERSION@
 pkglibdir = $(libdir)/@PACKAGE@@VERSION@
@@ -158,7 +159,6 @@ TCL_BMAP_DIR_NATIVE = @TCL_BMAP_DIR_NATIVE@
 TCL_PLATFORM_DIR_NATIVE = @TCL_PLATFORM_DIR_NATIVE@
 TCL_GENERIC_DIR_NATIVE = @TCL_GENERIC_DIR_NATIVE@
 TCLSH_PROG = @TCLSH_PROG@
-SHARED_BUILD = @SHARED_BUILD@
 
 AUTOCONF = autoconf
 
@@ -171,9 +171,8 @@ EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $
 DEFS = @DEFS@ $(EXTRA_CFLAGS)
 
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-CONFIGDIR = $(top_srcdir)
 mkinstalldirs = $(SHELL) $(CONFIGDIR)/mkinstalldirs
-CONFIG_CLEAN_FILES = mkIndex.tcl
+CONFIG_CLEAN_FILES = pkgIndex.tcl
 
 CPPFLAGS = @CPPFLAGS@
 LIBS = @LIBS@
@@ -219,9 +218,6 @@ install: all install-binaries install-libraries install-doc
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
 	$(TCLSH_PROG) mkIndex.tcl $(exampleA_LIB_FILE)
-	if test "x$(SHARED_BUILD)" = "x1"; then \
-	    $(TCLSH_PROG) mkIndex.tcl $(exampleA_LIB_FILE); \
-	fi
 
 #========================================================================
 # This rule installs platform-independent files, such as header files.
@@ -252,16 +248,7 @@ install-doc: doc
 	    $(INSTALL_DATA) $$i $(mandir)/mann ; \
 	    done
 
-test: binaries libraries
-	( echo \
-	  pkg_mkIndex . $(exampleA_LIB_FILE) \;\
-	  exit; ) | \
-	$(TCLSH_PROG)
-	TCL_LIBRARY=$(TCL_LIBRARY_DIR) \
-	LD_LIBRARY_PATH=$(BUILD_DIR):$(TCL_BIN_DIR):$(LD_LIBRARY_PATH) \
-	TCLLIBPATH=. \
-	PATH="$(BUILD_DIR)":"$(TCL_BIN_DIR)":"$(PATH)" \
-	$(TCLSH_PROG) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TCLTESTARGS)
+test:
 
 depend:
 
@@ -358,8 +345,8 @@ install-lib-binaries: installdirs
 	done
 	@list='$(lib_BINARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
-	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
+	    echo " $(RANLIB) $(DESTDIR)$(bindir)/$$p"; \
+	    $(RANLIB) $(DESTDIR)$(bindir)/$$p; \
 	  else :; fi; \
 	done
 

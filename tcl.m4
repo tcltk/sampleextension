@@ -9,277 +9,6 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
 #------------------------------------------------------------------------
-# SC_PATH_TCLCONFIG --
-#
-#	Locate the tclConfig.sh file and perform a sanity check on
-#	the Tcl compile flags
-#
-# Arguments:
-#	none
-#
-# Results:
-#
-#	Adds the following arguments to configure:
-#		--with-tcl=...
-#
-#	Defines the following vars:
-#		TCL_BIN_DIR	Full path to the directory containing
-#				the tclConfig.sh file
-#------------------------------------------------------------------------
-
-AC_DEFUN(SC_PATH_TCLCONFIG, [
-    #
-    # Ok, lets find the tcl configuration
-    # First, look for one uninstalled.
-    # the alternative search directory is invoked by --with-tcl
-    #
-
-    if test x"${no_tcl}" = x ; then
-	# we reset no_tcl in case something fails here
-	no_tcl=true
-	AC_ARG_WITH(tcl, [  --with-tcl              directory containing tcl configuration (tclConfig.sh)], with_tclconfig=${withval})
-	AC_MSG_CHECKING([for Tcl configuration])
-	AC_CACHE_VAL(ac_cv_c_tclconfig,[
-
-	    # First check to see if --with-tcl was specified.
-	    if test x"${with_tclconfig}" != x ; then
-		if test -f "${with_tclconfig}/tclConfig.sh" ; then
-		    ac_cv_c_tclconfig=`(cd ${with_tclconfig}; pwd)`
-		else
-		    AC_MSG_ERROR([${with_tclconfig} directory doesn't contain tclConfig.sh])
-		fi
-	    fi
-
-	    # then check for a private Tcl installation
-	    if test x"${ac_cv_c_tclconfig}" = x ; then
-		for i in \
-			../tcl \
-			`ls -dr ../tcl[[8-9]].[[0-9]]* 2>/dev/null` \
-			../../tcl \
-			`ls -dr ../../tcl[[8-9]].[[0-9]]* 2>/dev/null` \
-			../../../tcl \
-			`ls -dr ../../../tcl[[8-9]].[[0-9]]* 2>/dev/null` ; do
-		    if test -f "$i/unix/tclConfig.sh" ; then
-			ac_cv_c_tclconfig=`(cd $i/unix; pwd)`
-			break
-		    fi
-		done
-	    fi
-
-	    # check in a few common install locations
-	    if test x"${ac_cv_c_tclconfig}" = x ; then
-		for i in `ls -d ${prefix}/lib 2>/dev/null` \
-			`ls -d /usr/local/lib 2>/dev/null` ; do
-		    if test -f "$i/tclConfig.sh" ; then
-			ac_cv_c_tclconfig=`(cd $i; pwd)`
-			break
-		    fi
-		done
-	    fi
-
-	    # check in a few other private locations
-	    if test x"${ac_cv_c_tclconfig}" = x ; then
-		for i in \
-			${srcdir}/../tcl \
-			`ls -dr ${srcdir}/../tcl[[8-9]].[[0-9]]* 2>/dev/null` ; do
-		    if test -f "$i/unix/tclConfig.sh" ; then
-		    ac_cv_c_tclconfig=`(cd $i/unix; pwd)`
-		    break
-		fi
-		done
-	    fi
-	])
-
-	if test x"${ac_cv_c_tclconfig}" = x ; then
-	    TCL_BIN_DIR="# no Tcl configs found"
-	    AC_MSG_WARN(Can't find Tcl configuration definitions)
-	    exit 0
-	else
-	    no_tcl=
-	    TCL_BIN_DIR=${ac_cv_c_tclconfig}
-	    AC_MSG_RESULT(found $TCL_BIN_DIR/tclConfig.sh)
-	fi
-    fi
-])
-
-#------------------------------------------------------------------------
-# SC_PATH_TKCONFIG --
-#
-#	Locate the tkConfig.sh file
-#
-# Arguments:
-#	none
-#
-# Results:
-#
-#	Adds the following arguments to configure:
-#		--with-tk=...
-#
-#	Defines the following vars:
-#		TK_BIN_DIR	Full path to the directory containing
-#				the tkConfig.sh file
-#------------------------------------------------------------------------
-
-AC_DEFUN(SC_PATH_TKCONFIG, [
-    #
-    # Ok, lets find the tk configuration
-    # First, look for one uninstalled.
-    # the alternative search directory is invoked by --with-tk
-    #
-
-    if test x"${no_tk}" = x ; then
-	# we reset no_tk in case something fails here
-	no_tk=true
-	AC_ARG_WITH(tk, [  --with-tk               directory containing tk configuration (tkConfig.sh)], with_tkconfig=${withval})
-	AC_MSG_CHECKING([for Tk configuration])
-	AC_CACHE_VAL(ac_cv_c_tkconfig,[
-
-	    # First check to see if --with-tkconfig was specified.
-	    if test x"${with_tkconfig}" != x ; then
-		if test -f "${with_tkconfig}/tkConfig.sh" ; then
-		    ac_cv_c_tkconfig=`(cd ${with_tkconfig}; pwd)`
-		else
-		    AC_MSG_ERROR([${with_tkconfig} directory doesn't contain tkConfig.sh])
-		fi
-	    fi
-
-	    # then check for a private Tk library
-	    if test x"${ac_cv_c_tkconfig}" = x ; then
-		for i in \
-			../tk \
-			`ls -dr ../tk[[8-9]].[[0-9]]* 2>/dev/null` \
-			../../tk \
-			`ls -dr ../../tk[[8-9]].[[0-9]]* 2>/dev/null` \
-			../../../tk \
-			`ls -dr ../../../tk[[8-9]].[[0-9]]* 2>/dev/null` ; do
-		    if test -f "$i/unix/tkConfig.sh" ; then
-			ac_cv_c_tkconfig=`(cd $i/unix; pwd)`
-			break
-		    fi
-		done
-	    fi
-	    # check in a few common install locations
-	    if test x"${ac_cv_c_tkconfig}" = x ; then
-		for i in `ls -d ${prefix}/lib 2>/dev/null` \
-			`ls -d /usr/local/lib 2>/dev/null` ; do
-		    if test -f "$i/tkConfig.sh" ; then
-			ac_cv_c_tkconfig=`(cd $i; pwd)`
-			break
-		    fi
-		done
-	    fi
-	    # check in a few other private locations
-	    if test x"${ac_cv_c_tkconfig}" = x ; then
-		for i in \
-			${srcdir}/../tk \
-			`ls -dr ${srcdir}/../tk[[8-9]].[[0-9]]* 2>/dev/null` ; do
-		    if test -f "$i/unix/tkConfig.sh" ; then
-			ac_cv_c_tkconfig=`(cd $i/unix; pwd)`
-			break
-		    fi
-		done
-	    fi
-	])
-	if test x"${ac_cv_c_tkconfig}" = x ; then
-	    TK_BIN_DIR="# no Tk configs found"
-	    AC_MSG_WARN(Can't find Tk configuration definitions)
-	    exit 0
-	else
-	    no_tk=
-	    TK_BIN_DIR=${ac_cv_c_tkconfig}
-	    AC_MSG_RESULT(found $TK_BIN_DIR/tkConfig.sh)
-	fi
-    fi
-
-])
-
-#------------------------------------------------------------------------
-# SC_LOAD_TCLCONFIG --
-#
-#	Load the tclConfig.sh file
-#
-# Arguments:
-#	
-#	Requires the following vars to be set:
-#		TCL_BIN_DIR
-#
-# Results:
-#
-#	Subst the following vars:
-#		TCL_BIN_DIR
-#		TCL_SRC_DIR
-#		TCL_LIB_FILE
-#
-#------------------------------------------------------------------------
-
-AC_DEFUN(SC_LOAD_TCLCONFIG, [
-    AC_MSG_CHECKING([for existence of $TCL_BIN_DIR/tclConfig.sh])
-
-    if test -f "$TCL_BIN_DIR/tclConfig.sh" ; then
-        AC_MSG_RESULT([loading])
-	. $TCL_BIN_DIR/tclConfig.sh
-    else
-        AC_MSG_RESULT([file not found])
-    fi
-
-    #
-    # The eval is required to do the TCL_DBGX substitution in the
-    # TCL_LIB_FILE variable
-    #
-
-    eval TCL_LIB_FILE=${TCL_LIB_FILE}
-    eval TCL_LIB_FLAG=${TCL_LIB_FLAG}
-
-    AC_SUBST(TCL_DBGX)
-    AC_SUBST(TCL_BIN_DIR)
-    AC_SUBST(TCL_SRC_DIR)
-    AC_SUBST(TCL_LIB_FILE)
-    AC_SUBST(TCL_LIBS)
-    AC_SUBST(TCL_DEFS)
-    AC_SUBST(TCL_SHLIB_LD_LIBS)
-    AC_SUBST(TCL_EXTRA_CFLAGS)
-    AC_SUBST(TCL_LD_FLAGS)
-    AC_SUBST(TCL_LIB_FILE)
-    AC_SUBST(TCL_STUB_LIB_FILE)
-    AC_SUBST(TCL_LIB_SPEC)
-    AC_SUBST(TCL_BUILD_LIB_SPEC)
-    AC_SUBST(TCL_STUB_LIB_SPEC)
-    AC_SUBST(TCL_BUILD_STUB_LIB_SPEC)
-])
-
-#------------------------------------------------------------------------
-# SC_LOAD_TKCONFIG --
-#
-#	Load the tkConfig.sh file
-#
-# Arguments:
-#	
-#	Requires the following vars to be set:
-#		TK_BIN_DIR
-#
-# Results:
-#
-#	Sets the following vars that should be in tkConfig.sh:
-#		TK_BIN_DIR
-#------------------------------------------------------------------------
-
-AC_DEFUN(SC_LOAD_TKCONFIG, [
-    AC_MSG_CHECKING([for existence of $TK_BIN_DIR/tkConfig.sh])
-
-    if test -f "$TK_BIN_DIR/tkConfig.sh" ; then
-        AC_MSG_RESULT([loading])
-	. $TK_BIN_DIR/tkConfig.sh
-    else
-        AC_MSG_RESULT([could not find $TK_BIN_DIR/tkConfig.sh])
-    fi
-
-    AC_SUBST(TK_BIN_DIR)
-    AC_SUBST(TK_SRC_DIR)
-    AC_SUBST(TK_LIB_FILE)
-    AC_SUBST(TK_XINCLUDES)
-])
-
-#------------------------------------------------------------------------
 # SC_ENABLE_GCC --
 #
 #	Allows the use of GCC if available
@@ -333,6 +62,9 @@ AC_DEFUN(SC_ENABLE_GCC, [
 #
 #	Sets the following vars:
 #		SHARED_BUILD	Value of 1 or 0
+#
+#	Substs the following vars:
+#		TCL_SHARED_BUILD (backwards compatibility)
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_ENABLE_SHARED, [
@@ -391,7 +123,7 @@ AC_DEFUN(SC_ENABLE_THREADS, [
 	AC_DEFINE(_REENTRANT)
 
 	case "`uname -s`" in
-	    *win32* | *WIN32* | *CYGWIN_NT* | *CYGWIN_98* | *CYGWIN_95*)
+	    *win32* | *WIN32* | *CYGWIN_NT*)
 		    AC_MSG_RESULT(yes)
 		;;
 	    *)
@@ -444,7 +176,7 @@ AC_DEFUN(SC_ENABLE_THREADS, [
 
 AC_DEFUN(SC_ENABLE_SYMBOLS, [
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT* | *CYGWIN_98* | *CYGWIN_95*)
+	*win32* | *WIN32* | *CYGWIN_NT*)
 	    tcl_dbgx=d
 	;;
 	*)
@@ -662,7 +394,7 @@ AC_DEFUN(SC_CONFIG_CFLAGS, [
 	    LDFLAGS="-export-dynamic"
 	    LD_SEARCH_FLAGS=""
 	    ;;
-	*win32*|*WIN32*|CYGWIN_NT*|cygwin_nt*|*CYGWIN_98*|*CYGWIN_95*)
+	*win32*|*WIN32*|CYGWIN_NT*|cygwin_nt*)
 	    CFLAGS_DEBUG="-nologo -Z7 -Od -WX ${runtime}d"
 	    CFLAGS_OPTIMIZE="-nologo -Oti -Gs -GD ${runtime}"
 	    LDFLAGS_CONSOLE="-subsystem:console"
@@ -1780,19 +1512,19 @@ AC_DEFUN(SC_TCL_LINK_LIBS, [
 #	none
 #
 #	Requires:
+#		SHARED_BUILD
 #
 # Results:
 #
 #	Defines the following vars:
 #		MAKE_LIB	Makefile rule for building a library
 #		MAKE_SHARED_LIB	Makefile rule for building a shared library
-#		MAKE_UNSHARED_LIB	Makefile rule for building a static
-#				library
+#		MAKE_STATIC_LIB	Makefile rule for building a static library
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_MAKE_LIB, [
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	*win32* | *WIN32* | *CYGWIN_NT*)
 	    if test "${CC-cc}" = "cl"; then
 		MAKE_STATIC_LIB="\${STLIB_LD} -out:\[$]@ \$(\[$]@_OBJECTS) "
 		MAKE_SHARED_LIB="\${SHLIB_LD} \${SHLIB_LDFLAGS} \${SHLIB_LD_LIBS} \$(LDFLAGS) -out:\[$]@ \$(\[$]@_OBJECTS) "
@@ -1826,7 +1558,7 @@ AC_DEFUN(SC_MAKE_LIB, [
 #			numbers, extensions, or "lib" prefixes.
 #	extra_dir	Extra directory in which to search for the
 #			library.  This location is used first, then
-#			$prefix/$exec-prefix, then some defaults.
+#			$prefix, $exec_prefix, then some defaults.
 #
 # Requires:
 #	CYGPATH		command used to generate native style paths
@@ -1835,6 +1567,8 @@ AC_DEFUN(SC_MAKE_LIB, [
 #
 #	Defines the following vars:
 #		${basename}_LIB_NAME	The computed library name.
+#		${basename}_LIB_PATH	The directory containing the library
+#		${basename}_LIB_FLAG	The -l linker flag
 #		${basename}_LIB_SPEC	The computed linker flags.
 #------------------------------------------------------------------------
 
@@ -1865,10 +1599,10 @@ AC_DEFUN(SC_LIB_SPEC, [
 	    `ls -dr ${sc_extra_lib_dir}/lib$1[[0-9]]* 2>/dev/null ` \
 	    `ls -dr ${sc_lib_name_dir}/$1[[0-9]]*.lib 2>/dev/null ` \
 	    `ls -dr ${sc_lib_name_dir}/lib$1[[0-9]]* 2>/dev/null ` \
-	    `ls -dr /usr/lib/$1[[0-9]]*.lib 2>/dev/null ` \
-	    `ls -dr /usr/lib/lib$1[[0-9]]* 2>/dev/null ` \
 	    `ls -dr /usr/local/lib/$1[[0-9]]*.lib 2>/dev/null ` \
-	    `ls -dr /usr/local/lib/lib$1[[0-9]]* 2>/dev/null ` ; do
+	    `ls -dr /usr/local/lib/lib$1[[0-9]]* 2>/dev/null ` \
+	    `ls -dr /usr/lib/$1[[0-9]]*.lib 2>/dev/null ` \
+	    `ls -dr /usr/lib/lib$1[[0-9]]* 2>/dev/null ` ; do
 	if test -f "$i" ; then
 
 	    sc_lib_name_dir=`dirname $i`
@@ -1879,21 +1613,33 @@ AC_DEFUN(SC_LIB_SPEC, [
     done
 
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	*win32* | *WIN32* | *CYGWIN_NT*)
+	    $1_LIB_PATH=\"`${CYGPATH} ${sc_lib_name_dir}`\"
+	    $1_LIB_FLAG=\"`${CYGPATH} ${$1_LIB_PATH_NAME}`\"
 	    $1_LIB_SPEC=\"`${CYGPATH} ${$1_LIB_PATH_NAME}`\"
 	    ;;
 	*)
 	    # Strip off the leading "lib" and trailing ".a" or ".so"
 
 	    sc_lib_name_lib=`echo ${$1_LIB_NAME}|sed -e 's/^lib//' -e 's/\.[[^.]]*$//'`
+	    $1_LIB_PATH="${sc_lib_name_dir}"
+	    $1_LIB_FLAG="-l${sc_lib_name_lib}"
 	    $1_LIB_SPEC="-L${sc_lib_name_dir} -l${sc_lib_name_lib}"
 	    ;;
     esac
+
+    # TODO:  Add a sanity check here to test that we can link against
+    # the library
+
     if test "x$1_LIB_NAME" = x ; then
 	AC_MSG_ERROR(not found)
     else
 	AC_MSG_RESULT(${$1_LIB_SPEC})
     fi
+    AC_SUBST($1_LIB_PATH)
+    AC_SUBST($1_LIB_FLAG)
+    AC_SUBST($1_LIB_SPEC)
+    AC_SUBST($1_LIB_NAME)
 ])
 
 #------------------------------------------------------------------------
@@ -1904,7 +1650,8 @@ AC_DEFUN(SC_LIB_SPEC, [
 # Arguments:
 #
 #	Requires:
-#		TCL_SRC_DIR	Assumes that SC_LOAD_TCLCONFIG has
+#		CYGPATH		Include paths must have a native path type
+#		TCL_SRC_DIR	Assumes that SC_TCL_DIRS has
 #				 already been called.
 #
 # Results:
@@ -1924,8 +1671,12 @@ AC_DEFUN(SC_LIB_SPEC, [
 AC_DEFUN(SC_PRIVATE_TCL_HEADERS, [
     AC_MSG_CHECKING(for Tcl private include files)
 
+    if test ! -d "${TCL_SRC_DIR}" ; then
+	AC_MSG_ERROR(Could not find Tcl source directory ${TCL_SRC_DIR})
+    fi
+
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	*win32* | *WIN32* | *CYGWIN_NT*)
 	    TCL_TOP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/..`\"
 	    TCL_GENERIC_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../generic`\"
 	    TCL_UNIX_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../unix`\"
@@ -1957,7 +1708,7 @@ AC_DEFUN(SC_PRIVATE_TCL_HEADERS, [
 
     TCL_INCLUDES="-I${TCL_GENERIC_DIR_NATIVE} -I${TCL_PLATFORM_DIR_NATIVE}"
     AC_SUBST(TCL_INCLUDES)
-    AC_MSG_RESULT(Using srcdir found in tclConfig.sh)
+    AC_MSG_RESULT(Using headers in ${TCL_SRC_DIR})
 ])
 
 #------------------------------------------------------------------------
@@ -1983,7 +1734,7 @@ AC_DEFUN(SC_PRIVATE_TCL_HEADERS, [
 AC_DEFUN(SC_PUBLIC_TCL_HEADERS, [
     AC_MSG_CHECKING(for Tcl public headers)
 
-    AC_ARG_WITH(tclinclude, [ --with-tclinclude      directory containing the public Tcl header files.], with_tclinclude=${withval})
+    AC_ARG_WITH(tclinclude, [  --with-tclinclude       directory containing the public Tcl header files.], with_tclinclude=${withval})
 
     if test x"${with_tclinclude}" != x ; then
 	if test -f "${with_tclinclude}/tcl.h" ; then
@@ -2051,7 +1802,7 @@ AC_DEFUN(SC_PRIVATE_TK_HEADERS, [
     AC_MSG_CHECKING(for Tk private include files)
 
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	*win32* | *WIN32* | *CYGWIN_NT*)
 	    TK_UNIX_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../unix`\"
 	    TK_WIN_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../win`\"
 	    TK_GENERIC_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../generic`\"
@@ -2168,7 +1919,7 @@ AC_DEFUN(SC_SIMPLE_EXEEXT, [
     AC_MSG_CHECKING(executable extension based on host type)
 
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	*win32* | *WIN32* | *CYGWIN_NT*)
 	    EXEEXT=".exe"
 	;;
 	*)
@@ -2189,6 +1940,9 @@ AC_DEFUN(SC_SIMPLE_EXEEXT, [
 #		${TCL_BIN_DIR}/../bin
 #		${PATH}
 #
+# Requires
+#	TCL_BIN_DIR, if used, should already be set.
+#
 # Arguments
 #	none
 #
@@ -2201,7 +1955,7 @@ AC_DEFUN(SC_PROG_TCLSH, [
     AC_MSG_CHECKING([for tclsh])
 
     AC_CACHE_VAL(ac_cv_path_tclsh, [
-	search_path=`echo ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH} | sed -e 's/:/ /g'`
+	search_path=`echo ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:/usr/local/bin:/usr/bin:${PATH} | sed -e 's/:/ /g'`
 	for dir in $search_path ; do
 	    for j in `ls -r $dir/tclsh[[8-9]]*${EXEEXT} 2> /dev/null` \
 		    `ls -r $dir/tclsh*${EXEEXT} 2> /dev/null` ; do
@@ -2247,8 +2001,8 @@ AC_DEFUN(SC_PROG_WISH, [
     AC_CACHE_VAL(ac_cv_path_wish, [
 	search_path=`echo ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH} | sed -e 's/:/ /g'`
 	for dir in $search_path ; do
-	    for j in `ls -r $dir/wish[[8-9]]*${EXEEXT} 2> /dev/null` \
-		    `ls -r $dir/wish*${EXEEXT} 2> /dev/null` ; do
+	    for j in `ls -r $dir/wish[[8-9]]* 2> /dev/null` \
+		    `ls -r $dir/wish* 2> /dev/null` ; do
 		if test x"$ac_cv_path_wish" = x ; then
 		    if test -f "$j" ; then
 			ac_cv_path_wish=$j
@@ -2268,3 +2022,1065 @@ AC_DEFUN(SC_PROG_WISH, [
     AC_SUBST(WISH_PROG)
 ])
 
+#------------------------------------------------------------------------
+# SC_SET_COMPILER
+#	Determines which compiler to use on this system.
+#
+# Arguments
+#	none
+#
+# Results
+#	Adds the following arguments to configure:
+#		--enable-gcc
+#
+#	Subst's the following values:
+#		CC	(TCL_CC)
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_SET_COMPILER, [
+    AC_ARG_ENABLE(gcc, [  --enable-gcc            allow use of gcc if available [--disable-gcc]], [ok=$enableval], [ok=unspecified])
+
+    if test "$ok" = "unspecified" ; then
+	case "`uname -s`" in
+	    *win32* | *WIN32* | *CYGWIN_NT*)
+		CC=cl
+	    ;;
+	    *)
+		CC=gcc
+	    ;;
+	esac
+    elif test "$ok" = "no" ; then
+	case "`uname -s`" in
+	    *win32* | *WIN32* | *CYGWIN_NT*)
+		CC=cl
+	    ;;
+	    *)
+		CC=${CC-cc}
+	    ;;
+	esac
+    else
+	CC=gcc
+    fi
+    AC_PROG_CC
+])
+
+#------------------------------------------------------------------------
+# SC_COMPILER_INFO
+#	Determines the flags to use when compiling and linking on this
+#	system.  Also finds the linker to use with this compiler and various
+#	flags associated with the linker.
+#
+#	Must be called before SC_ENABLE_SYMBOLS
+#
+#	Deprecates SC_CONFIG_CFLAGS
+#
+# Arguments
+#	none
+#
+# Requires
+#	CC
+#
+# Results
+#	Subst's the following values:
+#		STLIB_LD
+#		SHLIB_LD
+#		DEFS			(TCL_DEFS)
+#		CFLAGS_DEBUG		(TCL_CFLAGS_DEBUG)
+#		CFLAGS_OPTIMIZE		(TCL_CFLAGS_OPTIMIZE)
+#		CFLAGS_WARNING		(TCL_CFLAGS_WARNING)
+#		EXTRA_CFLAGS		(TCL_EXTRA_CFLAGS)
+#		SHLIB_CFLAGS		(TCL_SHLIB_CFLAGS)
+#		LDFLAGS_DEBUG		(TCL_LDFLAGS_DEBUG)
+#		LDFLAGS_OPTIMIZE	(TCL_LDFLAGS_OPTIMIZE)
+#		LDFLAGS			(TCL_LD_FLAGS)
+#		LD_SEARCH_FLAGS		(TCL_LD_SEARCH_FLAGS)
+#		RANLIB			(TCL_RANLIB)
+#		DL_LIBS
+#		SHLIB_LD_LIBS
+#		BUILD_64BIT		(from SC_64BIT_BUILD)
+#		
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_COMPILER_INFO, [
+    SC_64BIT_BUILD
+
+    # Step 1: set the variable "system" to hold the name and version number
+    # for the system.  This can usually be done via the "uname" command, but
+    # there are a few systems, like Next, where this doesn't work.
+
+    AC_MSG_CHECKING([system version (for dynamic loading)])
+    if test -f /usr/lib/NextStep/software_version; then
+	system=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
+    else
+	system=`uname -s`-`uname -r`
+	if test "$?" -ne 0 ; then
+	    AC_MSG_RESULT([unknown (can't find uname command)])
+	    system=unknown
+	else
+	    # Special check for weird MP-RAS system (uname returns weird
+	    # results, and the version is kept in special file).
+	
+	    if test -r /etc/.relid -a "X`uname -n`" = "X`uname -s`" ; then
+		system=MP-RAS-`awk '{print $3}' /etc/.relid'`
+	    fi
+	    if test "`uname -s`" = "AIX" ; then
+		system=AIX-`uname -v`.`uname -r`
+	    fi
+	    AC_MSG_RESULT($system)
+	fi
+    fi
+
+    AC_MSG_CHECKING([if gcc is being used])
+    if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
+	using_gcc="yes"
+    else
+	using_gcc="no"
+    fi
+    AC_MSG_RESULT([$using_gcc ($CC)])
+
+    # Step 2: check for existence of -ldl library.  This is needed because
+    # Linux can use either -ldl or -ldld for dynamic loading.
+
+    AC_CHECK_LIB(dl, dlopen, have_dl=yes, have_dl=no)
+
+    # Step 3: set configuration options based on system name and version.
+
+    do64bit_ok=no
+    fullSrcDir=`cd $srcdir; pwd`
+    EXTRA_CFLAGS=""
+    TCL_EXPORT_FILE_SUFFIX=""
+    UNSHARED_LIB_SUFFIX=""
+    TCL_TRIM_DOTS='`echo ${VERSION} | tr -d .`'
+    ECHO_VERSION='`echo ${VERSION}`'
+    TCL_LIB_VERSIONS_OK=ok
+    CFLAGS_DEBUG=-g
+    CFLAGS_OPTIMIZE=-O
+    TCL_NEEDS_EXP_FILE=0
+    TCL_BUILD_EXP_FILE=""
+    TCL_EXP_FILE=""
+    STLIB_LD="ar cr"
+    case $system in
+	AIX-4.[[2-9]])
+	    if test "${TCL_THREADS}" = "1" -a "$using_gcc" = "no" ; then
+		# AIX requires the _r compiler when gcc isn't being used
+		if test "${CC}" != "cc_r" ; then
+		    CC=${CC}_r
+		fi
+		AC_MSG_RESULT(Using $CC for compiling with threads)
+	    fi
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD="$fullSrcDir/ldAix /bin/ld -bhalt:4 -bM:SRE -bE:lib.exp -H512 -T512 -bnoentry"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
+	    TCL_NEEDS_EXP_FILE=1
+	    TCL_EXPORT_FILE_SUFFIX='${VERSION}\$\{DBGX\}.exp'
+	    ;;
+	AIX-*)
+	    if test "${TCL_THREADS}" = "1" -a "$using_gcc" = "no" ; then
+		# AIX requires the _r compiler when gcc isn't being used
+		if test "${CC}" != "cc_r" ; then
+		    CC=${CC}_r
+		fi
+		AC_MSG_RESULT(Using $CC for compiling with threads)
+	    fi
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD="$fullSrcDir/ldAix /bin/ld -bhalt:4 -bM:SRE -bE:lib.exp -H512 -T512 -bnoentry"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    LIBOBJS="$LIBOBJS tclLoadAix.o"
+	    DL_LIBS="-lld"
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
+	    TCL_NEEDS_EXP_FILE=1
+	    TCL_EXPORT_FILE_SUFFIX='${VERSION}\$\{DBGX\}.exp'
+	    ;;
+	BSD/OS-2.1*|BSD/OS-3*)
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD="shlicc -r"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	BSD/OS-4.*)
+	    SHLIB_CFLAGS="-export-dynamic -fPIC"
+	    SHLIB_LD="cc -shared"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS="-export-dynamic"
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	dgux*)
+	    SHLIB_CFLAGS="-K PIC"
+	    SHLIB_LD="cc -G"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*|HP-UX-*.11.*)
+	    SHLIB_SUFFIX=".sl"
+	    AC_CHECK_LIB(dld, shl_load, tcl_ok=yes, tcl_ok=no)
+	    if test "$tcl_ok" = yes; then
+		SHLIB_CFLAGS="+z"
+		SHLIB_LD="ld -b"
+		SHLIB_LD_LIBS=""
+		DL_OBJS="tclLoadShl.o"
+		DL_LIBS="-ldld"
+		LDFLAGS="-Wl,-E"
+		LD_SEARCH_FLAGS='-Wl,+s,+b,${LIB_RUNTIME_DIR}:.'
+	    fi
+	    ;;
+	IRIX-4.*)
+	    SHLIB_CFLAGS="-G 0"
+	    SHLIB_SUFFIX=".a"
+	    SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | `pwd`/tclsh -r -G 0"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    DL_OBJS="tclLoadAout.o"
+	    DL_LIBS=""
+	    LDFLAGS="-Wl,-D,08000000"
+	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
+	    SHARED_LIB_SUFFIX='${VERSION}\$\{DBGX\}.a'
+	    ;;
+	IRIX-5.*|IRIX-6.*|IRIX64-6.5*)
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD="ld -n32 -shared -rdata_shared"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS=""
+	    LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
+	    if test "$using_gcc" = "yes" ; then
+		EXTRA_CFLAGS="-mabi=n32"
+		LDFLAGS="-mabi=n32"
+	    else
+		case $system in
+		    IRIX-6.3)
+			# Use to build 6.2 compatible binaries on 6.3.
+			EXTRA_CFLAGS="-n32 -D_OLD_TERMIOS"
+			;;
+		    *)
+			EXTRA_CFLAGS="-n32"
+			;;
+		esac
+		LDFLAGS="-n32"
+	    fi
+	    ;;
+	IRIX64-6.*)
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD="ld -32 -shared -rdata_shared"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS=""
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
+	    ;;
+	Linux*)
+	    SHLIB_CFLAGS="-fPIC"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+
+	    # egcs-2.91.66 on Redhat Linux 6.0 generates lots of warnings 
+	    # when you inline the string and math operations.  Turn this off to
+	    # get rid of the warnings.
+
+	    CFLAGS_OPTIMIZE="${CFLAGS_OPTIMIZE} -D__NO_STRING_INLINES -D__NO_MATH_INLINES"
+
+	    if test "$have_dl" = yes; then
+		SHLIB_LD="${CC} -shared"
+		DL_OBJS="tclLoadDl.o"
+		DL_LIBS="-ldl"
+		LDFLAGS="-rdynamic"
+		LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
+	    else
+		AC_CHECK_HEADER(dld.h, [
+		    SHLIB_LD="ld -shared"
+		    DL_OBJS="tclLoadDld.o"
+		    DL_LIBS="-ldld"
+		    LDFLAGS=""
+		    LD_SEARCH_FLAGS=""])
+	    fi
+	    if test "`uname -m`" = "alpha" ; then
+		EXTRA_CFLAGS="-mieee"
+	    fi
+	    ;;
+	MP-RAS-02*)
+	    SHLIB_CFLAGS="-K PIC"
+	    SHLIB_LD="cc -G"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	MP-RAS-*)
+	    SHLIB_CFLAGS="-K PIC"
+	    SHLIB_LD="cc -G"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS="-Wl,-Bexport"
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	NetBSD-*|FreeBSD-[[1-2]].*|OpenBSD-*)
+	    # Not available on all versions:  check for include file.
+	    AC_CHECK_HEADER(dlfcn.h, [
+		# NetBSD/SPARC needs -fPIC, -fpic will not do.
+		SHLIB_CFLAGS="-fPIC"
+		SHLIB_LD="ld -Bshareable -x"
+		SHLIB_LD_LIBS=""
+		SHLIB_SUFFIX=".so"
+		DL_OBJS="tclLoadDl.o"
+		DL_LIBS=""
+		LDFLAGS=""
+		LD_SEARCH_FLAGS=""
+		SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.so.1.0'
+		LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
+		AC_MSG_CHECKING(for ELF)
+		AC_EGREP_CPP(yes, [
+#ifdef __ELF__
+	yes
+#endif
+		],
+		    AC_MSG_RESULT(yes)
+		    SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.so',
+		    AC_MSG_RESULT(no)
+		    SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.so.1.0'
+		)
+	    ], [
+		SHLIB_CFLAGS=""
+		SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | `pwd`/tclsh -r"
+		SHLIB_LD_LIBS='${LIBS}'
+		SHLIB_SUFFIX=".a"
+		DL_OBJS="tclLoadAout.o"
+		DL_LIBS=""
+		LDFLAGS=""
+		LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
+		SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.a'
+	    ])
+
+	    # FreeBSD doesn't handle version numbers with dots.
+
+	    UNSHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.a'
+	    TCL_LIB_VERSIONS_OK=nodots
+	    ;;
+	FreeBSD-*)
+	    # FreeBSD 3.* and greater have ELF.
+	    SHLIB_CFLAGS="-fpic"
+	    SHLIB_LD="ld -Bshareable -x"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS=""
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	NEXTSTEP-*)
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD="cc -nostdlib -r"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadNext.o"
+	    DL_LIBS=""
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	OS/390-*)
+	    CFLAGS_OPTIMIZE=""      # Optimizer is buggy
+	    AC_DEFINE(_OE_SOCKETS)  # needed in sys/socket.h
+	    ;;      
+	OSF1-1.0|OSF1-1.1|OSF1-1.2)
+	    # OSF/1 1.[012] from OSF, and derivatives, including Paragon OSF/1
+	    SHLIB_CFLAGS=""
+	    # Hack: make package name same as library name
+	    SHLIB_LD='ld -R -export $@:'
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadOSF.o"
+	    DL_LIBS=""
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	OSF1-1.*)
+	    # OSF/1 1.3 from OSF using ELF, and derivatives, including AD2
+	    SHLIB_CFLAGS="-fpic"
+	    SHLIB_LD="ld -shared"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS=""
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	OSF1-V*)
+	    # Digital OSF/1
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD='ld -shared -expect_unresolved "*"'
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS=""
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
+	    # see pthread_intro(3) for pthread support on osf1, k.furukawa
+	    if test "${TCL_THREADS}" = "1" ; then
+		if test "$using_gcc" = "no" ; then
+		    EXTRA_CFLAGS="-std1 -pthread"
+		    LDFLAGS="-pthread"
+		else
+		    THREADS_LIBS=" -lpthread -lmach -lexc -lc"
+		fi
+	    fi
+	    ;;
+	RISCos-*)
+	    SHLIB_CFLAGS="-G 0"
+	    SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | `pwd`/tclsh -r -G 0"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".a"
+	    DL_OBJS="tclLoadAout.o"
+	    DL_LIBS=""
+	    LDFLAGS="-Wl,-D,08000000"
+	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
+	    ;;
+	SCO_SV-3.2*)
+	    # Note, dlopen is available only on SCO 3.2.5 and greater. However,
+	    # this test works, since "uname -s" was non-standard in 3.2.4 and
+	    # below.
+	    if test "$using_gcc" = "yes" ; then
+	    	SHLIB_CFLAGS="-fpic -melf"
+	    	LDFLAGS="-melf -Wl,-Bexport"
+	    else
+	    	SHLIB_CFLAGS="-Kpic -belf"
+	    	LDFLAGS="-belf -Wl,-Bexport"
+	    fi
+	    SHLIB_LD="ld -G"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	SINIX*5.4*)
+	    SHLIB_CFLAGS="-K PIC"
+	    SHLIB_LD="cc -G"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS=""
+	    ;;
+	SunOS-4*)
+	    SHLIB_CFLAGS="-PIC"
+	    SHLIB_LD="ld"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
+
+	    # SunOS can't handle version numbers with dots in them in library
+	    # specs, like -ltcl7.5, so use -ltcl75 instead.  Also, it
+	    # requires an extra version number at the end of .so file names.
+	    # So, the library has to have a name like libtcl75.so.1.0
+
+	    SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.so.1.0'
+	    UNSHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.a'
+	    TCL_LIB_VERSIONS_OK=nodots
+	    ;;
+	SunOS-5.[[0-6]]*)
+	    SHLIB_CFLAGS="-KPIC"
+	    SHLIB_LD="/usr/ccs/bin/ld -G -z text"
+
+	    # Note: need the LIBS below, otherwise Tk won't find Tcl's
+	    # symbols when dynamically loaded into tclsh.
+
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    LDFLAGS=""
+	    LD_SEARCH_FLAGS='-Wl,-R,${LIB_RUNTIME_DIR}'
+	    ;;
+	SunOS-5*)
+	    SHLIB_CFLAGS="-KPIC"
+	    SHLIB_LD="/usr/ccs/bin/ld -G -z text"
+	    LDFLAGS=""
+    
+	    do64bit_ok=no
+	    if test "$do64bit" = "yes" ; then
+		arch=`isainfo`
+		if test "$arch" = "sparcv9 sparc" ; then
+			if test "$using_gcc" = "no" ; then
+			    do64bit_ok=yes
+			    EXTRA_CFLAGS="-xarch=v9"
+			    LDFLAGS="-xarch=v9"
+			else 
+			    AC_MSG_WARN("64bit mode not supported with GCC on $system")
+			fi
+		else
+		    AC_MSG_WARN("64bit mode only supported sparcv9 system")
+		fi
+	    fi
+	    
+	    # Note: need the LIBS below, otherwise Tk won't find Tcl's
+	    # symbols when dynamically loaded into tclsh.
+
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    if test "$using_gcc" = "yes" ; then
+		LD_SEARCH_FLAGS='-Wl,-R,${LIB_RUNTIME_DIR}'
+	    else
+		LD_SEARCH_FLAGS='-R ${LIB_RUNTIME_DIR}'
+	    fi
+	    ;;
+	ULTRIX-4.*)
+	    SHLIB_CFLAGS="-G 0"
+	    SHLIB_SUFFIX=".a"
+	    SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | `pwd`/tclsh -r -G 0"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    DL_OBJS="tclLoadAout.o"
+	    DL_LIBS=""
+	    LDFLAGS="-Wl,-D,08000000"
+	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
+	    ;;
+	UNIX_SV* | UnixWare-5*)
+	    SHLIB_CFLAGS="-KPIC"
+	    SHLIB_LD="cc -G"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    # Some UNIX_SV* systems (unixware 1.1.2 for example) have linkers
+	    # that don't grok the -Bexport option.  Test that it does.
+	    hold_ldflags=$LDFLAGS
+	    AC_MSG_CHECKING(for ld accepts -Bexport flag)
+	    LDFLAGS="${LDFLAGS} -Wl,-Bexport"
+	    AC_TRY_LINK(, [int i;], found=yes, found=no)
+	    LDFLAGS=$hold_ldflags
+	    AC_MSG_RESULT($found)
+	    if test $found = yes; then
+	    LDFLAGS="-Wl,-Bexport"
+	    else
+	    LDFLAGS=""
+	    fi
+	    LD_SEARCH_FLAGS=""
+	    ;;
+    esac
+
+    if test "$do64bit" = "yes" -a "$do64bit_ok" = "no" ; then
+	AC_MSG_WARN("64bit support being disabled -- not supported on this platform")
+    fi
+
+    # If we're running gcc, then change the C flags for compiling shared
+    # libraries to the right flags for gcc, instead of those for the
+    # standard manufacturer compiler.
+
+    if test "$using_gcc" = "yes" ; then
+	case $system in
+	    AIX-*)
+		;;
+	    BSD/OS*)
+		;;
+	    IRIX*)
+		;;
+	    NetBSD-*|FreeBSD-*|OpenBSD-*)
+		;;
+	    RISCos-*)
+		;;
+	    SCO_SV-3.2*)
+		;;
+	    ULTRIX-4.*)
+		;;
+	    *)
+		SHLIB_CFLAGS="-fPIC"
+		;;
+	esac
+    fi
+
+    #--------------------------------------------------------------------
+    # On a few very rare systems, all of the libm.a stuff is
+    # already in libc.a.  Set compiler flags accordingly.
+    # Also, Linux requires the "ieee" library for math to work
+    # right (and it must appear before "-lm").
+    #--------------------------------------------------------------------
+
+    AC_CHECK_FUNC(sin, MATH_LIBS="", MATH_LIBS="-lm")
+    AC_CHECK_LIB(ieee, main, [MATH_LIBS="-lieee $MATH_LIBS"])
+
+    #--------------------------------------------------------------------
+    # On AIX systems, libbsd.a has to be linked in to support
+    # non-blocking file IO.  This library has to be linked in after
+    # the MATH_LIBS or it breaks the pow() function.  The way to
+    # insure proper sequencing, is to add it to the tail of MATH_LIBS.
+    # This library also supplies gettimeofday.
+    #--------------------------------------------------------------------
+
+    libbsd=no
+    if test "`uname -s`" = "AIX" ; then
+	AC_CHECK_LIB(bsd, gettimeofday, libbsd=yes)
+	if test $libbsd = yes; then
+	    MATH_LIBS="$MATH_LIBS -lbsd"
+	fi
+    fi
+
+    TCL_DEFS=${DEFS}
+    TCL_CFLAGS_DEBUG=${CFLAGS_DEBUG}
+    TCL_CFLAGS_OPTIMIZE=${CFLAGS_OPTIMIZE}
+    TCL_LDFLAGS_DEBUG=${LDFLAGS_DEBUG}
+    TCL_LDFLAGS_OPTIMIZE=${LDFLAGS_OPTIMIZE}
+    TCL_CFLAGS_WARNING=${CFLAGS_WARNING}
+    TCL_LDFLAGS=${LDFLAGS}
+    TCL_LD_SEARCH_FLAGS=${LD_SEARCH_FLAGS}
+    TCL_RANLIB=${RANLIB}
+
+    AC_SUBST(STLIB_LD)
+    AC_SUBST(SHLIB_LD)
+    AC_SUBST(SHARED_LIB_SUFFIX)
+    AC_SUBST(SHLIB_SUFFIX)
+    AC_SUBST(UNSHARED_LIB_SUFFIX)
+    AC_SUBST(DEFS)
+    AC_SUBST(CFLAGS_DEBUG)
+    AC_SUBST(CFLAGS_OPTIMIZE)
+    AC_SUBST(CFLAGS_WARNING)
+    AC_SUBST(EXTRA_CFLAGS)
+    AC_SUBST(SHLIB_CFLAGS)
+    AC_SUBST(SHLIB_LDFLAGS)
+    AC_SUBST(SHLIB_LD_LIBS)
+    AC_SUBST(LDFLAGS_DEBUG)
+    AC_SUBST(LDFLAGS_OPTIMIZE)
+    AC_SUBST(LDFLAGS)
+    AC_SUBST(LD_SEARCH_FLAGS)
+    AC_SUBST(RANLIB)
+
+    # These are kept for backwards compatibility with tclConfig.sh
+
+    AC_SUBST(TCL_DEFS)
+    AC_SUBST(TCL_CFLAGS_DEBUG)
+    AC_SUBST(TCL_CFLAGS_OPTIMIZE)
+    AC_SUBST(TCL_CFLAGS_WARNING)
+    AC_SUBST(TCL_EXTRA_CFLAGS)
+    AC_SUBST(TCL_LDFLAGS_DEBUG)
+    AC_SUBST(TCL_LDFLAGS_OPTIMIZE)
+    AC_SUBST(TCL_LD_FLAGS)
+    AC_SUBST(TCL_LD_SEARCH_FLAGS)
+    AC_SUBST(TCL_SHLIB_LD_LIBS)
+    AC_SUBST(TCL_RANLIB)
+
+    AC_SUBST(TCL_SHARED_LIB_SUFFIX)
+    AC_SUBST(TCL_UNSHARED_LIB_SUFFIX)
+
+    AC_SUBST(DL_LIBS)
+    AC_SUBST(MATH_LIBS)
+])
+
+#------------------------------------------------------------------------
+# SC_64BIT_BUILD
+#	Adds additional compile/link info for building on a 64-bit
+#	platform.
+#
+# Arguments
+#	none
+#
+# Results
+#	Adds the following arguments to configure:
+#		--enable-64bit
+#
+#	Subst's the following values:
+#		BUILD_64BIT
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_64BIT_BUILD, [
+    AC_MSG_CHECKING([if 64bit support is enabled])
+    AC_ARG_ENABLE(64bit,[  --enable-64bit          enable 64bit support],,enableval="no")
+
+    if test "$enableval" = "yes"; then
+	AC_MSG_RESULT(Will compile with 64bit support)
+	BUILD_64BIT=yes
+    else
+	BUILD_64BIT=no
+    fi
+    AC_MSG_RESULT(${BUILD_64BIT})
+])
+
+#------------------------------------------------------------------------
+# SC_LIB_OUTPUT
+#	Builds the name of the output library as the sum of a set
+#	of subcomponents.
+#
+# Arguments
+#	none
+#
+# Requires
+#	VERSION and PACKAGE are needed to form the output library name.
+#	DBGX from SC_ENABLE_SYMBOLS
+#	SHLIB_SUFFIX from SC_COMPILER_INFO
+#	SHARED_BUILD for setting RANLIB
+#	EXTRA_LD_LIBS, set by the extension author if they require extra
+#	libraries.
+#
+# Results
+#	Subst's the following values:
+#		NEEDS_EXP_FILE		(TCL_NEEDS_EXP_FILE)
+#		EXPORT_FILE_SUFFIX	(CFG_TCL_EXPORT_FILE_SUFFIX)
+#		SHLIB_SUFFIX		(TCL_SHLIB_SUFFIX)
+#		SHARED_LIB_SUFFIX	(TCL_SHARED_LIB_SUFFIX)
+#		UNSHARED_LIB_SUFFIX	(TCL_UNSHARED_LIB_SUFFIX)
+#			($VERSION + $SHLIB_SUFFIX)
+#		LIB_VERSIONS_OK ("ok" or "nodots")	(TCL_SHLIB_SUFFIX)
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_LIB_OUTPUT, [
+    # Default values for library suffixes, if they weren't set
+    # in the ginormous case statement above.
+
+    if test "$SHARED_LIB_SUFFIX" = "" ; then
+	SHARED_LIB_SUFFIX='${VERSION}\$\{DBGX\}${SHLIB_SUFFIX}'
+    fi
+    if test "$UNSHARED_LIB_SUFFIX" = "" ; then
+	UNSHARED_LIB_SUFFIX='${VERSION}\$\{DBGX\}.a'
+    fi
+
+    TCL_SHARED_LIB_SUFFIX=${SHARED_LIB_SUFFIX}
+    TCL_UNSHARED_LIB_SUFFIX=${UNSHARED_LIB_SUFFIX}
+    CFG_TCL_SHARED_LIB_SUFFIX=${SHARED_LIB_SUFFIX}
+    CFG_TCL_UNSHARED_LIB_SUFFIX=${UNSHARED_LIB_SUFFIX}
+
+    # Generate the library name that we are about to build.
+
+    case "`uname -s`" in
+	*win32* | *WIN32* | *CYGWIN_NT*)
+	    if test "${SHARED_BUILD}" = "1" ; then
+		SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS} ${EXTRA_LD_LIBS}"
+		eval "${PACKAGE}_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
+		RANLIB=:
+	    else
+		eval "${PACKAGE}_LIB_FILE=${PACKAGE}${UNSHARED_LIB_SUFFIX}"
+	    fi
+	    ;;
+	*)
+	    if test "${SHARED_BUILD}" = "1" ; then
+		SHLIB_LD_LIBS="${TCL_STUB_LIB_SPEC} ${EXTRA_LD_LIBS}"
+		eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
+		RANLIB=:
+	    else
+		eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${UNSHARED_LIB_SUFFIX}"
+	    fi
+	    ;;
+    esac
+
+    AC_SUBST(TCL_SHARED_LIB_SUFFIX)
+    AC_SUBST(TCL_UNSHARED_LIB_SUFFIX)
+
+    # These are for backwards compatibility with tclConfig.sh
+
+    AC_SUBST(CFG_TCL_SHARED_LIB_SUFFIX)
+    AC_SUBST(CFG_TCL_UNSHARED_LIB_SUFFIX)
+])
+
+#------------------------------------------------------------------------
+# SC_PREFIX
+#	Provide backwards compatibility for TCL_PREFIX and TCL_EXEC_PREFIX.
+#	Should not be used.  Results will probably be inaccurate.
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		TCL_PREFIX
+#		TCL_EXEC_PREFIX
+#------------------------------------------------------------------------
+
+#------------------------------------------------------------------------
+# SC_COMPAT_OBJS
+#	Additional object files linked with Tcl to provide compatibility
+#	with standard facilities from ANSI C or POSIX.  Should not be used
+#	by extensions.
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		TCL_COMPAT_OBJS
+#------------------------------------------------------------------------
+
+#------------------------------------------------------------------------
+# SC_TCL_SRC_DIR
+#	Locates the Tcl source tree.  Adds a new configure switches to allow
+#	the user to specify the location to override looking in some
+#	default locations.
+#
+#	Default locations:
+#		../tcl[7-9]*
+#		../tcl
+#		$prefix/tcl[7-9]*
+#		$prefix/src/tcl[7-9]*
+#		$exec_prefix/tcl[7-9]*
+#		$exec_prefix/src/tcl[7-9]*
+#		/usr/local/src/tcl[7-9]*
+#		/usr/local/tcl[7-9]*
+#		/usr/src/tcl[7-9]*
+#		/usr/tcl[7-9]*
+#		/opt/scriptics/TclPro[1-9]*/src/tcl[7-9]*
+#
+# Arguments
+#	none
+#
+# Results
+#	Adds the following configure switches:
+#		--with-tclsrc=
+#
+#	Subst's the following values:
+#		TCL_SRC_DIR
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_TCL_SRC_DIR, [
+    AC_ARG_WITH(tclsrc, [  --with-tclsrc           top-level directory containing the Tcl sources], tclsrcdir=${withval})
+
+    AC_MSG_CHECKING(for Tcl source directory)
+
+    if test x"${tclsrcdir}" = x ; then
+	# Look in some standard locations
+
+	for i in \
+		`ls -dr ${srcdir}/../tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr ${srcdir}/../tcl 2>/dev/null` \
+		`ls -dr ${prefix}/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr ${prefix}/src/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr ${exec_prefix}/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr ${exec_prefix}/src/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /usr/local/src/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /usr/local/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /usr/src/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /usr/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /opt/scriptics/TclPro[[1-9]]*/src/tcl[[7-9]]* 2>/dev/null` ; do
+	    if test -f "$i/generic/tcl.h" ; then
+		tclsrcdir=`(cd $i ; pwd)`
+		break
+	    fi
+	done
+    else
+	# Check if the specified directory is valid
+
+	if test ! -f "${tclsrcdir}/generic/tcl.h" ; then
+	    AC_MSG_WARN(Could not find generic/tcl.h in ${tclsrcdir})
+	fi
+    fi
+
+    # If we found a valid source directory, subst it and report the location,
+    # otherwise report that the location was not found.
+
+    TCL_SRC_DIR=${tclsrcdir}
+
+    if test x"${TCL_SRC_DIR}" != x ; then
+	AC_MSG_RESULT(${TCL_SRC_DIR})
+    else
+	AC_MSG_RESULT(not found)
+    fi
+    AC_SUBST(TCL_SRC_DIR)
+])
+
+#------------------------------------------------------------------------
+# SC_TCL_BUILD_DIR
+#	Locates the Tcl source tree.  Adds a new configure switches to allow
+#	the user to specify the location to override looking in some
+#	default locations.
+#
+#	Default locations:
+#		${TCL_SRC_DIR}
+#		../tcl[7-9]*
+#		/usr/local/src/tcl[7-9]*
+#		/usr/local/tcl[7-9]*
+#		/usr/src/tcl[7-9]*
+#		/usr/tcl[7-9]*
+#		$prefix/tcl[7-9]*
+#		$prefix/src/tcl[7-9]*
+#		$exec_prefix/tcl[7-9]*
+#		$exec_prefix/src/tcl[7-9]*
+#		/opt/scriptics/TclPro[1-9]*/src/tcl[7-9]*
+#
+# Arguments
+#	none
+#
+# Results
+#	Adds the following configure switches:
+#		--with-tclbuild=
+#
+#	Subst's the following values:
+#		TCL_BIN_DIR
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_TCL_BUILD_DIR, [
+    AC_ARG_WITH(tclbuild, [  --with-tclbuild           top-level directory containing the Tcl build], tclsrcdir=${withval})
+
+    AC_MSG_CHECKING(for Tcl build directory)
+
+    if test x"${tclbuilddir}" = x ; then
+	# Look in some standard locations
+
+	for i in \
+		`ls -dr ${srcdir}/../tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr ${srcdir}/../tcl 2>/dev/null` \
+		`ls -dr ${prefix}/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr ${prefix}/src/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr ${exec_prefix}/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr ${exec_prefix}/src/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /usr/local/src/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /usr/local/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /usr/src/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /usr/tcl[[7-9]]* 2>/dev/null` \
+		`ls -dr /opt/scriptics/TclPro[[1-9]]*/src/tcl[[7-9]]* 2>/dev/null` ; do
+	    if test -f "$i/generic/Makefile" ; then
+		tclbuilddir=`(cd $i ; pwd)`
+		break
+	    fi
+	done
+    else
+	# Check if the specified directory is valid
+
+	if test ! -f "${tclbuilddir}/Makefile" ; then
+	    AC_MSG_WARN(Could not find Makefile in ${tclbuilddir})
+	fi
+    fi
+
+    # If we found a valid source directory, subst it and report the location,
+    # otherwise report that the location was not found.
+
+    TCL_BUILD_DIR=${tclbuilddir}
+
+    if test x"${TCL_BUILD_DIR}" != x ; then
+	AC_MSG_RESULT(${TCL_BUILD_DIR})
+    else
+	AC_MSG_RESULT(not found)
+    fi
+    AC_SUBST(TCL_BUILD_DIR)
+])
+
+#------------------------------------------------------------------------
+# SC_TCL_LIB_SPEC
+#	Locate the Tcl library and generate the necessary linker flags
+#	for using the library.
+#
+#	Must be called after SC_TCL_DIRS
+#
+# Arguments
+#	none
+#
+# Requires
+#	TCL_BUILD_DIR
+#
+# Results
+#	Subst's the following values:
+#		TCL_LIB_FLAG
+#		TCL_LIB_FILE
+#		TCL_LIB_SPEC
+#		TCL_BUILD_LIB_FLAG
+#		TCL_BUILD_LIB_FILE
+#		TCL_BUILD_LIB_SPEC
+#		TCL_STUB_LIB_FLAG
+#		TCL_STUB_LIB_FILE
+#		TCL_STUB_LIB_SPEC
+#		TCL_BUILD_STUB_LIB_FLAG
+#		TCL_BUILD_STUB_LIB_FILE
+#		TCL_BUILD_STUB_LIB_SPEC
+#		TCL_STUB_LIB_PATH	(backwards compatible)
+#		TCL_BUILD_STUB_LIB_PATH	(backwards compatible)
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_TCL_LIB_SPEC, [
+    # First look up the tcl stub library in the build directory
+
+    if test "x${TCL_BIN_DIR}" != "x" ; then
+	SC_LIB_SPEC(tclstub, ${TCL_BUILD_DIR})
+	TCL_BUILD_STUB_LIB_FILE=${tclstub_LIB_NAME}
+	TCL_BUILD_STUB_LIB_PATH=${tclstub_LIB_PATH}
+	TCL_BUILD_STUB_LIB_FLAG=${tclstub_LIB_FLAG}
+	TCL_BUILD_STUB_LIB_SPEC=${tclstub_LIB_SPEC}
+    fi
+
+    # Now look up the real tcl library in the build directory
+
+    if test "x${TCL_BIN_DIR}" != "x" ; then
+	SC_LIB_SPEC(tcl, ${TCL_BIN_DIR})
+	TCL_BUILD_LIB_FILE=${tcl_LIB_NAME}
+	TCL_BUILD_LIB_PATH=${tcl_LIB_PATH}
+	TCL_BUILD_LIB_FLAG=${tcl_LIB_FLAG}
+	TCL_BUILD_LIB_SPEC=${tcl_LIB_SPEC}
+    fi
+
+    # Now look for the installed Tcl stub library
+
+    SC_LIB_SPEC(tclstub)
+    TCL_STUB_LIB_FILE=${tclstub_LIB_NAME}
+    TCL_STUB_LIB_PATH=${tclstub_LIB_PATH}
+    TCL_STUB_LIB_FLAG=${tclstub_LIB_FLAG}
+    TCL_STUB_LIB_SPEC=${tclstub_LIB_SPEC}
+
+    SC_LIB_SPEC(tcl)
+    TCL_LIB_FILE=${tcl_LIB_NAME}
+    TCL_LIB_PATH=${tcl_LIB_PATH}
+    TCL_LIB_FLAG=${tcl_LIB_FLAG}
+    TCL_LIB_SPEC=${tcl_LIB_SPEC}
+
+    AC_SUBST(TCL_BUILD_LIB_FILE)
+    AC_SUBST(TCL_BUILD_LIB_PATH)
+    AC_SUBST(TCL_BUILD_LIB_FLAG)
+    AC_SUBST(TCL_BUILD_LIB_SPEC)
+    AC_SUBST(TCL_BUILD_STUB_LIB_FILE)
+    AC_SUBST(TCL_BUILD_STUB_LIB_PATH)
+    AC_SUBST(TCL_BUILD_STUB_LIB_FLAG)
+    AC_SUBST(TCL_BUILD_STUB_LIB_SPEC)
+    AC_SUBST(TCL_LIB_FILE)
+    AC_SUBST(TCL_LIB_PATH)
+    AC_SUBST(TCL_LIB_FLAG)
+    AC_SUBST(TCL_LIB_SPEC)
+    AC_SUBST(TCL_STUB_LIB_FILE)
+    AC_SUBST(TCL_STUB_LIB_PATH)
+    AC_SUBST(TCL_STUB_LIB_FLAG)
+    AC_SUBST(TCL_STUB_LIB_SPEC)
+])
+
+#------------------------------------------------------------------------
+# SC_SET_CYGPATH
+#	Set the program for translating unix paths to native paths.	
+#	On unix this is "echo".  On Windows it is "cygpath -w".
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		CYGPATH
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_SET_CYGPATH, [
+    case "`uname -s`" in
+	*win32* | *WIN32* | *CYGWIN_NT*)
+	    CYGPATH="cygpath -w"
+	;;
+	*)
+	    CYGPATH=echo
+	;;
+    esac
+
+    AC_SUBST(CYGPATH)
+])

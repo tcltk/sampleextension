@@ -36,10 +36,6 @@ configure	Generated file.  Do not edit.  This must be regenerated
 configure.in	Configure script template.  Autoconf uses this file as input
 		to produce the final configure script.
 
-mkIndex.tcl.in	Script template used for generating an installed pkgIndex.tcl
-		file.  The configure script uses this as input to produce the
-		actual mkIndex.tcl script.
-
 sample.c	Core Secure Hash Algorithm code.
 
 sample.h	Header file for functions in the C files.
@@ -57,8 +53,24 @@ tclconfig/	This directory contains various template files that build
 	install-sh	Program used for copying binaries and script files
 			to their install locations.
 
-	mkinstalldirs	Program used to create a directory hierarchy
-			(because mkdir -p is not portable)
-
 	tcl.m4		Collection of Tcl autoconf macros.  Included by
 			aclocal.m4 to define SC_* macros.
+
+INSTALLATION
+============
+
+The installation of a TEA package is structure like so:
+
+         $exec_prefix
+          /       \
+        lib       bin
+         |         |
+   PACKAGEx.y   (dependent .dll files on Windows)
+         |
+  pkgIndex.tcl (.so|.dll files)
+
+The main .so|.dll library file gets installed in the versioned PACKAGE
+directory, which is OK on all platforms because it will be directly
+referenced with by 'load' in the pkgIndex.tcl file.  Dependent DLL files on
+Windows must go in the bin directory (or other directory on the user's
+PATH) in order for them to be found.

@@ -22,6 +22,7 @@ putfile makefiles.txt
 putfile writingtests.txt
 putfile writingdocs.txt
 putfile app_makefiles.txt
+putfile app_config_options.txt
 
 puts $outfile {[manpage_end]}
 close $outfile

@@ -1846,7 +1846,7 @@ AC_DEFUN(SC_LIB_SPEC, [
     # fail (NONE/lib)
 
     if test x"${exec_prefix}" != x"NONE" ; then
-	sc_lib_name_dir="${exec_prefix}"
+	sc_lib_name_dir="${exec_prefix}/lib"
     elif test x"${prefix}" != "NONE" ; then
 	sc_lib_name_dir="${prefix}/lib"
     else

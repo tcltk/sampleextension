@@ -19,10 +19,6 @@
 
 #define TCL_READ_CHUNK_SIZE 4096
 
-/*
- * as itoa64 but with filename-safe charset
- */
-
 static unsigned char itoa64f[] =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,";
 
@@ -43,7 +39,7 @@ static int Sha1 _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
  *	 Implements the new Tcl "sha1" command.
  *
  * Results:
- *	
+ *	A standard Tcl result
  *
  * Side effects:
  *	None.
@@ -161,23 +157,24 @@ Sha1(clientData, interp, argc, argv)
 
     if (descriptor != NULL) {
 	if ((sscanf(descriptor, "sha1%d", &contextnum) != 1) ||
-	    (contextnum >= numcontexts) || (ctxtotalRead[contextnum] < 0)) {
+		(contextnum >= numcontexts) || (ctxtotalRead[contextnum] < 0)) {
 	    Tcl_AppendResult(interp, "invalid sha1 descriptor \"", 
 		    descriptor, "\"", (char *) NULL);
 	    return TCL_ERROR;
 	}
     }
 
-    if (doinit)
+    if (doinit) {
 	SHA1Init(&sha1Context);
+    }
     
     if (string != NULL) {
-	if (chan != (Tcl_Channel) NULL) 
+	if (chan != (Tcl_Channel) NULL) {
 	    goto wrongArgs;
+	}
 	totalRead = strlen(string);
 	SHA1Update(&sha1Context, (unsigned char *) string, totalRead);
-    }
-    else if (chan != (Tcl_Channel) NULL) {
+    } else if (chan != (Tcl_Channel) NULL) {
 	bufPtr = ckalloc((unsigned) TCL_READ_CHUNK_SIZE);
 	totalRead = 0;
 	while ((n = Tcl_Read(chan, bufPtr,
@@ -295,7 +292,7 @@ wrongArgs:
 	    (char *) NULL);
     return TCL_ERROR;
 }
-
+
 /*
  *----------------------------------------------------------------------
  *
@@ -306,9 +303,10 @@ wrongArgs:
  *	configure.in.
  *
  * Results:
- *	The Tclsha1 package is created.
+ *	A standard Tcl result
  *
  * Side effects:
+ *	The Tclsha1 package is created.
  *	One new command "sha1" is added to the Tcl interpreter.
  *
  *----------------------------------------------------------------------

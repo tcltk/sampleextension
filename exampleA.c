@@ -34,19 +34,19 @@
 #include <string.h>
 #include "exampleA.h"
 
-#define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
+#define Rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 
 /*
- * blk0() and blk() perform the initial expand.
+ * Blk0() and Blk() perform the initial expand.
  * I got the idea of expanding during the round function from SSLeay
  */
 
 #ifdef LITTLE_ENDIAN
-#define blk0(i) (block->l[i] = (rol(block->l[i],24)&0xFF00FF00) \
-    |(rol(block->l[i],8)&0x00FF00FF))
+#define Blk0(i) (block->l[i] = (Rol(block->l[i],24)&0xFF00FF00) \
+    |(Rol(block->l[i],8)&0x00FF00FF))
 #else
 #ifdef BIG_ENDIAN
-#define blk0(i) block->l[i]
+#define Blk0(i) block->l[i]
 #else
 
 /*
@@ -55,22 +55,22 @@
  * added by Dave Dykstra, 4/16/97
  */
 
-#define blk0(i) (block->l[i] = (*(p = (unsigned char *) (&block->l[i])) << 24) \
+#define Blk0(i) (block->l[i] = (*(p = (unsigned char *) (&block->l[i])) << 24) \
 		+ (*(p+1) << 16) + (*(p+2) << 8) + *(p+3))
 #endif
 #endif
-#define blk(i) (block->l[i&15] = rol(block->l[(i+13)&15]^block->l[(i+8)&15] \
+#define Blk(i) (block->l[i&15] = Rol(block->l[(i+13)&15]^block->l[(i+8)&15] \
     ^block->l[(i+2)&15]^block->l[i&15],1))
 
 /*
  * (R0+R1), R2, R3, R4 are the different operations used in SHA1
  */
 
-#define R0(v,w,x,y,z,i) z+=((w&(x^y))^y)+blk0(i)+0x5A827999+rol(v,5);w=rol(w,30);
-#define R1(v,w,x,y,z,i) z+=((w&(x^y))^y)+blk(i)+0x5A827999+rol(v,5);w=rol(w,30);
-#define R2(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0x6ED9EBA1+rol(v,5);w=rol(w,30);
-#define R3(v,w,x,y,z,i) z+=(((w|x)&y)|(w&x))+blk(i)+0x8F1BBCDC+rol(v,5);w=rol(w,30);
-#define R4(v,w,x,y,z,i) z+=(w^x^y)+blk(i)+0xCA62C1D6+rol(v,5);w=rol(w,30);
+#define R0(v,w,x,y,z,i) z+=((w&(x^y))^y)+Blk0(i)+0x5A827999+Rol(v,5);w=Rol(w,30);
+#define R1(v,w,x,y,z,i) z+=((w&(x^y))^y)+Blk(i)+0x5A827999+Rol(v,5);w=Rol(w,30);
+#define R2(v,w,x,y,z,i) z+=(w^x^y)+Blk(i)+0x6ED9EBA1+Rol(v,5);w=Rol(w,30);
+#define R3(v,w,x,y,z,i) z+=(((w|x)&y)|(w&x))+Blk(i)+0x8F1BBCDC+Rol(v,5);w=Rol(w,30);
+#define R4(v,w,x,y,z,i) z+=(w^x^y)+Blk(i)+0xCA62C1D6+Rol(v,5);w=Rol(w,30);
 
 /*
  *----------------------------------------------------------------------
@@ -80,18 +80,18 @@
  *	Hash a single 512-bit block. This is the core of the algorithm.
  *
  * Results:
- *	Contents of context poineter are changed.
+ *	None.
  *
  * Side effects:
- *	None.
+ *	Contents of state pointer are changed.
  *
  *----------------------------------------------------------------------
  */
 
 void
 SHA1Transform(state, buffer)
-    unsigned long state[5];
-    unsigned char buffer[64];
+    unsigned long state[5];	/* State variable */
+    unsigned char buffer[64];	/* Modified buffer */
 {
 #if (!defined(BIG_ENDIAN) && !defined(LITTLE_ENDIAN))
     unsigned char *p;
@@ -160,6 +160,8 @@ SHA1Transform(state, buffer)
      */
 
     a = b = c = d = e = 0;
+
+    return;
 }
 
 /*
@@ -170,10 +172,10 @@ SHA1Transform(state, buffer)
  *	 Initialize new context
  *
  * Results:
- *	Contents of context poineter are changed.
+ *	None.
  *
  * Side effects:
- *	None.
+ *	Contents of context pointer are changed.
  *
  *----------------------------------------------------------------------
  */
@@ -191,6 +193,8 @@ void SHA1Init(context)
     context->state[3] = 0x10325476;
     context->state[4] = 0xC3D2E1F0;
     context->count[0] = context->count[1] = 0;
+
+    return;
 }
 
 /*
@@ -201,10 +205,10 @@ void SHA1Init(context)
  *	 Updates a context.
  *
  * Results:
- *	Unknown.
+ *	None.
  *
  * Side effects:
- *	Unknown.
+ *	Contents of context pointer are changed.
  *
  *----------------------------------------------------------------------
  */
@@ -244,6 +248,8 @@ SHA1Update(context, data, len)
     }
 
     memcpy(&context->buffer[j], &data[i], len - i);
+
+    return;
 }
 
 /*
@@ -254,10 +260,10 @@ SHA1Update(context, data, len)
  *	Add padding and return the message digest.
  *
  * Results:
- *	Unknown.
+ *	None.
  *
  * Side effects:
- *	Unknown.
+ *	Contents of context pointer are changed.
  *
  *----------------------------------------------------------------------
  */
@@ -303,10 +309,12 @@ void SHA1Final(context, digest)
     memset(&finalcount, 0, 8);
 
     /*
-     * make SHA1Transform overwrite it's own static vars
+     * Make SHA1Transform overwrite it's own static vars.
      */
 
 #ifdef SHA1HANDSOFF
     SHA1Transform(context->state, context->buffer);
 #endif
+
+    return;
 }

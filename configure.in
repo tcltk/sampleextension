@@ -267,7 +267,8 @@ fi
 AC_SUBST(TCLSH_PROG)
 
 #--------------------------------------------------------------------
-# Some of our tool routines need native paths for these
+# Some of our tool routines need native paths for these, in particular
+# the mkIndex.tcl script for generating pkgIndex.tcl upon installing.
 #--------------------------------------------------------------------
 
 exec_prefix_NATIVE=`${CYGPATH} ${exec_prefix}`

@@ -8,8 +8,6 @@
  *
  */
 
-/* definitions extracted from sha1.c by Dave Dykstra, 4/22/97 */
-
 #include <tcl.h>
 
 /*
@@ -37,4 +35,4 @@ void SHA1Final	_ANSI_ARGS_((SHA1_CTX* context, unsigned char digest[20]));
  * Only the _Init function is exported.
  */
 
-EXTERN int	Tclsha_Init _ANSI_ARGS_((Tcl_Interp * interp));
+EXTERN int	Examplea_Init _ANSI_ARGS_((Tcl_Interp * interp));

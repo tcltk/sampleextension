@@ -102,6 +102,8 @@ case "`uname -s`" in
 	TCL_WIN_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../win`\"
 	TCL_BMAP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../bitmaps`\"
 	TCL_TOOL_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../tools`\"
+	eval "INCLUDE_DIR=${includedir}"
+	INCLUDE_DIR_NATIVE=\"`${CYGPATH} ${INCLUDE_DIR}`\"
     ;;
     *)
 	CYGPATH=echo
@@ -111,6 +113,7 @@ case "`uname -s`" in
 	TCL_WIN_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/win'
 	TCL_BMAP_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/bitmaps'
 	TCL_TOOL_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/tools'
+	INCLUDE_DIR_NATIVE="${includedir}"
     ;;
 esac
 
@@ -140,6 +143,7 @@ AC_SUBST(TCL_BMAP_DIR_NATIVE)
 AC_SUBST(TCL_TOOL_DIR_NATIVE)
 AC_SUBST(TCL_PLATFORM_DIR_NATIVE)
 AC_SUBST(TCL_BIN_DIR_NATIVE)
+AC_SUBST(INCLUDE_DIR_NATIVE)
 AC_SUBST(CYGPATH)
 
 #--------------------------------------------------------------------

@@ -1832,3 +1832,109 @@ AC_DEFUN(SC_LIB_NAME, [
 	AC_MSG_RESULT($1_LIB_NAME)
     fi
 ])
+
+#------------------------------------------------------------------------
+# SC_PRIVATE_TCL_INCLUDE --
+#
+#	Locate the private Tcl include files
+#
+# Arguments:
+#
+#	Requires:
+#		TCL_SRC_DIR	Assumes that SC_LOAD_TCLCONFIG has
+#				 already been called.
+#
+# Results:
+#
+#	Substs the following vars:
+#		TCL_TOP_DIR_NATIVE
+#		TCL_GENERIC_DIR_NATIVE
+#		TCL_UNIX_DIR_NATIVE
+#		TCL_WIN_DIR_NATIVE
+#		TCL_BMAP_DIR_NATIVE
+#		TCL_TOOL_DIR_NATIVE
+#		TCL_PLATFORM_DIR_NATIVE
+#		TCL_BIN_DIR_NATIVE
+#		TCL_INCLUDES
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_PRIVATE_TCL_HEADERS, [
+    AC_MSG_CHECKING(for Tcl private include files)
+
+    case "`uname -s`" in
+	*win32* | *WIN32* | *CYGWIN_NT*)
+	    TCL_TOP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/..`\"
+	    TCL_GENERIC_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../generic`\"
+	    TCL_UNIX_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../unix`\"
+	    TCL_WIN_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../win`\"
+	    TCL_BMAP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../bitmaps`\"
+	    TCL_TOOL_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../tools`\"
+	    TCL_COMPAT_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../compat`\"
+	    TCL_PLATFORM_DIR_NATIVE=${TCL_WIN_DIR_NATIVE}
+	;;
+	*)
+	    TCL_TOP_DIR_NATIVE=${TCL_SRC_DIR}
+	    TCL_GENERIC_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/generic'
+	    TCL_UNIX_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/unix'
+	    TCL_WIN_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/win'
+	    TCL_BMAP_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/bitmaps'
+	    TCL_TOOL_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/tools'
+	    TCL_COMPAT_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/compat'
+	    TCL_PLATFORM_DIR_NATIVE=${TCL_UNIX_DIR_NATIVE}
+	;;
+    esac
+
+    AC_SUBST(TCL_TOP_DIR_NATIVE)
+    AC_SUBST(TCL_GENERIC_DIR_NATIVE)
+    AC_SUBST(TCL_UNIX_DIR_NATIVE)
+    AC_SUBST(TCL_WIN_DIR_NATIVE)
+    AC_SUBST(TCL_BMAP_DIR_NATIVE)
+    AC_SUBST(TCL_TOOL_DIR_NATIVE)
+    AC_SUBST(TCL_PLATFORM_DIR_NATIVE)
+
+    TCL_INCLUDES="-I${TCL_GENERIC_DIR_NATIVE} -I${TCL_PLATFORM_DIR_NATIVE}"
+    AC_SUBST(TCL_INCLUDES)
+    AC_MSG_RESULT(Using srcdir found in tclConfig.sh)
+])
+
+#------------------------------------------------------------------------
+# SC_PUBLIC_TCL_HEADERS --
+#
+#	Locate the public Tcl include files
+#
+# Arguments:
+#
+#	Requires:
+#
+# Results:
+#
+#	Substs the following vars:
+#		TCL_INCLUDES
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_PUBLIC_TCL_HEADERS, [
+    eval "INCLUDE_DIR=${includedir}"
+
+    AC_MSG_CHECKING(for public tcl include files in ${INCLUDE_DIR})
+
+    case "`uname -s`" in
+	*win32* | *WIN32* | *CYGWIN_NT*)
+	    CYGPATH="cygpath -w"
+	    INCLUDE_DIR_NATIVE=\"`${CYGPATH} ${INCLUDE_DIR}`\"
+	;;
+	*)
+	    CYGPATH=echo
+	    INCLUDE_DIR_NATIVE="${includedir}"
+	;;
+    esac
+
+    if test -f "${INCLUDE_DIR}/tcl.h" ; then
+	AC_MSG_RESULT(found)
+    else
+	AC_MSG_ERROR(not found)
+    fi
+
+    TCL_INCLUDES=-I${INCLUDE_DIR_NATIVE}
+
+    AC_SUBST(TCL_INCLUDES)
+])

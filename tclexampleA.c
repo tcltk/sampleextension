@@ -1,5 +1,5 @@
 /*
- * tclsha1.c --
+ * tclexampleA.c --
  *
  *	This file implements a Tcl interface to the secure hashing
  *	algorithm functions in sha1.c
@@ -13,7 +13,7 @@
 #include <tcl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "sha1.h"
+#include "exampleA.h"
 
 #define TCL_READ_CHUNK_SIZE 4096
 
@@ -24,17 +24,20 @@ static int numcontexts = 0;
 static SHA1_CTX *sha1Contexts = NULL;
 static int *ctxtotalRead = NULL;
 
+static int Sha1 _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
+		int argc, char *argv[]));
+
 #define DIGESTSIZE 20
 
 /*
  *----------------------------------------------------------------------
  *
- * SHA1Init --
+ * Sha1 --
  *
  *	 Implements the new Tcl "sha1" command.
  *
  * Results:
- *	Contents of context poineter are changed.
+ *	
  *
  * Side effects:
  *	None.
@@ -261,9 +264,11 @@ wrongArgs:
 /*
  *----------------------------------------------------------------------
  *
- * Tclsha_Init --
+ * Examplea_Init --
  *
- *	 Initialize the new package.
+ *	Initialize the new package.  The string "Examplea" in the
+ *	function name must match the PACKAGE declaration at the top of
+ *	configure.in.
  *
  * Results:
  *	The Tclsha1 package is created.
@@ -275,7 +280,7 @@ wrongArgs:
  */
 
 int
-Tclsha_Init(Tcl_Interp *interp)
+Examplea_Init(Tcl_Interp *interp)
 {
     if (Tcl_InitStubs(interp, "8.0", 0) == NULL) {
 	return TCL_ERROR;
@@ -290,7 +295,7 @@ Tclsha_Init(Tcl_Interp *interp)
     if (Tcl_PkgProvide(interp, "Tclsha1", VERSION) != TCL_OK) {
 	return TCL_ERROR;
     }
-    Tcl_CreateCommand (interp, "sha1", Sha1,
+    Tcl_CreateCommand(interp, "sha1", Sha1,
 	    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
     numcontexts = 1;

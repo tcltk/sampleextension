@@ -5,19 +5,19 @@
 # "autoconf" program (constructs like "@foo@" will get replaced in the actual
 # Makefile.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.12 1999/08/19 20:52:41 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.13 1999/08/20 21:47:01 wart Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
 #========================================================================
 
 #========================================================================
-# Change the name of the variable "TCLSHA_LIB_FILE" to match the one
+# Change the name of the variable "exampleA_LIB_FILE" to match the one
 # used in the configure script.  This is the parameterized name of the
 # library that we are building.
 #========================================================================
 
-lib_BINARIES=$(TCLSHA_LIB_FILE)
+lib_BINARIES=$(exampleA_LIB_FILE)
 BINARIES=$(lib_BINARIES)
 
 #========================================================================
@@ -25,8 +25,8 @@ BINARIES=$(lib_BINARIES)
 # This will be used when a dist target is added to the Makefile.
 #========================================================================
 
-tclsha_SOURCES = sha1.c tclsha1.c
-SOURCES = $(tclsha_SOURCES)
+exampleA_SOURCES = exampleA.c tclexampleA.c
+SOURCES = $(exampleA_SOURCES)
 
 #========================================================================
 # Enumerate the names of the object files included in this package.
@@ -35,17 +35,17 @@ SOURCES = $(tclsha_SOURCES)
 # above.
 #========================================================================
 
-tclsha_OBJECTS =  sha1.$(OBJEXT) tclsha1.$(OBJEXT)
-TCLSHA_LIB_FILE = @TCLSHA_LIB_FILE@
-$(TCLSHA_LIB_FILE)_OBJECTS = $(tclsha_OBJECTS)
-OBJECTS = $(tclsha_OBJECTS)
+exampleA_OBJECTS =  exampleA.$(OBJEXT) tclexampleA.$(OBJEXT)
+exampleA_LIB_FILE = @exampleA_LIB_FILE@
+$(exampleA_LIB_FILE)_OBJECTS = $(exampleA_OBJECTS)
+OBJECTS = $(exampleA_OBJECTS)
 
 #========================================================================
 # This is a list of header files to be installed
 #========================================================================
 
 GENERIC_HDRS= \
-	$(srcdir)/sha1.h
+	$(srcdir)/exampleA.h
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -150,7 +150,7 @@ LDFLAGS = $(LDFLAGS_DEFAULT)
 # Change the following if you require the Tcl private includes.
 # 
 
-INCLUDES = -I$(INCLUDE_DIR_NATIVE)
+INCLUDES = @TCL_INCLUDES@
 #INCLUDES = -I$(INCLUDE_DIR_NATIVE) -I$(TCL_PLATFORM_DIR_NATIVE) -I$(TCL_GENERIC_DIR_NATIVE) -I$(TCL_BMAP_DIR_NATIVE)
 
 EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS)
@@ -191,8 +191,8 @@ doc:
 	@echo "If you have documentation to create, place the commands to"
 	@echo "build the docs in the 'doc:' target.  For example:"
 	@echo ""
-	@echo "xml2nroff sha1.xml > sha1.n"
-	@echo "xml2html sha1.xml > sha1.html"
+	@echo "xml2nroff exampleA.xml > exampleA.n"
+	@echo "xml2html exampleA.xml > exampleA.html"
 
 install: all install-binaries install-libraries install-doc
 
@@ -289,21 +289,21 @@ distclean: clean
 # above.
 #========================================================================
 
-$(TCLSHA_LIB_FILE): $(tclsha_OBJECTS)
-	-rm -f $(TCLSHA_LIB_FILE)
+$(exampleA_LIB_FILE): $(exampleA_OBJECTS)
+	-rm -f $(exampleA_LIB_FILE)
 	@MAKE_LIB@
-	$(RANLIB) $(TCLSHA_LIB_FILE)
+	$(RANLIB) $(exampleA_LIB_FILE)
 
 # We need to enumerate the list of .c to .o lines here.
 # Unfortunately, there does not seem to be any other way to do this
 # in a Makefile-independent way.  We can't use VPATH because it picks up
 # object files that may be located in the source directory.
 
-sha1.$(OBJEXT): $(srcdir)/sha1.c
-	$(COMPILE) -c `@CYGPATH@ $(srcdir)/sha1.c` -o $@
+exampleA.$(OBJEXT): $(srcdir)/exampleA.c
+	$(COMPILE) -c `@CYGPATH@ $(srcdir)/exampleA.c` -o $@
 
-tclsha1.$(OBJEXT): $(srcdir)/tclsha1.c
-	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclsha1.c` -o $@
+tclexampleA.$(OBJEXT): $(srcdir)/tclexampleA.c
+	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclexampleA.c` -o $@
 
 
 #========================================================================

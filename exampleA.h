@@ -1,5 +1,5 @@
 /*
- * sha1.h --
+ * exampleA.h --
  *
  *	This header file contains the function declarations needed for
  *	all of the source files in this package.
@@ -17,7 +17,7 @@
  * BUILD_sha should be undefined for Unix.
  */
 
-#ifdef BUILD_sha
+#ifdef BUILD_exampleA
 #undef TCL_STORAGE_CLASS
 #define TCL_STORAGE_CLASS DLLEXPORT
 #endif

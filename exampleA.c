@@ -1,5 +1,5 @@
 /*
- * sha1.c --
+ * exampleA.c --
  *
  *	This file implements a secure hashing algorithm
  *
@@ -26,7 +26,7 @@ A million repetitions of "a"
 
 #include <stdio.h>
 #include <string.h>
-#include "sha1.h"
+#include "exampleA.h"
 
 #define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 

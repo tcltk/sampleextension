@@ -1,3 +1,11 @@
+2002-07-11  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in: make TCL_DEFS come first in DEFS to that our DEFS
+	would redefine the Tcl ones.
+
+	* generic/tclsample.c: renamed Sha1 to Sha1_Cmd to better follow
+	convention
+
 2002-04-22  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure: regen'ed

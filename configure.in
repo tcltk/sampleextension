@@ -117,6 +117,10 @@ SC_PUBLIC_TCL_HEADERS
 # to use this.
 #
 # Windows creates a few extra files that need to be cleaned up.
+#
+# Define any extra compiler flags in the PACKAGE_CFLAGS variable.
+# These will be appended to the current set of compiler flags for
+# your system.
 #--------------------------------------------------------------------
 
 case "`uname -s`" in
@@ -124,10 +128,14 @@ case "`uname -s`" in
 	AC_DEFINE(BUILD_exampleA)
 	CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
 	AC_SUBST(CLEANFILES)
+	PACKAGE_CFLAGS=
     ;;
     *)
+	PACKAGE_CFLAGS=
     ;;
 esac
+
+AC_SUBST(PACKAGE_CFLAGS)
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.
@@ -233,9 +241,11 @@ AC_SUBST(SHLIB_LD_LIBS)
 # Find tclsh so that we can run pkg_mkIndex to generate the pkgIndex.tcl
 # file during the install process.  Don't run the TCLSH_PROG through
 # ${CYGPATH} because it's being used directly by make.
+# Require that we use a tclsh shell version 8.2 or later since earlier
+# versions have bugs in the pkg_mkIndex routine.
 #--------------------------------------------------------------------
 
-AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh8.1${EXEEXT} tclsh81${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}:${PATH})
+AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}:${PATH})
 
 if test "x${TCLSH_PROG}" = "x:" ; then
     AC_MSG_WARN(No tclsh executable found.  You will have to build the pkgIndex.tcl file manually.)

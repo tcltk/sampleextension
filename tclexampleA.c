@@ -17,7 +17,11 @@
 
 #define TCL_READ_CHUNK_SIZE 4096
 
-static unsigned char itoa64f[] = /* as itoa64 but with filename-safe charset */
+/*
+ * as itoa64 but with filename-safe charset
+ */
+
+static unsigned char itoa64f[] =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,";
 
 static int numcontexts = 0;
@@ -28,7 +32,7 @@ static int Sha1 _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
 		int argc, char *argv[]));
 
 #define DIGESTSIZE 20
-
+
 /*
  *----------------------------------------------------------------------
  *
@@ -77,74 +81,71 @@ Sha1(clientData, interp, argc, argv)
 		if ((sscanf(argv[++a], "%d", &log2base) != 1) ||
 			    (log2base < 1) || (log2base > 6)) {
 		    Tcl_AppendResult (interp, "invalid log2base: ", arg,
-			" must be integer in range 1...6", (char *) NULL);
+			    " must be integer in range 1...6", (char *) NULL);
 		    return TCL_ERROR;
 		}
-	    }
-	    else if (strcmp(arg, "-string") == 0) {
+	    } else if (strcmp(arg, "-string") == 0) {
 		string = argv[++a];
-	    }
-	    else if (strcmp(arg, "-copychan") == 0) {
+	    } else if (strcmp(arg, "-copychan") == 0) {
 		copychan = Tcl_GetChannel(interp, argv[++a], &mode);
 		if (copychan == (Tcl_Channel) NULL) {
 		    return TCL_ERROR;
 		}
 		if ((mode & TCL_WRITABLE) == 0) {
 		    Tcl_AppendResult(interp, "copychan \"", argv[a],
-				"\" wasn't opened for writing", (char *) NULL);
+			    "\" wasn't opened for writing", (char *) NULL);
 		    return TCL_ERROR;
 		}
-	    }
-	    else if (strcmp(arg, "-chan") == 0) {
+	    } else if (strcmp(arg, "-chan") == 0) {
 		chan = Tcl_GetChannel(interp, argv[++a], &mode);
 		if (chan == (Tcl_Channel) NULL) {
 		    return TCL_ERROR;
 		}
 		if ((mode & TCL_READABLE) == 0) {
 		    Tcl_AppendResult(interp, "chan \"", argv[a],
-				"\" wasn't opened for reading", (char *) NULL);
+			    "\" wasn't opened for reading", (char *) NULL);
 		    return TCL_ERROR;
 		}
-	    }
-	    else if (strcmp(arg, "-maxbytes") == 0) {
+	    } else if (strcmp(arg, "-maxbytes") == 0) {
 		if (sscanf(argv[++a], "%d", &maxbytes) != 1) {
 		    Tcl_AppendResult(interp, "parameter to -maxbytes \"",
 			    argv[a], "\" must be an integer", (char *) NULL);
 		    return TCL_ERROR;
 		}
-	    }
-	    else if (strcmp(arg, "-init") == 0) {
+	    } else if (strcmp(arg, "-init") == 0) {
 		for (contextnum = 1; contextnum < numcontexts; contextnum++) {
-		    if (ctxtotalRead[contextnum] < 0)
+		    if (ctxtotalRead[contextnum] < 0) {
 			break;
+		    }
 		}
 		if (contextnum == numcontexts) {
-		    /* allocate a new one */
+		    /*
+		     * Allocate a new context.
+		     */
+
 		    numcontexts++;
 		    sha1Contexts = (SHA1_CTX *) realloc((void *) sha1Contexts,
-					numcontexts * sizeof(SHA1_CTX));
+			    numcontexts * sizeof(SHA1_CTX));
 		    ctxtotalRead = realloc((void *) ctxtotalRead,
-					numcontexts * sizeof(int));
+			    numcontexts * sizeof(int));
 		}
 		ctxtotalRead[contextnum] = 0;
 		SHA1Init(&sha1Context);
 		sprintf(interp->result, "sha1%d", contextnum);
 		return TCL_OK;
-	    }
-	    else if (strcmp(arg, "-update") == 0) {
+	    } else if (strcmp(arg, "-update") == 0) {
 		descriptor = argv[++a];
 		doinit = 0;
 		dofinal = 0;
-	    }
-	    else if (strcmp(arg, "-final") == 0) {
+	    } else if (strcmp(arg, "-final") == 0) {
 		descriptor = argv[++a];
 		doinit = 0;
-	    }
-	    else
+	    } else {
 		goto wrongArgs;
-	}
-	else
+	    }
+	} else {
 	    goto wrongArgs;
+	}
     }
 
     if (descriptor != NULL) {
@@ -191,19 +192,21 @@ Sha1(clientData, interp, argc, argv)
 		if (n < 0) {
 		    ckfree(bufPtr);
 		    Tcl_AppendResult(interp, argv[0], ": ",
-			Tcl_GetChannelName(copychan), Tcl_PosixError(interp),
+			    Tcl_GetChannelName(copychan),
+			     Tcl_PosixError(interp),
 			    (char *) NULL);
 		    return TCL_ERROR;
 		}
 	    }
 
-	    if ((maxbytes > 0) && ((maxbytes -= n) <= 0))
+	    if ((maxbytes > 0) && ((maxbytes -= n) <= 0)) {
 		break;
+	    }
 	}
 	ckfree(bufPtr);
-    }
-    else if (descriptor == NULL)
+    } else if (descriptor == NULL) {
 	goto wrongArgs;
+    }
     
     if (!dofinal) {
 	ctxtotalRead[contextnum] += totalRead;
@@ -218,21 +221,31 @@ Sha1(clientData, interp, argc, argv)
 
     SHA1Final(&sha1Context, digest);
 
-    /* take the 20 byte array and print it in the requested base */
-    /* e.g. log2base=1 => binary,  log2base=4 => hex */
+    /*
+     * Take the 20 byte array and print it in the requested base
+     * e.g. log2base=1 => binary,  log2base=4 => hex
+     */
+
     n = log2base;
     i =  j = bits = 0;
-    /* if 160 bits doesn't divide exactly by n then the first character of */
-    /*  the output represents the residual bits.  e.g for n=6 (base 64) the */
-    /*  first character can only take the values 0..f */
+
+    /*
+     * if 160 bits doesn't divide exactly by n then the first character of
+     *  the output represents the residual bits.  e.g for n=6 (base 64) the
+     *  first character can only take the values 0..f
+     */
+
     offset = (DIGESTSIZE * 8) % n;
-    if (offset > 0)
+    if (offset > 0) {
 	offset = n - offset;
+    }
     mask = (2 << (n-1)) - 1;
     while (1) {
         bits <<= n;
         if (offset <= n) {
-    	    if (i == DIGESTSIZE) break;
+    	    if (i == DIGESTSIZE) {
+		break;
+	    }
     	    bits += (digest[i++] << (n - offset));
     	    offset += 8;
         }
@@ -242,22 +255,33 @@ Sha1(clientData, interp, argc, argv)
     buf[j++] = itoa64f[(bits>>8)&mask];
     buf[j++] = '\0';
     Tcl_AppendResult (interp, buf, (char *)NULL);
-    if (contextnum > 0)
+    if (contextnum > 0) {
 	ctxtotalRead[contextnum] = -1;
+    }
     return TCL_OK;
 
 wrongArgs:
     Tcl_AppendResult (interp, "wrong # args: should be either:\n",
-	"  ", argv[0], " ?-log2base log2base? -string string\n", 
-	" or\n",
-	"  ", argv[0], " ?-log2base log2base? ?-copychan chanID? -chan chanID\n",
-	" or\n",
-	"  ", argv[0], " -init (returns descriptor)\n",
-	"  ", argv[0], " -update descriptor ?-maxbytes n? ?-copychan chanID? -chan chanID\n",
-	"    (any number of -update calls, returns number of bytes read)\n",
-	"  ", argv[0], " ?-log2base log2base? -final descriptor\n",
-	" The default log2base is 4 (hex)",
-	(char *) NULL);
+	    "  ",
+	    argv[0],
+	    " ?-log2base log2base? -string string\n", 
+	    " or\n",
+	    "  ",
+	    argv[0],
+	    " ?-log2base log2base? ?-copychan chanID? -chan chanID\n",
+	    " or\n",
+	    "  ",
+	    argv[0],
+	    " -init (returns descriptor)\n",
+	    "  ",
+	    argv[0],
+	    " -update descriptor ?-maxbytes n? ?-copychan chanID? -chan chanID\n",
+	    "    (any number of -update calls, returns number of bytes read)\n",
+	    "  ",
+	    argv[0],
+	    " ?-log2base log2base? -final descriptor\n",
+	    " The default log2base is 4 (hex)",
+	    (char *) NULL);
     return TCL_ERROR;
 }
 

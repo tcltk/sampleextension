@@ -5,7 +5,7 @@
 # "autoconf" program (constructs like "@foo@" will get replaced in the actual
 # Makefile.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.13 1999/08/20 21:47:01 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.14 1999/08/23 20:09:33 wart Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -33,12 +33,22 @@ SOURCES = $(exampleA_SOURCES)
 # These objects are created and linked into the final library.  In
 # most cases these object files will correspond to the source files
 # above.
+#
 #========================================================================
 
 exampleA_OBJECTS =  exampleA.$(OBJEXT) tclexampleA.$(OBJEXT)
+OBJECTS = $(exampleA_OBJECTS)
+
+#========================================================================
+# The substitution of "exampleA_LIB_FILE" into the variable name below
+# let's us refer to the objects for the library without knowing the name
+# of the library in advance.  It also lets us use the "$@" variable in
+# the rule for building the library, so we can refer to both the list of 
+# objects and the library itself in a platform-independent manner.
+#========================================================================
+
 exampleA_LIB_FILE = @exampleA_LIB_FILE@
 $(exampleA_LIB_FILE)_OBJECTS = $(exampleA_OBJECTS)
-OBJECTS = $(exampleA_OBJECTS)
 
 #========================================================================
 # This is a list of header files to be installed
@@ -142,18 +152,15 @@ TCL_BMAP_DIR_NATIVE = @TCL_BMAP_DIR_NATIVE@
 TCL_PLATFORM_DIR_NATIVE = @TCL_PLATFORM_DIR_NATIVE@
 TCL_GENERIC_DIR_NATIVE = @TCL_GENERIC_DIR_NATIVE@
 TCLSH_PROG = @TCLSH_PROG@
+PACKAGE_CFLAGS = @PACKAGE_CFLAGS@
 
 AUTOCONF = autoconf
 
 LDFLAGS = $(LDFLAGS_DEFAULT)
 
-# Change the following if you require the Tcl private includes.
-# 
-
 INCLUDES = @TCL_INCLUDES@
-#INCLUDES = -I$(INCLUDE_DIR_NATIVE) -I$(TCL_PLATFORM_DIR_NATIVE) -I$(TCL_GENERIC_DIR_NATIVE) -I$(TCL_BMAP_DIR_NATIVE)
 
-EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS)
+EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS) $(PACKAGE_CFLAGS)
 
 DEFS = @DEFS@ $(EXTRA_CFLAGS)
 
@@ -183,6 +190,13 @@ LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 
 all: binaries libraries doc
 
+#========================================================================
+# The binaries target builds executable programs, Windows .dll's, unix
+# shared/static libraries, and any other platform-dependant files.
+# The list of targets to build for "binaries:" is specified at the top
+# of the Makefile, in the "BINARIES" variable.
+#========================================================================
+
 binaries: $(BINARIES)
 
 libraries:
@@ -199,12 +213,109 @@ install: all install-binaries install-libraries install-doc
 install-binaries: binaries install-lib-binaries install-bin-binaries
 
 #========================================================================
+# This rule installs platform-independent files, such as header files.
+#========================================================================
+
+install-libraries: libraries
+	$(mkinstalldirs) $(includedir)
+	echo "Installing header files in $(includedir)"
+	@for i in $(GENERIC_HDRS) ; do \
+	    echo "Installing $$i" ; \
+	    $(INSTALL_DATA) $$i $(includedir) ; \
+	done;
+
+#========================================================================
+# Install documentation.  Unix manpages should go in the $(mandir)
+# directory.
+#========================================================================
+
+install-doc: doc
+	$(mkinstalldirs) $(mandir)/man1
+	$(mkinstalldirs) $(mandir)/man3
+	$(mkinstalldirs) $(mandir)/mann
+	@for i in $(srcdir)/*.n; \
+	    do \
+	    echo "Installing $$i"; \
+	    rm -f $(mandir)/mann/$$i; \
+	    $(INSTALL_DATA) $$i $(mandir)/mann/$$i ; \
+	    chmod 444 $(mandir)/mann/$$i; \
+	    done
+
+test:
+
+depend:
+
+#========================================================================
+# Enumerate the names of the object files included in this package.
+# These objects are created and linked into the final library.  In
+# most cases these object files will correspond to the source files
+# above.
+#
+# $(exampleA_LIB_FILE) should be listed as part of the BINARIES variable
+# at the top of the Makefile.  That will ensure that this target is built
+# when you run "make binaries".
+#
+# You shouldn't need to modify this target, except to change the package
+# name from "exampleA" to your package's name.
+#========================================================================
+
+$(exampleA_LIB_FILE): $(exampleA_OBJECTS)
+	-rm -f $(exampleA_LIB_FILE)
+	@MAKE_LIB@
+	$(RANLIB) $(exampleA_LIB_FILE)
+
+#========================================================================
+# We need to enumerate the list of .c to .o lines here.
+# Unfortunately, there does not seem to be any other way to do this
+# in a Makefile-independent way.  We can't use VPATH because it picks up
+# object files that may be located in the source directory.
+#
+# In the following lines, $(srcdir) refers to the toplevel directory
+# containing your extension.  If your sources are in a subdirectory,
+# you will have to modify the paths to reflect this:
+#
+# exampleA.$(OBJEXT): $(srcdir)/src/win/exampleA.c
+# 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/src/win/exampleA.c` -o $@
+#========================================================================
+
+exampleA.$(OBJEXT): $(srcdir)/exampleA.c
+	$(COMPILE) -c `@CYGPATH@ $(srcdir)/exampleA.c` -o $@
+
+tclexampleA.$(OBJEXT): $(srcdir)/tclexampleA.c
+	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclexampleA.c` -o $@
+
+
+#========================================================================
+# End of user-definable section
+#========================================================================
+
+#========================================================================
+# Don't modify the file to clean here.  Instead, set the "CLEANFILES"
+# variable in configure.in
+#========================================================================
+
+clean:  
+	-test -z "$(BINARIES)" || rm -f $(BINARIES)
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+distclean: clean
+	-rm -f *.tab.c
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+	-rm -f config.status
+
+#========================================================================
 # Install binary object libraries.  On Windows this includes both .dll and
 # .lib files.  Because the .lib files are not explicitly listed anywhere,
 # we need to deduce their existence from the .dll file of the same name.
 # Additionally, the .dll files go into the bin directory, but the .lib
 # files go into the lib directory.  On Unix platforms, all library files
-# go into the lib directory.
+# go into the lib directory.  In addition, this will generate the pkgIndex.tcl
+# file in the install location (assuming it can find a usable tclsh8.2 shell)
+#
+# You should not have to modify this target.
 #========================================================================
 
 install-lib-binaries: installdirs
@@ -235,6 +346,8 @@ install-lib-binaries: installdirs
 
 #========================================================================
 # Install binary executables (e.g. .exe files)
+#
+# You should not have to modify this target.
 #========================================================================
 
 install-bin-binaries: installdirs
@@ -244,72 +357,6 @@ install-bin-binaries: installdirs
 	    $(INSTALL_DATA) $$p $(DESTDIR)$(bindir)/$$p; \
 	  else :; fi; \
 	done
-
-install-libraries: libraries
-	$(mkinstalldirs) $(includedir)
-	$(mkinstalldirs) $(pkglibdir)
-	echo "Installing header files in $(includedir)"
-	@for i in $(GENERIC_HDRS) ; do \
-	    echo "Installing $$i" ; \
-	    $(INSTALL_DATA) $$i $(includedir) ; \
-	done;
-
-install-doc: doc
-	$(mkinstalldirs) $(mandir)/man1
-	$(mkinstalldirs) $(mandir)/man3
-	$(mkinstalldirs) $(mandir)/mann
-	@for i in $(srcdir)/*.n; \
-	    do \
-	    echo "Installing $$i"; \
-	    rm -f $(mandir)/mann/$$i; \
-	    $(INSTALL_DATA) $$i $(mandir)/mann/$$i ; \
-	    chmod 444 $(mandir)/mann/$$i; \
-	    done
-
-test:
-
-depend:
-
-clean:  
-	-test -z "$(BINARIES)" || rm -f $(BINARIES)
-	-rm -f *.o core *.core
-	-rm -f *.$(OBJEXT)
-	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
-
-distclean: clean
-	-rm -f *.tab.c
-	-rm -f Makefile $(CONFIG_CLEAN_FILES)
-	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
-	-rm -f config.status
-
-#========================================================================
-# Enumerate the names of the object files included in this package.
-# These objects are created and linked into the final library.  In
-# most cases these object files will correspond to the source files
-# above.
-#========================================================================
-
-$(exampleA_LIB_FILE): $(exampleA_OBJECTS)
-	-rm -f $(exampleA_LIB_FILE)
-	@MAKE_LIB@
-	$(RANLIB) $(exampleA_LIB_FILE)
-
-# We need to enumerate the list of .c to .o lines here.
-# Unfortunately, there does not seem to be any other way to do this
-# in a Makefile-independent way.  We can't use VPATH because it picks up
-# object files that may be located in the source directory.
-
-exampleA.$(OBJEXT): $(srcdir)/exampleA.c
-	$(COMPILE) -c `@CYGPATH@ $(srcdir)/exampleA.c` -o $@
-
-tclexampleA.$(OBJEXT): $(srcdir)/tclexampleA.c
-	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclexampleA.c` -o $@
-
-
-#========================================================================
-# End of user-definable section
-#========================================================================
-
 
 .SUFFIXES: .c .o .obj
 

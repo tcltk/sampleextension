@@ -1,8 +1,7 @@
 To use cygwin for building TEA extensions, there are a couple of things
 you will need to do.
 
-1.  Make sure you have a working Visual C++ 5.0 compiler.  VC++6.0 will
-	be supported in the future.
+1.  Make sure you have a working Visual C++ (version 5.0 or later) compiler.
 
 2.  Download and install the Cygnus Cywgin user tools package from
 	ftp://go.cygnus.com/pub/sourceware.cygnus.com/pub/cygwin/cygwin-b20/usertools.exe
@@ -29,3 +28,6 @@ you will need to do.
 	run vcvars32.bat all the time.  If you look in the vcvars32.bat
 	file you will see what system environment variables need to be
 	set in order to make this work.
+
+7.  If you are authoring a TEA extension, you will also want the GNU
+    autoconf package.  This can be obtained from http://www.gnu.org

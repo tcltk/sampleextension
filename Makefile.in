@@ -5,7 +5,7 @@
 # "autoconf" program (constructs like "@foo@" will get replaced in the actual
 # Makefile.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.10 1999/08/19 00:03:59 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.11 1999/08/19 00:33:42 wart Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -22,7 +22,7 @@ BINARIES=$(lib_BINARIES)
 
 #========================================================================
 # Enumerate the names of the source files included in this package.
-# This is used when making a dist.
+# This will be used when a dist target is added to the Makefile.
 #========================================================================
 
 tclsha_SOURCES = sha1.c tclsha1.c
@@ -322,7 +322,7 @@ tclsha1.$(OBJEXT): $(srcdir)/tclsha1.c
 
 .SUFFIXES: .c .o .obj
 
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 

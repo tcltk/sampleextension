@@ -183,8 +183,8 @@ LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 #========================================================================
 
 #========================================================================
-# TEA targets.  Please note that "libraries" refers to platform
-# independant files, and "binaries" inclues executable programs and
+# TEA targets.  Please note that the "libraries:" target refers to platform
+# independant files, and the "binaries:" target inclues executable programs and
 # platform-dependant libraries.  Modify these targets so that they install
 # the various pieces of your package.  The make and install rules
 # for the lib_LIBRARIES that you specified above have already been done.
@@ -197,10 +197,30 @@ binaries: $(LIBRARIES)
 libraries:
 
 doc:
+	@echo "If you have documentation to create, place the commands to"
+	@echo "build the docs in the 'doc:' target.  For example:"
+	@echo ""
+	@echo "xml2nroff sha1.xml > sha1.n"
+	@echo "xml2html sha1.xml > sha1.html"
 
 install: all install-binaries install-libraries install-doc
 
-install-binaries: install-libLIBRARIES
+install-binaries: $(lib_LIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+	@$(POST_INSTALL)
+	@list='$(lib_LIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
+	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
 
 install-libraries:
 	echo "Installing header files in $(includedir)"
@@ -210,6 +230,26 @@ install-libraries:
 	done;
 
 install-doc:
+	$(mkinstalldirs) $(mandir)/man1
+	$(mkinstalldirs) $(mandir)/man3
+	$(mkinstalldirs) $(mandir)/mann
+	@for i in $(srcdir)/*.n; \
+	    do \
+	    echo "Installing $$i"; \
+	    rm -f $(mandir)/mann/$$i; \
+	    $(INSTALL_DATA) $$i $(mandir)/mann/$$i ; \
+	    chmod 444 $(mandir)/mann/$$i; \
+	    done
+
+test:
+
+depend:
+
+clean:  clean-libLIBRARIES clean-compile \
+		clean-generic mostlyclean-am
+
+distclean: distclean-libLIBRARIES distclean-compile distclean-generic clean-am
+	-rm -f config.status
 
 #========================================================================
 # Enumerate the names of the object files included in this package.
@@ -265,23 +305,6 @@ distclean-libLIBRARIES:
 
 maintainer-clean-libLIBRARIES:
 
-install-libLIBRARIES: $(lib_LIBRARIES)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libdir)
-	@list='$(lib_LIBRARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p"; \
-	    $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
-	  else :; fi; \
-	done
-	@$(POST_INSTALL)
-	@list='$(lib_LIBRARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
-	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
-	  else :; fi; \
-	done
-
 uninstall-libLIBRARIES:
 	@$(NORMAL_UNINSTALL)
 	list='$(lib_LIBRARIES)'; for p in $$list; do \
@@ -319,17 +342,6 @@ mostlyclean-am:  mostlyclean-libLIBRARIES mostlyclean-compile \
 		mostlyclean-generic
 
 mostlyclean: mostlyclean-am
-
-clean-am:  clean-libLIBRARIES clean-compile \
-		clean-generic mostlyclean-am
-
-clean: clean-am
-
-distclean-am:  distclean-libLIBRARIES distclean-compile \
-		distclean-generic clean-am
-
-distclean: distclean-am
-	-rm -f config.status
 
 maintainer-clean-am:  maintainer-clean-libLIBRARIES \
 		maintainer-clean-compile \

@@ -165,27 +165,18 @@ test our "xyzfiles" extension:
    #
 
    test "xyzfiles-2.1" "No argument" -body {
-      catch {
-         isValidXYZFile
-      } msg
-      return $msg
-   } -result "wrong # args: *" -match glob
+      isValidXYZFile
+   } -returnCodes error -result "wrong # args: *" -match glob
 
    # tcltest uses exact matching by default, so we change that for this case
 
    test "xyzfiles-2.2" "Non-existent file" -body {
-      catch {
-         isValidXYZFile "non-existent-file.xyz"
-      } msg
-      return $msg
-   } -result "Non existent file *" -match glob
+      isValidXYZFile "non-existent-file.xyz"
+   } -returnCodes error -result "Non existent file *" -match glob
 
    test "xyzfiles-2.3" "Too many arguments" -body {
-      catch {
-         isValidXYZFile 1 2 3 4
-      } msg
-      return $msg
-   } -result "wrong # args: *" -match glob
+      isValidXYZFile 1 2 3 4
+   } -returnCodes error -result "wrong # args: *" -match glob
 }]
 
 Note that in the last three cases we use the [lb]catch[rb] command to catch
@@ -205,6 +196,8 @@ These tests can be run by the command:
 }]
 (See the code for "test" target in the make file)
 
-
-
-
+[para]
+It is good style to always run every test in a test suite.  If some
+tests fail on some platforms, use test constraints to prevent running
+of those particular tests. You can also use test constraints to
+protect non-test pieces of code in the test file.

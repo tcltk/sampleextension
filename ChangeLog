@@ -1,0 +1,6 @@
+2000-01-24  Mike Thomas  <wart@scriptics.com>
+
+	* tcl.m4: Look for CYGWIN_98 and CYGWIN_95 environments, not just
+	CYGWIN_NT.  Also search for executables with the $EXEEXT extension
+	in SC_PROG_TCLSH and SC_PROG_WISH so that we don't pick up MS VS
+	junk files.

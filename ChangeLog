@@ -1,3 +1,14 @@
+2002-03-28  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in: moved setting TCLLIBPATH to the test target because
+	that is where it is needed, added a little doc about it.
+
+	* configure:
+	* configure.in: BUILD_${PACKAGE} had to be static BUILD_sample in
+	AC_DEFINE because autoconf wasn't substituting ${PACKAGE}.
+
+	* tests/all.tcl: added message about starting pwd
+
 2002-03-27  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in (TCLSH_PROG): moved and updated env var definitions

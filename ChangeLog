@@ -4,3 +4,5 @@
 	CYGWIN_NT.  Also search for executables with the $EXEEXT extension
 	in SC_PROG_TCLSH and SC_PROG_WISH so that we don't pick up MS VS
 	junk files.
+	* configure.in:  Changes to support building on Win 95/98 using
+	the cygwin environment.

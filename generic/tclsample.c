@@ -18,6 +18,7 @@
 #include <tcl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "sample.h"
 
 #define TCL_READ_CHUNK_SIZE 4096

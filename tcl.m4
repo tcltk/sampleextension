@@ -1,4 +1,4 @@
-# Copyright (c) 1998-1999 Scriptics Corporation.
+# Copyright (c) 1999 Scriptics Corporation.
 
 #------------------------------------------------------------------------
 # SC_PATH_TCLCONFIG --

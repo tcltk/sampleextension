@@ -1,3 +1,13 @@
+/*
+ * sha1.h --
+ *
+ *	This header file contains the function declarations needed for
+ *	all of the source files in this package.
+ *
+ * Copyright (c) 1998-1999 Scriptics Corporation.
+ *
+ */
+
 /* definitions extracted from sha1.c by Dave Dykstra, 4/22/97 */
 
 #ifndef _TCL

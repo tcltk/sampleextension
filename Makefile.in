@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.29 2002/03/06 07:44:34 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.30 2002/03/06 19:38:01 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -24,15 +24,15 @@
 # library that we are building.
 #========================================================================
 
-lib_BINARIES=$(sample_LIB_FILE)
-BINARIES=$(lib_BINARIES)
+lib_BINARIES	= $(sample_LIB_FILE)
+BINARIES	= $(lib_BINARIES)
 
 #========================================================================
 # Enumerate the names of the source files included in this package.
 # This will be used when a dist target is added to the Makefile.
 #========================================================================
 
-sample_SOURCES = sample.c tclsample.c
+sample_SOURCES	= sample.c tclsample.c
 
 #========================================================================
 # Enumerate the names of the object files included in this package.
@@ -44,7 +44,7 @@ sample_SOURCES = sample.c tclsample.c
 #  sample_OBJECTS = sample.$(OBJEXT) tclsample.$(OBJEXT)
 #========================================================================
 
-sample_OBJECTS = $(sample_SOURCES:.c=.@OBJEXT@)
+sample_OBJECTS	= $(sample_SOURCES:.c=.@OBJEXT@)
 
 #========================================================================
 # The substitution of "sample_LIB_FILE" into the variable name below
@@ -54,14 +54,14 @@ sample_OBJECTS = $(sample_SOURCES:.c=.@OBJEXT@)
 # objects and the library itself in a platform-independent manner.
 #========================================================================
 
-sample_LIB_FILE = @sample_LIB_FILE@
+sample_LIB_FILE	= @sample_LIB_FILE@
 $(sample_LIB_FILE)_OBJECTS = $(sample_OBJECTS)
 
 #========================================================================
 # This is a list of header files to be installed
 #========================================================================
 
-GENERIC_HDRS= \
+GENERIC_HDRS	= \
 	$(srcdir)/sample.h
 
 #========================================================================
@@ -69,7 +69,7 @@ GENERIC_HDRS= \
 # have been added to the configure script.
 #========================================================================
 
-SAMPLE_NEW_VAR=@SAMPLE_NEW_VAR@
+SAMPLE_NEW_VAR	= @SAMPLE_NEW_VAR@
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -77,82 +77,82 @@ SAMPLE_NEW_VAR=@SAMPLE_NEW_VAR@
 # correct.
 #========================================================================
 
-SHELL = @SHELL@
+SHELL		= @SHELL@
 
-srcdir = @srcdir@
-prefix = @prefix@
-exec_prefix = @exec_prefix@
+srcdir		= @srcdir@
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
 
-bindir = @bindir@
-libdir = @libdir@
-datadir = @datadir@
-mandir = @mandir@
-includedir = @includedir@
+bindir		= @bindir@
+libdir		= @libdir@
+datadir		= @datadir@
+mandir		= @mandir@
+includedir	= @includedir@
 
-DESTDIR =
+DESTDIR		=
 
-PKG_DIR = $(PACKAGE)$(VERSION)
-pkgdatadir = $(datadir)/$(PKG_DIR)
-pkglibdir = $(libdir)/$(PKG_DIR)
-pkgincludedir = $(includedir)/$(PKG_DIR)
+PKG_DIR		= $(PACKAGE)$(VERSION)
+pkgdatadir	= $(datadir)/$(PKG_DIR)
+pkglibdir	= $(libdir)/$(PKG_DIR)
+pkgincludedir	= $(includedir)/$(PKG_DIR)
 
-top_builddir = .
+top_builddir	= .
 
-INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
-INSTALL_DATA = @INSTALL_DATA@
-INSTALL_SCRIPT = @INSTALL_SCRIPT@
+INSTALL		= @INSTALL@
+INSTALL_PROGRAM	= @INSTALL_PROGRAM@
+INSTALL_DATA	= @INSTALL_DATA@
+INSTALL_SCRIPT	= @INSTALL_SCRIPT@
 
-PACKAGE = @PACKAGE@
-VERSION = @VERSION@
-CC = @CC@
-CFLAGS_DEBUG = @CFLAGS_DEBUG@
-CFLAGS_DEFAULT = @CFLAGS_DEFAULT@
-CFLAGS_OPTIMIZE = @CFLAGS_OPTIMIZE@
-CLEANFILES = @CLEANFILES@
-EXEEXT = @EXEEXT@
-LDFLAGS_DEBUG = @LDFLAGS_DEBUG@
-LDFLAGS_DEFAULT = @LDFLAGS_DEFAULT@
+PACKAGE		= @PACKAGE@
+VERSION		= @VERSION@
+CC		= @CC@
+CFLAGS_DEBUG	= @CFLAGS_DEBUG@
+CFLAGS_DEFAULT	= @CFLAGS_DEFAULT@
+CFLAGS_OPTIMIZE	= @CFLAGS_OPTIMIZE@
+CLEANFILES	= @CLEANFILES@
+EXEEXT		= @EXEEXT@
+LDFLAGS_DEBUG	= @LDFLAGS_DEBUG@
+LDFLAGS_DEFAULT	= @LDFLAGS_DEFAULT@
 LDFLAGS_OPTIMIZE = @LDFLAGS_OPTIMIZE@
-MAKE_LIB = @MAKE_LIB@
-MAKE_SHARED_LIB = @MAKE_SHARED_LIB@
-MAKE_STATIC_LIB = @MAKE_STATIC_LIB@
-OBJEXT = @OBJEXT@
-RANLIB = @RANLIB@
-SHLIB_CFLAGS = @SHLIB_CFLAGS@
-SHLIB_LD = @SHLIB_LD@
-SHLIB_LDFLAGS = @SHLIB_LDFLAGS@
-SHLIB_LD_LIBS = @SHLIB_LD_LIBS@
-STLIB_LD = @STLIB_LD@
-TCL_BIN_DIR = @TCL_BIN_DIR@
-TCL_DEFS = @TCL_DEFS@
+MAKE_LIB	= @MAKE_LIB@
+MAKE_SHARED_LIB	= @MAKE_SHARED_LIB@
+MAKE_STATIC_LIB	= @MAKE_STATIC_LIB@
+OBJEXT		= @OBJEXT@
+RANLIB		= @RANLIB@
+SHLIB_CFLAGS	= @SHLIB_CFLAGS@
+SHLIB_LD	= @SHLIB_LD@
+SHLIB_LDFLAGS	= @SHLIB_LDFLAGS@
+SHLIB_LD_LIBS	= @SHLIB_LD_LIBS@
+STLIB_LD	= @STLIB_LD@
+TCL_BIN_DIR	= @TCL_BIN_DIR@
+TCL_DEFS	= @TCL_DEFS@
 TCL_EXTRA_CFLAGS = @TCL_EXTRA_CFLAGS@
-TCL_LD_FLAGS = @TCL_LD_FLAGS@
-TCL_LIBS = @TCL_LIBS@
+TCL_LD_FLAGS	= @TCL_LD_FLAGS@
+TCL_LIBS	= @TCL_LIBS@
 TCL_SHLIB_LD_LIBS = @TCL_SHLIB_LD_LIBS@
-TCL_SRC_DIR = @TCL_SRC_DIR@
-TCL_DBGX = @TCL_DBGX@
+TCL_SRC_DIR	= @TCL_SRC_DIR@
+TCL_DBGX	= @TCL_DBGX@
 TCL_STUB_LIB_FILE = @TCL_STUB_LIB_FILE@
 TCL_STUB_LIB_SPEC = @TCL_STUB_LIB_SPEC@
-TCLSH_PROG = @TCLSH_PROG@
-SHARED_BUILD = @SHARED_BUILD@
+TCLSH_PROG	= @TCLSH_PROG@
+SHARED_BUILD	= @SHARED_BUILD@
 
-INCLUDES = @TCL_INCLUDES@
+INCLUDES	= @TCL_INCLUDES@
 
-EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS) $(TCL_EXTRA_CFLAGS)
+EXTRA_CFLAGS	= $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS) $(TCL_EXTRA_CFLAGS)
 
-DEFS = @DEFS@ $(EXTRA_CFLAGS)
+DEFS		= @DEFS@ $(EXTRA_CFLAGS)
 
-ACLOCAL_M4 = $(srcdir)/aclocal.m4
-CONFIGDIR = @CONFIGDIR@
-mkinstalldirs = $(SHELL) $(CONFIGDIR)/mkinstalldirs
+ACLOCAL_M4	= $(srcdir)/aclocal.m4
+CONFIGDIR	= @CONFIGDIR@
+mkinstalldirs	= $(SHELL) $(CONFIGDIR)/mkinstalldirs
 CONFIG_CLEAN_FILES = mkIndex.tcl
 
-CPPFLAGS = @CPPFLAGS@
-LIBS = @LIBS@
-AR = ar
-CFLAGS = @CFLAGS@
-COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CPPFLAGS	= @CPPFLAGS@
+LIBS		= @LIBS@
+AR		= ar
+CFLAGS		= @CFLAGS@
+COMPILE		= $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 
 #========================================================================
 # Start of user-definable TARGETS section
@@ -341,8 +341,7 @@ clean:
 distclean: clean
 	-rm -f *.tab.c
 	-rm -f Makefile $(CONFIG_CLEAN_FILES)
-	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
-	-rm -f config.status
+	-rm -f config.cache config.log config.status
 
 #========================================================================
 # Install binary object libraries.  On Windows this includes both .dll and

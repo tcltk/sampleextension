@@ -19,8 +19,8 @@
 # a dist of this package.
 #========================================================================
 
-PACKAGE = tclsha
-VERSION = 0.1
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
 
 #========================================================================
 # Change the name of the variable "TCLSHA_LIB_FILE" to match the one

@@ -18,7 +18,7 @@
 
 /*
  * Windows needs to know which symbols to export.  Unix does not.
- * BUILD_sha should be undefined for Unix.
+ * BUILD_exampleA should be undefined for Unix.
  */
 
 #ifdef BUILD_exampleA

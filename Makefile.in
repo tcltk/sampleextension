@@ -7,12 +7,12 @@
 #	replaced in the actual Makefile.
 #
 # Copyright (c) 1999 Scriptics Corporation.
-# Copyright (c) 2002-2003 ActiveState Corporation.
+# Copyright (c) 2002-2005 ActiveState Corporation.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.51 2005/02/07 19:55:44 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.52 2005/03/19 00:12:26 hobbs Exp $
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -150,7 +150,7 @@ CONFIG_CLEAN_FILES = Makefile
 
 CPPFLAGS	= @CPPFLAGS@
 LIBS		= @PKG_LIBS@ @LIBS@
-AR		= ar
+AR		= @AR@
 CFLAGS		= @CFLAGS@
 COMPILE		= $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 

@@ -6219,17 +6219,13 @@ echo "$as_me: error: could not find tcl source file '${srcdir}/$i'" >&2;}
 # A few miscellaneous platform-specific items:
 #
 # Define a special symbol for Windows (BUILD_sample in this case) so
-# that we create the export library with the dll.  See sha1.h on how
-# to use this.
+# that we create the export library with the dll.
 #
 # Windows creates a few extra files that need to be cleaned up.
 # You can add more files to clean if your extension creates any extra
 # files.
 #
-# Define any extra compiler flags in the PACKAGE_CFLAGS variable.
-# These will be appended to the current set of compiler flags for
-#
-# Add platform libs to LIBS or SHLIB_LD_LIBS as necessary.
+# TEA_ADD_* any platform specific compiler/build info here.
 #--------------------------------------------------------------------
 
 if test "${TEA_PLATFORM}" = "windows" ; then
@@ -6239,10 +6235,11 @@ _ACEOF
 
     CLEANFILES="pkgIndex.tcl *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     #TEA_ADD_SOURCES([win/winFile.c])
+    #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
 else
-    #LIBS="${LIBS} -lsuperfly"
     CLEANFILES="pkgIndex.tcl"
     #TEA_ADD_SOURCES([unix/unixFile.c])
+    #TEA_ADD_LIBS([-lsuperfly])
 fi
 
 
@@ -6327,6 +6324,7 @@ echo "${ECHO_T}${ac_cv_c_tclh}" >&6
 
 #TEA_PUBLIC_TK_HEADERS
 #TEA_PRIVATE_TK_HEADERS
+#TEA_PATH_X
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.

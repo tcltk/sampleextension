@@ -1,3 +1,9 @@
+2002-10-15  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure:
+	* configure.in: move the CFLAGS definition into TEA_ENABLE_SHARED
+	and make it pick up the env CFLAGS at configure time.
+
 2002-07-11  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in: make TCL_DEFS come first in DEFS to that our DEFS

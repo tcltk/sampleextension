@@ -1798,10 +1798,10 @@ AC_DEFUN(SC_MAKE_LIB, [
 ])
 
 #------------------------------------------------------------------------
-# SC_LIB_NAME --
+# SC_LIB_SPEC --
 #
 #	Compute the name of an existing object library located in libdir
-#	from the given base name.
+#	from the given base name and produce the appropriate linker flags.
 #
 # Arguments:
 #	basename	The base name of the library without version
@@ -1813,23 +1813,34 @@ AC_DEFUN(SC_MAKE_LIB, [
 #
 #	Defines the following vars:
 #		${basename}_LIB_NAME	The computed library name.
+#		${basename}_LIB_SPEC	The computed linker flags.
 #------------------------------------------------------------------------
 
-AC_DEFUN(SC_LIB_NAME, [
-    AC_MSG_CHECKING(for $1 library file)
+AC_DEFUN(SC_LIB_SPEC, [
+    AC_MSG_CHECKING(for $1 library)
     eval "sc_lib_name_dir=${libdir}"
     for i in \
 	    `ls -dr ${sc_lib_name_dir}/$1[[0-9]]*.lib 2>/dev/null ` \
 	    `ls -dr ${sc_lib_name_dir}/lib$1[[0-9]]* 2>/dev/null ` ; do
 	if test -f "$i" ; then
+	    sc_lib_name_dir=`dirname $i`
 	    $1_LIB_NAME=`basename $i`
 	    break
 	fi
     done
+    case "`uname -s`" in
+	*win32* | *WIN32* | *CYGWIN_NT*)
+	    $1_LIB_SPEC=${$1_LIB_NAME}
+	    ;;
+	*)
+	    sc_lib_name_lib=`echo ${$1_LIB_NAME}|sed -e 's/^lib//' -e 's/\.[[^.]]*$//'`
+	    $1_LIB_SPEC="-L${sc_lib_name_dir} -l${sc_lib_name_lib}"
+	    ;;
+    esac
     if test "x$1_LIB_NAME" = x ; then
 	AC_MSG_ERROR(not found)
     else
-	AC_MSG_RESULT($1_LIB_NAME)
+	AC_MSG_RESULT(${$1_LIB_SPEC})
     fi
 ])
 

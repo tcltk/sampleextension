@@ -210,7 +210,7 @@ Boris Beizer: Software Testing Techniques
 ??: Information on stubs
 
 [bullet]
-??: Man page on tcltest
+Don Porter: Man page on tcltest
 
 [bullet]
 ??: Autoconf documentation

@@ -1,7 +1,7 @@
 This is a sample extension showing an implementation of the Tcl Extension
 Architecture.  Please see the wepage
  http://www.scriptics.com/products/tcltk/tea/
-for more details on TEA.
+for more details on TEA.  You can also read te 
 
 This package is a freely available open source package.  You can do
 virtually anything you like with it, such as modifying it,
@@ -54,3 +54,5 @@ tcl.m4		Collection of Tcl autoconf macros.  This file should be copied
 
 tclexampleA.c	Implementation of new Tcl command "sha1".
 
+tea.pdf		PDF file describing the current implementation of the
+		Tcl Extension Architecture

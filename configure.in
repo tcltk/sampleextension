@@ -230,18 +230,18 @@ case "`uname -s`" in
     *win32* | *WIN32* | *CYGWIN_NT*)
 	if test "${SHARED_BUILD}" = "1" ; then
 	    SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
-	    eval "TCLSHA_LIB_FILE=tclsha${SHARED_LIB_SUFFIX}"
+	    eval "TCLSHA_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
 	    RANLIB=:
 	else
-	    eval "TCLSHA_LIB_FILE=tclsha${UNSHARED_LIB_SUFFIX}"
+	    eval "TCLSHA_LIB_FILE=${PACKAGE}${UNSHARED_LIB_SUFFIX}"
 	fi
 	;;
     *)
 	if test "${SHARED_BUILD}" = "1" ; then
-	    eval "TCLSHA_LIB_FILE=libtclsha${SHARED_LIB_SUFFIX}"
+	    eval "TCLSHA_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
 	    RANLIB=:
 	else
-	    eval "TCLSHA_LIB_FILE=libtclsha${UNSHARED_LIB_SUFFIX}"
+	    eval "TCLSHA_LIB_FILE=lib${PACKAGE}${UNSHARED_LIB_SUFFIX}"
 	fi
 	;;
 esac

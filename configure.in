@@ -6,7 +6,7 @@
 # AC_INIT(../generic/tcl.h)
 #--------------------------------------------------------------------
 
-AC_INIT(sha1.h)
+AC_INIT(exampleA.h)
 
 #--------------------------------------------------------------------
 # Set your version numbers here.  The NODOT_VERSION is required
@@ -15,7 +15,7 @@ AC_INIT(sha1.h)
 # other systems.
 #--------------------------------------------------------------------
 
-PACKAGE=tclsha
+PACKAGE=exampleA
 
 MAJOR_VERSION=0
 MINOR_VERSION=2
@@ -79,10 +79,6 @@ SC_PATH_TCLCONFIG
 SC_LOAD_TCLCONFIG
 
 #--------------------------------------------------------------------
-# Set some values that point to parts of the Tcl source tree.  Many
-# extensions require headers/source files that Tcl doesn't normally
-# export.
-#
 # "cygpath" is used on windows to generate native path names for include
 # files.
 # These variables should only be used with the compiler and linker since
@@ -96,60 +92,27 @@ SC_LOAD_TCLCONFIG
 case "`uname -s`" in
     *win32* | *WIN32* | *CYGWIN_NT*)
 	CYGPATH="cygpath -w"
-	TCL_TOP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/..`\"
-	TCL_GENERIC_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../generic`\"
-	TCL_UNIX_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../unix`\"
-	TCL_WIN_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../win`\"
-	TCL_BMAP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../bitmaps`\"
-	TCL_TOOL_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../tools`\"
-	eval "INCLUDE_DIR=${includedir}"
-	INCLUDE_DIR_NATIVE=\"`${CYGPATH} ${INCLUDE_DIR}`\"
     ;;
     *)
 	CYGPATH=echo
-	TCL_TOP_DIR_NATIVE=${TCL_SRC_DIR}
-	TCL_GENERIC_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/generic'
-	TCL_UNIX_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/unix'
-	TCL_WIN_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/win'
-	TCL_BMAP_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/bitmaps'
-	TCL_TOOL_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/tools'
-	INCLUDE_DIR_NATIVE="${includedir}"
     ;;
 esac
 
-#--------------------------------------------------------------------
-# Locate the platform-specific piece of the Tcl source tree.
-#--------------------------------------------------------------------
-
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*)
-	TCL_PLATFORM_DIR_NATIVE=${TCL_WIN_DIR_NATIVE}
-    ;;
-    *)
-	TCL_PLATFORM_DIR_NATIVE=${TCL_UNIX_DIR_NATIVE}
-    ;;
-esac
-
-#--------------------------------------------------------------------
-# Put all of these in the Makefile so we can add them to the compiler's
-# include line.
-#--------------------------------------------------------------------
-
-AC_SUBST(TCL_TOP_DIR_NATIVE)
-AC_SUBST(TCL_GENERIC_DIR_NATIVE)
-AC_SUBST(TCL_UNIX_DIR_NATIVE)
-AC_SUBST(TCL_WIN_DIR_NATIVE)
-AC_SUBST(TCL_BMAP_DIR_NATIVE)
-AC_SUBST(TCL_TOOL_DIR_NATIVE)
-AC_SUBST(TCL_PLATFORM_DIR_NATIVE)
-AC_SUBST(TCL_BIN_DIR_NATIVE)
-AC_SUBST(INCLUDE_DIR_NATIVE)
 AC_SUBST(CYGPATH)
+
+#--------------------------------------------------------------------
+# Set some values that point to parts of the Tcl source tree.  Many
+# extensions require headers/source files that Tcl doesn't normally
+# export.
+#--------------------------------------------------------------------
+
+#SC_PRIVATE_TCL_HEADERS
+SC_PUBLIC_TCL_HEADERS
 
 #--------------------------------------------------------------------
 # A few miscellaneous platform-specific items:
 #
-# Define a special symbol for Windows (BUILD_sha in this case) so
+# Define a special symbol for Windows (BUILD_exampleA in this case) so
 # that we create the export library with the dll.  See sha1.h on how
 # to use this.
 #
@@ -158,7 +121,7 @@ AC_SUBST(CYGPATH)
 
 case "`uname -s`" in
     *win32* | *WIN32* | *CYGWIN_NT*)
-	AC_DEFINE(BUILD_sha)
+	AC_DEFINE(BUILD_exampleA)
 	CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
 	AC_SUBST(CLEANFILES)
     ;;
@@ -246,24 +209,24 @@ case "`uname -s`" in
     *win32* | *WIN32* | *CYGWIN_NT*)
 	if test "${SHARED_BUILD}" = "1" ; then
 	    SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
-	    eval "TCLSHA_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
+	    eval "${PACKAGE}_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
 	    RANLIB=:
 	else
-	    eval "TCLSHA_LIB_FILE=${PACKAGE}${UNSHARED_LIB_SUFFIX}"
+	    eval "${PACKAGE}_LIB_FILE=${PACKAGE}${UNSHARED_LIB_SUFFIX}"
 	fi
 	;;
     *)
 	if test "${SHARED_BUILD}" = "1" ; then
 	    SHLIB_LD_LIBS="${TCL_STUB_LIB_SPEC}"
-	    eval "TCLSHA_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
+	    eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
 	    RANLIB=:
 	else
-	    eval "TCLSHA_LIB_FILE=lib${PACKAGE}${UNSHARED_LIB_SUFFIX}"
+	    eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${UNSHARED_LIB_SUFFIX}"
 	fi
 	;;
 esac
 
-AC_SUBST(TCLSHA_LIB_FILE)
+AC_SUBST(exampleA_LIB_FILE)
 AC_SUBST(SHLIB_LD_LIBS)
 
 #--------------------------------------------------------------------
@@ -272,7 +235,7 @@ AC_SUBST(SHLIB_LD_LIBS)
 # ${CYGPATH} because it's being used directly by make.
 #--------------------------------------------------------------------
 
-AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}:${PATH})
+AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh8.1${EXEEXT} tclsh81${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}:${PATH})
 
 if test "x${TCLSH_PROG}" = "x:" ; then
     AC_MSG_WARN(No tclsh executable found.  You will have to build the pkgIndex.tcl file manually.)

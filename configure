@@ -307,7 +307,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES PKG_HEADERS PKG_INCLUDES PKG_LIBS PKG_CFLAGS TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR CELIB_DIR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING STLIB_LD SHLIB_LD SHLIB_CFLAGS SHLIB_LD_FLAGS SHLIB_LD_LIBS LDFLAGS_DEBUG LDFLAGS_OPTIMIZE LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB TCLSH_PROG LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES PKG_HEADERS PKG_INCLUDES PKG_LIBS PKG_CFLAGS TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR TCLSH_PROG CELIB_DIR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING STLIB_LD SHLIB_LD SHLIB_CFLAGS SHLIB_LD_FLAGS SHLIB_LD_LIBS LDFLAGS_DEBUG LDFLAGS_OPTIMIZE LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1288,7 +1288,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 #--------------------------------------------------------------------
 
 
-    TEA_VERSION="3.1"
+    # TEA extensions pass this us the version of TEA they think they
+    # are compatible with.
+    TEA_VERSION="3.2"
 
     echo "$as_me:$LINENO: checking for correct TEA configuration" >&5
 echo $ECHO_N "checking for correct TEA configuration... $ECHO_C" >&6
@@ -1299,15 +1301,15 @@ echo "$as_me: error:
 The PACKAGE_NAME variable must be defined by your TEA configure.in" >&2;}
    { (exit 1); exit 1; }; }
     fi
-    if test x"3.1" = x ; then
+    if test x"3.2" = x ; then
 	{ { echo "$as_me:$LINENO: error:
 TEA version not specified." >&5
 echo "$as_me: error:
 TEA version not specified." >&2;}
    { (exit 1); exit 1; }; }
-    elif test "3.1" != "${TEA_VERSION}" ; then
-	echo "$as_me:$LINENO: result: warning: requested TEA version \"3.1\", have \"${TEA_VERSION}\"" >&5
-echo "${ECHO_T}warning: requested TEA version \"3.1\", have \"${TEA_VERSION}\"" >&6
+    elif test "3.2" != "${TEA_VERSION}" ; then
+	echo "$as_me:$LINENO: result: warning: requested TEA version \"3.2\", have \"${TEA_VERSION}\"" >&5
+echo "${ECHO_T}warning: requested TEA version \"3.2\", have \"${TEA_VERSION}\"" >&6
     else
 	echo "$as_me:$LINENO: result: ok (TEA ${TEA_VERSION})" >&5
 echo "${ECHO_T}ok (TEA ${TEA_VERSION})" >&6
@@ -5739,6 +5741,10 @@ echo "$as_me: error: could not find header file '${srcdir}/$i'" >&2;}
 
     vars=""
     for i in $vars; do
+	if test "${TEA_PLATFORM}" = "windows" -a "$GCC" = "yes" ; then
+	    # Convert foo.lib to -lfoo for GCC.  No-op if not *.lib
+	    i=`echo "$i" | sed -e 's/\(.*\)\.lib$/-l\1/i'`
+	fi
 	PKG_LIBS="$PKG_LIBS $i"
     done
 
@@ -6525,6 +6531,51 @@ _ACEOF
 #--------------------------------------------------------------------
 
 
+    # Allow the user to provide this setting in the env
+    if test "x${TCLSH_PROG}" = "x" ; then
+	echo "$as_me:$LINENO: checking for tclsh" >&5
+echo $ECHO_N "checking for tclsh... $ECHO_C" >&6
+
+	if test "${ac_cv_path_tclsh+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+	if test "${TEA_PLATFORM}" = "windows" -a "$do64bit_ok" = "yes" \
+		-o "$doWince" != "no" ; then
+	    # A Windows cross-compile build - restrict target tclsh
+	    # as we need one we can run on this system
+	    search_path=`echo ${PATH} | sed -e 's/:/ /g'`
+	else
+	    search_path=`echo ${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${exec_prefix}/bin:${prefix}/bin:${PATH} | sed -e 's/:/ /g'`
+	fi
+	for dir in $search_path ; do
+	    for j in `ls -r $dir/tclsh[8-9]*${EXEEXT} 2> /dev/null` \
+		    `ls -r $dir/tclsh*${EXEEXT} 2> /dev/null` ; do
+		if test x"$ac_cv_path_tclsh" = x ; then
+		    if test -f "$j" ; then
+			ac_cv_path_tclsh=$j
+			break
+		    fi
+		fi
+	    done
+	done
+
+fi
+
+
+	if test -f "$ac_cv_path_tclsh" ; then
+	    TCLSH_PROG=$ac_cv_path_tclsh
+	    echo "$as_me:$LINENO: result: $TCLSH_PROG" >&5
+echo "${ECHO_T}$TCLSH_PROG" >&6
+	else
+	    { { echo "$as_me:$LINENO: error: No tclsh found in PATH: $search_path" >&5
+echo "$as_me: error: No tclsh found in PATH: $search_path" >&2;}
+   { (exit 1); exit 1; }; }
+	fi
+    fi
+
+
+
 
 
     # Step 0: Enable 64 bit support?
@@ -6740,12 +6791,35 @@ fi
 		if test "x${MSSDK}x" = "xx" ; then
 		    MSSDK="C:/Progra~1/Microsoft SDK"
 		fi
-		# In order to work in the tortured autoconf environment,
-		# we need to ensure that this path has no spaces
-		MSSDK=`echo "$MSSDK" | sed -e 's!\\\!/!g'`
+		# Ensure that this path has no spaces to work in autoconf
+
+    if test "${TEA_PLATFORM}" = "windows" ; then
+	# we need TCLSH_PROG defined to get Windows short pathnames
+
+
+	echo "$as_me:$LINENO: checking short pathname for MSSDK (${MSSDK})" >&5
+echo $ECHO_N "checking short pathname for MSSDK (${MSSDK})... $ECHO_C" >&6
+
+	shortpath=
+	case "${MSSDK}" in
+	    *\ *)
+		# Only do this if we need to.
+		shortpath=`echo "puts [file attributes {${MSSDK}} -shortname] ; exit" | ${TCLSH_PROG} 2>/dev/null`
+		;;
+	esac
+	if test "x${shortpath}" = "x" ; then
+	    echo "$as_me:$LINENO: result: not changed" >&5
+echo "${ECHO_T}not changed" >&6
+	else
+	    MSSDK=$shortpath
+	    echo "$as_me:$LINENO: result: ${MSSDK}" >&5
+echo "${ECHO_T}${MSSDK}" >&6
+	fi
+    fi
+
 		if test ! -d "${MSSDK}/bin/win64" ; then
-		    { echo "$as_me:$LINENO: WARNING: \"could not find 64-bit SDK to enable 64bit mode\"" >&5
-echo "$as_me: WARNING: \"could not find 64-bit SDK to enable 64bit mode\"" >&2;}
+		    { echo "$as_me:$LINENO: WARNING: could not find 64-bit SDK to enable 64bit mode" >&5
+echo "$as_me: WARNING: could not find 64-bit SDK to enable 64bit mode" >&2;}
 		    do64bit="no"
 		else
 		    do64bit_ok="yes"
@@ -6815,7 +6889,6 @@ echo "$as_me: error: ${with_celibconfig} directory doesn't contain inc directory
 fi
 
 	if test x"${ac_cv_c_celibconfig}" = x ; then
-	    CELIB_DIR="# no Celib configs found"
 	    { { echo "$as_me:$LINENO: error: Cannot find celib support library directory" >&5
 echo "$as_me: error: Cannot find celib support library directory" >&2;}
    { (exit 1); exit 1; }; }
@@ -6824,6 +6897,31 @@ echo "$as_me: error: Cannot find celib support library directory" >&2;}
 	    CELIB_DIR=${ac_cv_c_celibconfig}
 	    echo "$as_me:$LINENO: result: found $CELIB_DIR" >&5
 echo "${ECHO_T}found $CELIB_DIR" >&6
+
+    if test "${TEA_PLATFORM}" = "windows" ; then
+	# we need TCLSH_PROG defined to get Windows short pathnames
+
+
+	echo "$as_me:$LINENO: checking short pathname for CELIB_DIR (${ac_cv_c_celibconfig})" >&5
+echo $ECHO_N "checking short pathname for CELIB_DIR (${ac_cv_c_celibconfig})... $ECHO_C" >&6
+
+	shortpath=
+	case "${ac_cv_c_celibconfig}" in
+	    *\ *)
+		# Only do this if we need to.
+		shortpath=`echo "puts [file attributes {${ac_cv_c_celibconfig}} -shortname] ; exit" | ${TCLSH_PROG} 2>/dev/null`
+		;;
+	esac
+	if test "x${shortpath}" = "x" ; then
+	    echo "$as_me:$LINENO: result: not changed" >&5
+echo "${ECHO_T}not changed" >&6
+	else
+	    CELIB_DIR=$shortpath
+	    echo "$as_me:$LINENO: result: ${CELIB_DIR}" >&5
+echo "${ECHO_T}${CELIB_DIR}" >&6
+	fi
+    fi
+
 	fi
     fi
 
@@ -6837,7 +6935,7 @@ echo "${ECHO_T}found $CELIB_DIR" >&6
 		    # If !yes then the user specified something
 		    # Reset ARCH to allow user to skip specifying it
 		    ARCH=
-		    eval `echo $doWince | awk -F "," '{ \
+		    eval `echo $doWince | awk -F, '{ \
 	    if (length($1)) { printf "CEVERSION=\"%s\"\n", $1; \
 	    if ($1 < 400)   { printf "PLATFORM=\"Pocket PC 2002\"\n" } }; \
 	    if (length($2)) { printf "TARGETCPU=\"%s\"\n", toupper($2) }; \
@@ -6861,15 +6959,57 @@ echo "${ECHO_T}found $CELIB_DIR" >&6
 			SDKROOT="C:/Windows CE Tools"
 		    fi
 		fi
-		# Ensure all / slashes
-		WCEROOT=`echo "$WCEROOT" | sed -e 's!\\\!/!g'`
-		SDKROOT=`echo "$SDKROOT" | sed -e 's!\\\!/!g'`
-		CELIB_DIR=`echo "$CELIB_DIR" | sed -e 's!\\\!/!g'`
-		if test ! -d "${CELIB_DIR}/inc"; then
-		    { { echo "$as_me:$LINENO: error: Invalid celib directory \"${CELIB_DIR}\"" >&5
-echo "$as_me: error: Invalid celib directory \"${CELIB_DIR}\"" >&2;}
-   { (exit 1); exit 1; }; }
-		fi
+		# Ensure that this path has no spaces to work in autoconf
+
+    if test "${TEA_PLATFORM}" = "windows" ; then
+	# we need TCLSH_PROG defined to get Windows short pathnames
+
+
+	echo "$as_me:$LINENO: checking short pathname for WCEROOT (${WCEROOT})" >&5
+echo $ECHO_N "checking short pathname for WCEROOT (${WCEROOT})... $ECHO_C" >&6
+
+	shortpath=
+	case "${WCEROOT}" in
+	    *\ *)
+		# Only do this if we need to.
+		shortpath=`echo "puts [file attributes {${WCEROOT}} -shortname] ; exit" | ${TCLSH_PROG} 2>/dev/null`
+		;;
+	esac
+	if test "x${shortpath}" = "x" ; then
+	    echo "$as_me:$LINENO: result: not changed" >&5
+echo "${ECHO_T}not changed" >&6
+	else
+	    WCEROOT=$shortpath
+	    echo "$as_me:$LINENO: result: ${WCEROOT}" >&5
+echo "${ECHO_T}${WCEROOT}" >&6
+	fi
+    fi
+
+
+    if test "${TEA_PLATFORM}" = "windows" ; then
+	# we need TCLSH_PROG defined to get Windows short pathnames
+
+
+	echo "$as_me:$LINENO: checking short pathname for SDKROOT (${SDKROOT})" >&5
+echo $ECHO_N "checking short pathname for SDKROOT (${SDKROOT})... $ECHO_C" >&6
+
+	shortpath=
+	case "${SDKROOT}" in
+	    *\ *)
+		# Only do this if we need to.
+		shortpath=`echo "puts [file attributes {${SDKROOT}} -shortname] ; exit" | ${TCLSH_PROG} 2>/dev/null`
+		;;
+	esac
+	if test "x${shortpath}" = "x" ; then
+	    echo "$as_me:$LINENO: result: not changed" >&5
+echo "${ECHO_T}not changed" >&6
+	else
+	    SDKROOT=$shortpath
+	    echo "$as_me:$LINENO: result: ${SDKROOT}" >&5
+echo "${ECHO_T}${SDKROOT}" >&6
+	fi
+    fi
+
 		if test ! -d "${SDKROOT}/${OSVERSION}/${PLATFORM}/Lib/${TARGETCPU}" \
 		    -o ! -d "${WCEROOT}/EVC/${OSVERSION}/bin"; then
 		    { { echo "$as_me:$LINENO: error: could not find PocketPC SDK or target compiler to enable WinCE mode $CEVERSION,$TARGETCPU,$ARCH,$PLATFORM" >&5
@@ -6877,6 +7017,8 @@ echo "$as_me: error: could not find PocketPC SDK or target compiler to enable Wi
    { (exit 1); exit 1; }; }
 		    doWince="no"
 		else
+		    # We could PATH_NOSPACE these, but that's not important,
+		    # as long as we quote them when used.
 		    CEINCLUDE="${SDKROOT}/${OSVERSION}/${PLATFORM}/include"
 		    if test -d "${CEINCLUDE}/${TARGETCPU}" ; then
 			CEINCLUDE="${CEINCLUDE}/${TARGETCPU}"
@@ -6894,14 +7036,14 @@ echo "$as_me: error: could not find PocketPC SDK or target compiler to enable Wi
 
                 if test "$do64bit" = "yes" ; then
 		    # All this magic is necessary for the Win64 SDK RC1 - hobbs
-		    CC="\"${MSSDK}/Bin/Win64/cl.exe\" \
-	                -I\"${MSSDK}/Include/prerelease\" \
-                        -I\"${MSSDK}/Include/Win64/crt\" \
-	                -I\"${MSSDK}/Include\""
-		    RC="\"${MSSDK}/bin/rc.exe\""
-		    lflags="-MACHINE:IA64 -LIBPATH:\"${MSSDK}/Lib/IA64\" \
-	                -LIBPATH:\"${MSSDK}/Lib/Prerelease/IA64\" -nologo"
-		    LINKBIN="\"${MSSDK}/bin/win64/link.exe\""
+		    CC="${MSSDK}/Bin/Win64/cl.exe"
+		    CFLAGS="${CFLAGS} -I${MSSDK}/Include/prerelease \
+			-I${MSSDK}/Include/Win64/crt \
+			-I${MSSDK}/Include"
+		    RC="${MSSDK}/bin/rc.exe"
+		    lflags="-MACHINE:IA64 -LIBPATH:${MSSDK}/Lib/IA64 \
+			-LIBPATH:${MSSDK}/Lib/Prerelease/IA64 -nologo"
+		    LINKBIN="${MSSDK}/bin/win64/link.exe"
 		    CFLAGS_DEBUG="-nologo -Zi -Od -W3 ${runtime}d"
 		    CFLAGS_OPTIMIZE="-nologo -O2 -W2 ${runtime}"
 		elif test "$doWince" != "no" ; then
@@ -6911,8 +7053,8 @@ echo "$as_me: error: could not find PocketPC SDK or target compiler to enable Wi
 		    else
 			CC="${CEBINROOT}/cl${ARCH}.exe"
 		    fi
-		    CC="\"${CC}\" -I\"${CELIB_DIR}/inc\" -I\"${CEINCLUDE}\""
-		    RC="\"${WCEROOT}/Common/EVC/bin/rc.exe\""
+		    CFLAGS="$CFLAGS -I\"${CELIB_DIR}/inc\" -I\"${CEINCLUDE}\""
+		    RC="${WCEROOT}/Common/EVC/bin/rc.exe"
 		    arch=`echo ${ARCH} | awk '{print tolower($0)}'`
 		    defs="${ARCH} _${ARCH}_ ${arch} PALM_SIZE _MT _DLL _WINDOWS"
 		    for i in $defs ; do
@@ -6933,7 +7075,7 @@ _ACEOF
 		    CFLAGS_OPTIMIZE="-nologo -Ox"
 		    lversion=`echo ${CEVERSION} | sed -e 's/\(.\)\(..\)/\1\.\2/'`
 		    lflags="-MACHINE:${ARCH} -LIBPATH:\"${CELIBPATH}\" -subsystem:windowsce,${lversion} -nologo"
-		    LINKBIN="\"${CEBINROOT}/link.exe\""
+		    LINKBIN="${CEBINROOT}/link.exe"
 
 		else
 		    RC="rc"
@@ -8212,8 +8354,16 @@ _ACEOF
 		arch=`isainfo`
 		if test "$arch" = "sparcv9 sparc" ; then
 			if test "$GCC" = "yes" ; then
-			    { echo "$as_me:$LINENO: WARNING: \"64bit mode not supported with GCC on $system\"" >&5
-echo "$as_me: WARNING: \"64bit mode not supported with GCC on $system\"" >&2;}
+			    if test "`gcc -dumpversion` | awk -F. '{print }'" -lt "3" ; then
+				{ echo "$as_me:$LINENO: WARNING: 64bit mode not supported with GCC < 3.2 on $system" >&5
+echo "$as_me: WARNING: 64bit mode not supported with GCC < 3.2 on $system" >&2;}
+			    else
+				do64bit_ok=yes
+				CFLAGS="$CFLAGS -m64 -mcpu=v9"
+				LDFLAGS="$LDFLAGS -m64 -mcpu=v9"
+				SHLIB_CFLAGS="-fPIC"
+				SHLIB_LD_FLAGS=""
+			    fi
 			else
 			    do64bit_ok=yes
 			    if test "$do64bitVIS" = "yes" ; then
@@ -8240,6 +8390,17 @@ echo "$as_me: WARNING: \"64bit mode only supported sparcv9 system\"" >&2;}
 	    if test "$GCC" = "yes" ; then
 		SHLIB_LD="$CC -shared"
 		LD_SEARCH_FLAGS='-Wl,-R,${LIB_RUNTIME_DIR}'
+		if test "$do64bit" = "yes" ; then
+		    # We need to specify -static-libgcc or we need to
+		    # add the path to the sparv9 libgcc.
+		    # JH: static-libgcc is necessary for core Tcl, but may
+		    # not be necessary for extensions.
+		    SHLIB_LD="$SHLIB_LD -m64 -mcpu=v9 -static-libgcc"
+		    # for finding sparcv9 libgcc, get the regular libgcc
+		    # path, remove so name and append 'sparcv9'
+		    #v9gcclibdir="`gcc -print-file-name=libgcc_s.so` | ..."
+		    #LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS},-R,$v9gcclibdir"
+		fi
 	    else
 		SHLIB_LD="/usr/ccs/bin/ld -G -z text"
 		LD_SEARCH_FLAGS='-R ${LIB_RUNTIME_DIR}'
@@ -9209,16 +9370,19 @@ _ACEOF
 #--------------------------------------------------------------------
 
 
-    echo "$as_me:$LINENO: checking for tclsh" >&5
+    # Allow the user to provide this setting in the env
+    if test "x${TCLSH_PROG}" = "x" ; then
+	echo "$as_me:$LINENO: checking for tclsh" >&5
 echo $ECHO_N "checking for tclsh... $ECHO_C" >&6
 
-    if test "${ac_cv_path_tclsh+set}" = set; then
+	if test "${ac_cv_path_tclsh+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
-	if test "x${CELIB_DIR}" != "x" ; then
-	    # If CELIB_DIR is defined, assume Windows/CE target is requested
-	    # which means target tclsh cannot be run (cross-compile)
+	if test "${TEA_PLATFORM}" = "windows" -a "$do64bit_ok" = "yes" \
+		-o "$doWince" != "no" ; then
+	    # A Windows cross-compile build - restrict target tclsh
+	    # as we need one we can run on this system
 	    search_path=`echo ${PATH} | sed -e 's/:/ /g'`
 	else
 	    search_path=`echo ${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${exec_prefix}/bin:${prefix}/bin:${PATH} | sed -e 's/:/ /g'`
@@ -9238,14 +9402,15 @@ else
 fi
 
 
-    if test -f "$ac_cv_path_tclsh" ; then
-	TCLSH_PROG=$ac_cv_path_tclsh
-	echo "$as_me:$LINENO: result: $TCLSH_PROG" >&5
+	if test -f "$ac_cv_path_tclsh" ; then
+	    TCLSH_PROG=$ac_cv_path_tclsh
+	    echo "$as_me:$LINENO: result: $TCLSH_PROG" >&5
 echo "${ECHO_T}$TCLSH_PROG" >&6
-    else
-	{ { echo "$as_me:$LINENO: error: No tclsh found in PATH:  $search_path" >&5
-echo "$as_me: error: No tclsh found in PATH:  $search_path" >&2;}
+	else
+	    { { echo "$as_me:$LINENO: error: No tclsh found in PATH: $search_path" >&5
+echo "$as_me: error: No tclsh found in PATH: $search_path" >&2;}
    { (exit 1); exit 1; }; }
+	fi
     fi
 
 
@@ -9939,6 +10104,7 @@ s,@TCL_INCLUDES@,$TCL_INCLUDES,;t t
 s,@TCL_THREADS@,$TCL_THREADS,;t t
 s,@SHARED_BUILD@,$SHARED_BUILD,;t t
 s,@AR@,$AR,;t t
+s,@TCLSH_PROG@,$TCLSH_PROG,;t t
 s,@CELIB_DIR@,$CELIB_DIR,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@DL_LIBS@,$DL_LIBS,;t t
@@ -9961,7 +10127,6 @@ s,@MAKE_SHARED_LIB@,$MAKE_SHARED_LIB,;t t
 s,@MAKE_STATIC_LIB@,$MAKE_STATIC_LIB,;t t
 s,@MAKE_STUB_LIB@,$MAKE_STUB_LIB,;t t
 s,@RANLIB_STUB@,$RANLIB_STUB,;t t
-s,@TCLSH_PROG@,$TCLSH_PROG,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
 

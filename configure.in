@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in,v 1.37 2003/12/10 21:29:07 hobbs Exp $
+# RCS: @(#) $Id: configure.in,v 1.38 2004/07/17 02:04:37 hobbs Exp $
 
 #-----------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
@@ -27,7 +27,7 @@ AC_INIT([sample], [0.5])
 # as well as PKG_LIB_FILE and PKG_STUB_LIB_FILE.
 #--------------------------------------------------------------------
 
-TEA_INIT([3.0])
+TEA_INIT([3.1])
 
 AC_CONFIG_AUX_DIR(tclconfig)
 
@@ -123,6 +123,7 @@ TEA_PUBLIC_TCL_HEADERS
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.
+# This auto-enables if Tcl was compiled threaded.
 #--------------------------------------------------------------------
 
 TEA_ENABLE_THREADS

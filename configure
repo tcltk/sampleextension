@@ -307,7 +307,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES PKG_HEADERS PKG_INCLUDES PKG_LIBS PKG_CFLAGS TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING EXTRA_CFLAGS STLIB_LD SHLIB_LD SHLIB_CFLAGS SHLIB_LD_FLAGS SHLIB_LD_LIBS LDFLAGS_DEBUG LDFLAGS_OPTIMIZE LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB TCLSH_PROG LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES PKG_HEADERS PKG_INCLUDES PKG_LIBS PKG_CFLAGS TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING STLIB_LD SHLIB_LD SHLIB_CFLAGS SHLIB_LD_FLAGS SHLIB_LD_LIBS LDFLAGS_DEBUG LDFLAGS_OPTIMIZE LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB TCLSH_PROG LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1288,7 +1288,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 #--------------------------------------------------------------------
 
 
-    TEA_VERSION="3.0"
+    TEA_VERSION="3.1"
 
     echo "$as_me:$LINENO: checking for correct TEA configuration" >&5
 echo $ECHO_N "checking for correct TEA configuration... $ECHO_C" >&6
@@ -1299,18 +1299,18 @@ echo "$as_me: error:
 The PACKAGE_NAME variable must be defined by your TEA configure.in" >&2;}
    { (exit 1); exit 1; }; }
     fi
-    if test x"3.0" = x ; then
+    if test x"3.1" = x ; then
 	{ { echo "$as_me:$LINENO: error:
 TEA version not specified." >&5
 echo "$as_me: error:
 TEA version not specified." >&2;}
    { (exit 1); exit 1; }; }
-    elif test "3.0" != "${TEA_VERSION}" ; then
-	echo "$as_me:$LINENO: result: warning: TEA version \"3.0\" != ${TEA_VERSION}" >&5
-echo "${ECHO_T}warning: TEA version \"3.0\" != ${TEA_VERSION}" >&6
+    elif test "3.1" != "${TEA_VERSION}" ; then
+	echo "$as_me:$LINENO: result: warning: requested TEA version \"3.1\", have \"${TEA_VERSION}\"" >&5
+echo "${ECHO_T}warning: requested TEA version \"3.1\", have \"${TEA_VERSION}\"" >&6
     else
-	echo "$as_me:$LINENO: result: ok" >&5
-echo "${ECHO_T}ok" >&6
+	echo "$as_me:$LINENO: result: ok (TEA ${TEA_VERSION})" >&5
+echo "${ECHO_T}ok (TEA ${TEA_VERSION})" >&6
     fi
     case "`uname -s`" in
 	*win32*|*WIN32*|*CYGWIN_NT*|*CYGWIN_9*|*CYGWIN_ME*|*MINGW32_*)
@@ -3226,461 +3226,6 @@ rm -f conftest.$ac_objext conftest.$ac_ext
     # Common compiler flag setup
     #--------------------------------------------------------------------
 
-
-    echo "$as_me:$LINENO: checking for required early compiler flags" >&5
-echo $ECHO_N "checking for required early compiler flags... $ECHO_C" >&6
-    tcl_flags=""
-
-    if test "${tcl_cv_flag__isoc99_source+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <stdlib.h>
-int
-main ()
-{
-char *p = (char *)strtoll; char *q = (char *)strtoull;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_cv_flag__isoc99_source=no
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#define _ISOC99_SOURCE 1
-#include <stdlib.h>
-int
-main ()
-{
-char *p = (char *)strtoll; char *q = (char *)strtoull;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_cv_flag__isoc99_source=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-tcl_cv_flag__isoc99_source=no
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-
-    if test "x${tcl_cv_flag__isoc99_source}" = "xyes" ; then
-	cat >>confdefs.h <<\_ACEOF
-#define _ISOC99_SOURCE 1
-_ACEOF
-
-	tcl_flags="$tcl_flags _ISOC99_SOURCE"
-    fi
-
-
-    if test "${tcl_cv_flag__largefile64_source+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <sys/stat.h>
-int
-main ()
-{
-struct stat64 buf; int i = stat64("/", &buf);
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_cv_flag__largefile64_source=no
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#define _LARGEFILE64_SOURCE 1
-#include <sys/stat.h>
-int
-main ()
-{
-struct stat64 buf; int i = stat64("/", &buf);
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_cv_flag__largefile64_source=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-tcl_cv_flag__largefile64_source=no
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-
-    if test "x${tcl_cv_flag__largefile64_source}" = "xyes" ; then
-	cat >>confdefs.h <<\_ACEOF
-#define _LARGEFILE64_SOURCE 1
-_ACEOF
-
-	tcl_flags="$tcl_flags _LARGEFILE64_SOURCE"
-    fi
-
-    if test "x${tcl_flags}" = "x" ; then
-	echo "$as_me:$LINENO: result: none" >&5
-echo "${ECHO_T}none" >&6
-    else
-	echo "$as_me:$LINENO: result: ${tcl_flags}" >&5
-echo "${ECHO_T}${tcl_flags}" >&6
-    fi
-
-
-    echo "$as_me:$LINENO: checking for 64-bit integer type" >&5
-echo $ECHO_N "checking for 64-bit integer type... $ECHO_C" >&6
-    if test "${tcl_cv_type_64bit+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-	tcl_cv_type_64bit=none
-	# See if the compiler knows natively about __int64
-	cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-int
-main ()
-{
-__int64 value = (__int64) 0;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_type_64bit=__int64
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-tcl_type_64bit="long long"
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-	# See if we should use long anyway  Note that we substitute in the
-	# type that is our current guess for a 64-bit type inside this check
-	# program, so it should be modified only carefully...
-        cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-int
-main ()
-{
-switch (0) {
-            case 1: case (sizeof(${tcl_type_64bit})==sizeof(long)): ;
-        }
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_cv_type_64bit=${tcl_type_64bit}
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-
-    if test "${tcl_cv_type_64bit}" = none ; then
-	cat >>confdefs.h <<\_ACEOF
-#define TCL_WIDE_INT_IS_LONG 1
-_ACEOF
-
-	echo "$as_me:$LINENO: result: using long" >&5
-echo "${ECHO_T}using long" >&6
-    elif test "${tcl_cv_type_64bit}" = "__int64" ; then
-	# We actually want to use the default tcl.h checks in this
-	# case to handle both TCL_WIDE_INT_TYPE and TCL_LL_MODIFIER*
-	echo "$as_me:$LINENO: result: using Tcl header defaults" >&5
-echo "${ECHO_T}using Tcl header defaults" >&6
-    else
-	cat >>confdefs.h <<_ACEOF
-#define TCL_WIDE_INT_TYPE ${tcl_cv_type_64bit}
-_ACEOF
-
-	echo "$as_me:$LINENO: result: ${tcl_cv_type_64bit}" >&5
-echo "${ECHO_T}${tcl_cv_type_64bit}" >&6
-
-	# Now check for auxiliary declarations
-	echo "$as_me:$LINENO: checking for struct dirent64" >&5
-echo $ECHO_N "checking for struct dirent64... $ECHO_C" >&6
-	if test "${tcl_cv_struct_dirent64+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-	    cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <sys/types.h>
-#include <sys/dirent.h>
-int
-main ()
-{
-struct dirent64 p;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_cv_struct_dirent64=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-tcl_cv_struct_dirent64=no
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-
-	if test "x${tcl_cv_struct_dirent64}" = "xyes" ; then
-	    cat >>confdefs.h <<\_ACEOF
-#define HAVE_STRUCT_DIRENT64 1
-_ACEOF
-
-	fi
-	echo "$as_me:$LINENO: result: ${tcl_cv_struct_dirent64}" >&5
-echo "${ECHO_T}${tcl_cv_struct_dirent64}" >&6
-
-	echo "$as_me:$LINENO: checking for struct stat64" >&5
-echo $ECHO_N "checking for struct stat64... $ECHO_C" >&6
-	if test "${tcl_cv_struct_stat64+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-	    cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <sys/stat.h>
-int
-main ()
-{
-struct stat64 p;
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_cv_struct_stat64=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-tcl_cv_struct_stat64=no
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-
-	if test "x${tcl_cv_struct_stat64}" = "xyes" ; then
-	    cat >>confdefs.h <<\_ACEOF
-#define HAVE_STRUCT_STAT64 1
-_ACEOF
-
-	fi
-	echo "$as_me:$LINENO: result: ${tcl_cv_struct_stat64}" >&5
-echo "${ECHO_T}${tcl_cv_struct_stat64}" >&6
-
-	echo "$as_me:$LINENO: checking for off64_t" >&5
-echo $ECHO_N "checking for off64_t... $ECHO_C" >&6
-	if test "${tcl_cv_type_off64_t+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-
-	    cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <sys/types.h>
-int
-main ()
-{
-off64_t offset;
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  tcl_cv_type_off64_t=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-tcl_cv_type_off64_t=no
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-fi
-
-	if test "x${tcl_cv_type_off64_t}" = "xyes" ; then
-	    cat >>confdefs.h <<\_ACEOF
-#define HAVE_TYPE_OFF64_T 1
-_ACEOF
-
-	fi
-	echo "$as_me:$LINENO: result: ${tcl_cv_type_off64_t}" >&5
-echo "${ECHO_T}${tcl_cv_type_off64_t}" >&6
-    fi
-
     echo "$as_me:$LINENO: checking whether byte ordering is bigendian" >&5
 echo $ECHO_N "checking whether byte ordering is bigendian... $ECHO_C" >&6
 if test "${ac_cv_c_bigendian+set}" = set; then
@@ -5296,7 +4841,10 @@ echo "${ECHO_T}$ac_cv_header_limits_h" >&6
 
 fi
 if test $ac_cv_header_limits_h = yes; then
-  :
+  cat >>confdefs.h <<\_ACEOF
+#define HAVE_LIMITS_H 1
+_ACEOF
+
 else
   cat >>confdefs.h <<\_ACEOF
 #define NO_LIMITS_H 1
@@ -5964,13 +5512,8 @@ fi
 
 
     # OS/390 lacks sys/param.h (and doesn't need it, by chance).
-    # tkUnixPort.h checks for HAVE_LIMITS_H, so do both HAVE and
-    # CHECK on limits.h
 
-
-
-
-for ac_header in limits.h unistd.h sys/param.h
+for ac_header in sys/param.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then
@@ -6348,6 +5891,7 @@ echo "${ECHO_T}${ac_cv_c_tclh}" >&6
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.
+# This auto-enables if Tcl was compiled threaded.
 #--------------------------------------------------------------------
 
 
@@ -6359,7 +5903,7 @@ else
   tcl_ok=
 fi;
 
-    if test "$tcl_ok" = "yes"; then
+    if test "$tcl_ok" = "yes" -o "${TCL_THREADS}" = 1; then
 	TCL_THREADS=1
 
 	if test "${TEA_PLATFORM}" != "windows" ; then
@@ -6892,6 +6436,7 @@ echo $ECHO_N "checking for building with threads... $ECHO_C" >&6
 #define TCL_THREADS 1
 _ACEOF
 
+	#LIBS="$LIBS $THREADS_LIBS"
 	echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
     else
@@ -7119,9 +6664,12 @@ fi
 
 
     # Step 3: set configuration options based on system name and version.
+    # This is similar to Tcl's unix/tcl.m4 except that we've added a
+    # "windows" case and CC_SEARCH_FLAGS becomes LD_SEARCH_FLAGS for us
+    # (and we have no CC_SEARCH_FLAGS).
 
     do64bit_ok=no
-    EXTRA_CFLAGS=""
+    LDFLAGS_ORIG="$LDFLAGS"
     TCL_EXPORT_FILE_SUFFIX=""
     UNSHARED_LIB_SUFFIX=""
     TCL_TRIM_DOTS='`echo ${PACKAGE_VERSION} | tr -d .`'
@@ -7130,7 +6678,7 @@ fi
     CFLAGS_DEBUG=-g
     CFLAGS_OPTIMIZE=-O
     if test "$GCC" = "yes" ; then
-	CFLAGS_WARNING="-Wall -Wconversion -Wno-implicit-int"
+	CFLAGS_WARNING="-Wall -Wno-implicit-int"
     else
 	CFLAGS_WARNING=""
     fi
@@ -7379,7 +6927,7 @@ _ACEOF
 	    else
 		SHLIB_LD="${LINKBIN} -dll -nologo"
 		UNSHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.lib'
-		EXTRA_CFLAGS="-YX"
+		CFLAGS="$CFLAGS -YX"
 		PATHTYPE=-w
 		# For information on what debugtype is most useful, see:
 		# http://msdn.microsoft.com/library/en-us/dnvc60/html/gendepdebug.asp
@@ -7418,7 +6966,6 @@ echo "${ECHO_T}Using $CC for compiling with threads" >&6
 	    SHLIB_LD_LIBS='${LIBS}'
 
 	    DL_OBJS="tclLoadDl.o"
-	    LDFLAGS=""
 	    LD_LIBRARY_PATH_VAR="LIBPATH"
 
 	    # AIX v<=4.1 has some different flags than 4.2+
@@ -7435,8 +6982,8 @@ echo "${ECHO_T}Using $CC for compiling with threads" >&6
 echo "$as_me: WARNING: \"64bit mode not supported with GCC on $system\"" >&2;}
 		else
 		    do64bit_ok=yes
-		    EXTRA_CFLAGS="-q64"
-		    LDFLAGS="-q64"
+		    CFLAGS="$CFLAGS -q64"
+		    LDFLAGS="$LDFLAGS -q64"
 		    RANLIB="${RANLIB} -X64"
 		    AR="${AR} -X64"
 		    SHLIB_LD_FLAGS="-b64"
@@ -7541,6 +7088,14 @@ _ACEOF
 
 	    fi
 	    ;;
+	BeOS*)
+	    SHLIB_CFLAGS="-fPIC"
+	    SHLIB_LD="${CC} -nostart"
+	    SHLIB_LD_LIBS='${LIBS}'
+	    SHLIB_SUFFIX=".so"
+	    DL_OBJS="tclLoadDl.o"
+	    DL_LIBS="-ldl"
+	    ;;
 	BSD/OS-2.1*|BSD/OS-3*)
 	    SHLIB_CFLAGS=""
 	    SHLIB_LD="shlicc -r"
@@ -7548,7 +7103,6 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	BSD/OS-4.*)
@@ -7558,7 +7112,7 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
-	    LDFLAGS="-export-dynamic"
+	    LDFLAGS="$LDFLAGS -export-dynamic"
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	dgux*)
@@ -7568,7 +7122,6 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	HP-UX-*.11.*)
@@ -7645,13 +7198,18 @@ fi
 		SHLIB_LD_LIBS='${LIBS}'
 		DL_OBJS="tclLoadShl.o"
 		DL_LIBS="-ldld"
-		LDFLAGS="-Wl,-E"
+		LDFLAGS="$LDFLAGS -Wl,-E"
 		LD_SEARCH_FLAGS='-Wl,+s,+b,${LIB_RUNTIME_DIR}:.'
+		LD_LIBRARY_PATH_VAR="SHLIB_PATH"
 	    fi
-	    LD_LIBRARY_PATH_VAR="SHLIB_PATH"
+	    if test "$GCC" = "yes" ; then
+		SHLIB_LD="gcc -shared"
+		SHLIB_LD_LIBS='${LIBS}'
+		LD_SEARCH_FLAGS=''
+	    fi
 
 	    # Users may want PA-RISC 1.1/2.0 portable code - needs HP cc
-	    #EXTRA_CFLAGS="+DAportable"
+	    #CFLAGS="$CFLAGS +DAportable"
 
 	    # Check to enable 64-bit flags for compiler/linker
 	    if test "$do64bit" = "yes" ; then
@@ -7662,7 +7220,7 @@ fi
 			    # 64-bit gcc in use.  Fix flags for GNU ld.
 			    do64bit_ok=yes
 			    SHLIB_LD="${CC} -shared"
-			    SHLIB_LD_LIBS=""
+			    SHLIB_LD_LIBS='${LIBS}'
 			    LD_SEARCH_FLAGS=''
 			    ;;
 			*)
@@ -7672,13 +7230,8 @@ echo "$as_me: WARNING: \"64bit mode not supported with GCC on $system\"" >&2;}
 		    esac
 		else
 		    do64bit_ok=yes
-		    if test "`uname -m`" = "ia64" ; then
-			EXTRA_CFLAGS="+DD64"
-			LDFLAGS="+DD64 $LDFLAGS"
-		    else
-			EXTRA_CFLAGS="+DA2.0W"
-			LDFLAGS="+DA2.0W $LDFLAGS"
-		    fi
+		    CFLAGS="$CFLAGS +DD64"
+		    LDFLAGS="$LDFLAGS +DD64"
 		fi
 	    fi
 	    ;;
@@ -7750,7 +7303,7 @@ fi
 		SHLIB_LD_LIBS=""
 		DL_OBJS="tclLoadShl.o"
 		DL_LIBS="-ldld"
-		LDFLAGS="-Wl,-E"
+		LDFLAGS="$LDFLAGS -Wl,-E"
 		LD_SEARCH_FLAGS='-Wl,+s,+b,${LIB_RUNTIME_DIR}:.'
 	    fi
 	    LD_LIBRARY_PATH_VAR="SHLIB_PATH"
@@ -7762,7 +7315,7 @@ fi
 	    SHLIB_LD_LIBS='${LIBS}'
 	    DL_OBJS="tclLoadAout.o"
 	    DL_LIBS=""
-	    LDFLAGS="-Wl,-D,08000000"
+	    LDFLAGS="$LDFLAGS -Wl,-D,08000000"
 	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
 	    SHARED_LIB_SUFFIX='${PACKAGE_VERSION}\$\{DBGX\}.a'
 	    ;;
@@ -7774,8 +7327,6 @@ fi
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS=""
 	    LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
-	    EXTRA_CFLAGS=""
-	    LDFLAGS=""
 	    ;;
 	IRIX-6.*|IRIX64-6.5*)
 	    SHLIB_CFLAGS=""
@@ -7786,19 +7337,19 @@ fi
 	    DL_LIBS=""
 	    LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
 	    if test "$GCC" = "yes" ; then
-		EXTRA_CFLAGS="-mabi=n32"
-		LDFLAGS="-mabi=n32"
+		CFLAGS="$CFLAGS -mabi=n32"
+		LDFLAGS="$LDFLAGS -mabi=n32"
 	    else
 		case $system in
 		    IRIX-6.3)
 			# Use to build 6.2 compatible binaries on 6.3.
-			EXTRA_CFLAGS="-n32 -D_OLD_TERMIOS"
+			CFLAGS="$CFLAGS -n32 -D_OLD_TERMIOS"
 			;;
 		    *)
-			EXTRA_CFLAGS="-n32"
+			CFLAGS="$CFLAGS -n32"
 			;;
 		esac
-		LDFLAGS="-n32"
+		LDFLAGS="$LDFLAGS -n32"
 	    fi
 	    ;;
 	IRIX64-6.*)
@@ -7808,7 +7359,6 @@ fi
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS=""
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
 
 	    # Check to enable 64-bit flags for compiler/linker
@@ -7820,8 +7370,8 @@ echo "$as_me: WARNING: 64bit mode not supported by gcc" >&2;}
 	        else
 	            do64bit_ok=yes
 	            SHLIB_LD="ld -64 -shared -rdata_shared"
-	            EXTRA_CFLAGS="-64"
-	            LDFLAGS="-64"
+	            CFLAGS="$CFLAGS -64"
+	            LDFLAGS="$LDFLAGS -64"
 	        fi
 	    fi
 	    ;;
@@ -7830,6 +7380,7 @@ echo "$as_me: WARNING: 64bit mode not supported by gcc" >&2;}
 	    SHLIB_LD_LIBS='${LIBS}'
 	    SHLIB_SUFFIX=".so"
 
+	    CFLAGS_OPTIMIZE=-O2
 	    # egcs-2.91.66 on Redhat Linux 6.0 generates lots of warnings
 	    # when you inline the string and math operations.  Turn this off to
 	    # get rid of the warnings.
@@ -7840,7 +7391,7 @@ echo "$as_me: WARNING: 64bit mode not supported by gcc" >&2;}
 		SHLIB_LD="${CC} -shared"
 		DL_OBJS="tclLoadDl.o"
 		DL_LIBS="-ldl"
-		LDFLAGS="-rdynamic"
+		LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
 		LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
 	    else
 		if test "${ac_cv_header_dld_h+set}" = set; then
@@ -7977,14 +7528,13 @@ if test $ac_cv_header_dld_h = yes; then
 		    SHLIB_LD="ld -shared"
 		    DL_OBJS="tclLoadDld.o"
 		    DL_LIBS="-ldld"
-		    LDFLAGS=""
 		    LD_SEARCH_FLAGS=""
 fi
 
 
 	    fi
 	    if test "`uname -m`" = "alpha" ; then
-		EXTRA_CFLAGS="-mieee"
+		CFLAGS="$CFLAGS -mieee"
 	    fi
 
 	    # The combo of gcc + glibc has a bug related
@@ -7995,7 +7545,7 @@ fi
 	    # Disable inlining only when one of the
 	    # files in compat/*.c is being linked in.
 	    if test x"${USE_COMPAT}" != x ; then
-	        EXTRA_CFLAGS="${EXTRA_CFLAGS} -fno-inline"
+	        CFLAGS="$CFLAGS -fno-inline"
 	    fi
 
 	    ;;
@@ -8008,7 +7558,7 @@ fi
 		SHLIB_LD="${CC} -shared"
 		DL_OBJS=""
 		DL_LIBS="-ldl"
-		LDFLAGS="-rdynamic"
+		LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
 		LD_SEARCH_FLAGS=""
 	    else
 		if test "${ac_cv_header_dld_h+set}" = set; then
@@ -8145,14 +7695,13 @@ if test $ac_cv_header_dld_h = yes; then
 		    SHLIB_LD="ld -shared"
 		    DL_OBJS=""
 		    DL_LIBS="-ldld"
-		    LDFLAGS=""
 		    LD_SEARCH_FLAGS=""
 fi
 
 
 	    fi
 	    if test "`uname -m`" = "alpha" ; then
-		EXTRA_CFLAGS="-mieee"
+		CFLAGS="$CFLAGS -mieee"
 	    fi
 	    ;;
 	MP-RAS-02*)
@@ -8162,7 +7711,6 @@ fi
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	MP-RAS-*)
@@ -8172,7 +7720,7 @@ fi
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
-	    LDFLAGS="-Wl,-Bexport"
+	    LDFLAGS="$LDFLAGS -Wl,-Bexport"
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	NetBSD-*|FreeBSD-[1-2].*)
@@ -8315,7 +7863,6 @@ if test $ac_cv_header_dlfcn_h = yes; then
 		SHLIB_SUFFIX=".so"
 		DL_OBJS="tclLoadDl.o"
 		DL_LIBS=""
-		LDFLAGS=""
 		LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
 		echo "$as_me:$LINENO: checking for ELF" >&5
 echo $ECHO_N "checking for ELF... $ECHO_C" >&6
@@ -8354,7 +7901,6 @@ else
 		SHLIB_SUFFIX=".a"
 		DL_OBJS="tclLoadAout.o"
 		DL_LIBS=""
-		LDFLAGS=""
 		LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
 		SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}\$\{DBGX\}.a'
 
@@ -8373,7 +7919,6 @@ fi
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS=""
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    echo "$as_me:$LINENO: checking for ELF" >&5
 echo $ECHO_N "checking for ELF... $ECHO_C" >&6
@@ -8416,12 +7961,12 @@ rm -f conftest*
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS=""
-	    LDFLAGS="-export-dynamic"
+	    LDFLAGS="$LDFLAGS -export-dynamic"
 	    LD_SEARCH_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
 	    if test "${TCL_THREADS}" = "1" ; then
 		# The -pthread needs to go in the CFLAGS, not LIBS
 		LIBS=`echo $LIBS | sed s/-pthread//`
-		EXTRA_CFLAGS="-pthread"
+		CFLAGS="$CFLAGS -pthread"
 	    	LDFLAGS="$LDFLAGS -pthread"
 	    fi
 	    case $system in
@@ -8441,11 +7986,11 @@ rm -f conftest*
 	    SHLIB_SUFFIX=".dylib"
 	    DL_OBJS="tclLoadDyld.o"
 	    DL_LIBS=""
-	    LDFLAGS="-prebind"
+	    LDFLAGS="$LDFLAGS -prebind"
 	    LD_SEARCH_FLAGS=""
 	    LD_LIBRARY_PATH_VAR="DYLD_LIBRARY_PATH"
 	    CFLAGS_OPTIMIZE="-O3"
-	    EXTRA_CFLAGS="-arch ppc -pipe"
+	    CFLAGS="$CFLAGS -arch ppc -pipe"
 	    ;;
 	NEXTSTEP-*)
 	    SHLIB_CFLAGS=""
@@ -8454,7 +7999,6 @@ rm -f conftest*
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadNext.o"
 	    DL_LIBS=""
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	OS/390-*)
@@ -8473,7 +8017,6 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadOSF.o"
 	    DL_LIBS=""
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	OSF1-1.*)
@@ -8488,7 +8031,6 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS=""
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	OSF1-V*)
@@ -8503,21 +8045,22 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS=""
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS='-rpath ${LIB_RUNTIME_DIR}'
-	    if test "$GCC" != "yes" ; then
-		EXTRA_CFLAGS="-DHAVE_TZSET -std1"
+	    if test "$GCC" = "yes" ; then
+		CFLAGS="$CFLAGS -mieee"
+            else
+		CFLAGS="$CFLAGS -DHAVE_TZSET -std1 -ieee"
 	    fi
 	    # see pthread_intro(3) for pthread support on osf1, k.furukawa
 	    if test "${TCL_THREADS}" = "1" ; then
-		EXTRA_CFLAGS="${EXTRA_CFLAGS} -DHAVE_PTHREAD_ATTR_SETSTACKSIZE"
-		EXTRA_CFLAGS="${EXTRA_CFLAGS} -DTCL_THREAD_STACK_MIN=PTHREAD_STACK_MIN*64"
+		CFLAGS="$CFLAGS -DHAVE_PTHREAD_ATTR_SETSTACKSIZE"
+		CFLAGS="$CFLAGS -DTCL_THREAD_STACK_MIN=PTHREAD_STACK_MIN*64"
 		LIBS=`echo $LIBS | sed s/-lpthreads//`
 		if test "$GCC" = "yes" ; then
 		    LIBS="$LIBS -lpthread -lmach -lexc"
 		else
-		    EXTRA_CFLAGS="${EXTRA_CFLAGS} -pthread"
-		    LDFLAGS="-pthread"
+		    CFLAGS="$CFLAGS -pthread"
+		    LDFLAGS="$LDFLAGS -pthread"
 		fi
 	    fi
 
@@ -8532,7 +8075,6 @@ _ACEOF
 	    DL_OBJS="tclLoadDl.o"
 	    # dlopen is in -lc on QNX
 	    DL_LIBS=""
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	RISCos-*)
@@ -8542,7 +8084,7 @@ _ACEOF
 	    SHLIB_SUFFIX=".a"
 	    DL_OBJS="tclLoadAout.o"
 	    DL_LIBS=""
-	    LDFLAGS="-Wl,-D,08000000"
+	    LDFLAGS="$LDFLAGS -Wl,-D,08000000"
 	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
 	    ;;
 	SCO_SV-3.2*)
@@ -8551,10 +8093,10 @@ _ACEOF
 	    # below.
 	    if test "$GCC" = "yes" ; then
 	    	SHLIB_CFLAGS="-fPIC -melf"
-	    	LDFLAGS="-melf -Wl,-Bexport"
+	    	LDFLAGS="$LDFLAGS -melf -Wl,-Bexport"
 	    else
 	    	SHLIB_CFLAGS="-Kpic -belf"
-	    	LDFLAGS="-belf -Wl,-Bexport"
+	    	LDFLAGS="$LDFLAGS -belf -Wl,-Bexport"
 	    fi
 	    SHLIB_LD="ld -G"
 	    SHLIB_LD_LIBS=""
@@ -8570,7 +8112,6 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    ;;
 	SunOS-4*)
@@ -8580,7 +8121,6 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
-	    LDFLAGS=""
 	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
 
 	    # SunOS can't handle version numbers with dots in them in library
@@ -8615,7 +8155,6 @@ _ACEOF
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
-	    LDFLAGS=""
 	    if test "$GCC" = "yes" ; then
 		SHLIB_LD="$CC -shared"
 		LD_SEARCH_FLAGS='-Wl,-R,${LIB_RUNTIME_DIR}'
@@ -8639,7 +8178,6 @@ _ACEOF
 
 
 	    SHLIB_CFLAGS="-KPIC"
-	    LDFLAGS=""
 
 	    # Check to enable 64-bit flags for compiler/linker
 	    if test "$do64bit" = "yes" ; then
@@ -8651,11 +8189,11 @@ echo "$as_me: WARNING: \"64bit mode not supported with GCC on $system\"" >&2;}
 			else
 			    do64bit_ok=yes
 			    if test "$do64bitVIS" = "yes" ; then
-				EXTRA_CFLAGS="-xarch=v9a"
-			    	LDFLAGS="-xarch=v9a"
+				CFLAGS="$CFLAGS -xarch=v9a"
+			    	LDFLAGS="$LDFLAGS -xarch=v9a"
 			    else
-				EXTRA_CFLAGS="-xarch=v9"
-			    	LDFLAGS="-xarch=v9"
+				CFLAGS="$CFLAGS -xarch=v9"
+			    	LDFLAGS="$LDFLAGS -xarch=v9"
 			    fi
 			fi
 		else
@@ -8686,10 +8224,10 @@ echo "$as_me: WARNING: \"64bit mode only supported sparcv9 system\"" >&2;}
 	    SHLIB_LD_LIBS='${LIBS}'
 	    DL_OBJS="tclLoadAout.o"
 	    DL_LIBS=""
-	    LDFLAGS="-Wl,-D,08000000"
+	    LDFLAGS="$LDFLAGS -Wl,-D,08000000"
 	    LD_SEARCH_FLAGS='-L${LIB_RUNTIME_DIR}'
 	    if test "$GCC" != "yes" ; then
-		EXTRA_CFLAGS="-DHAVE_TZSET -std1"
+		CFLAGS="$CFLAGS -DHAVE_TZSET -std1"
 	    fi
 	    ;;
 	UNIX_SV* | UnixWare-5*)
@@ -8704,7 +8242,7 @@ echo "$as_me: WARNING: \"64bit mode only supported sparcv9 system\"" >&2;}
 	    hold_ldflags=$LDFLAGS
 	    echo "$as_me:$LINENO: checking for ld accepts -Bexport flag" >&5
 echo $ECHO_N "checking for ld accepts -Bexport flag... $ECHO_C" >&6
-	    LDFLAGS="${LDFLAGS} -Wl,-Bexport"
+	    LDFLAGS="$LDFLAGS -Wl,-Bexport"
 	    cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -8738,17 +8276,11 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-found=no
+LDFLAGS=$hold_ldflags found=no
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
-	    LDFLAGS=$hold_ldflags
 	    echo "$as_me:$LINENO: result: $found" >&5
 echo "${ECHO_T}$found" >&6
-	    if test $found = yes; then
-	    LDFLAGS="-Wl,-Bexport"
-	    else
-	    LDFLAGS=""
-	    fi
 	    LD_SEARCH_FLAGS=""
 	    ;;
     esac
@@ -8978,7 +8510,7 @@ fi;
 	SHLIB_SUFFIX=""
 	DL_OBJS="tclLoadNone.o"
 	DL_LIBS=""
-	LDFLAGS=""
+	LDFLAGS="$LDFLAGS_ORIG"
 	LD_SEARCH_FLAGS=""
 	BUILD_DLTEST=""
     fi
@@ -9035,6 +8567,463 @@ fi;
 
 
 
+
+    # These must be called after we do the basic CFLAGS checks and
+    # verify any possible 64-bit or similar switches are necessary
+
+    echo "$as_me:$LINENO: checking for required early compiler flags" >&5
+echo $ECHO_N "checking for required early compiler flags... $ECHO_C" >&6
+    tcl_flags=""
+
+    if test "${tcl_cv_flag__isoc99_source+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <stdlib.h>
+int
+main ()
+{
+char *p = (char *)strtoll; char *q = (char *)strtoull;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_cv_flag__isoc99_source=no
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#define _ISOC99_SOURCE 1
+#include <stdlib.h>
+int
+main ()
+{
+char *p = (char *)strtoll; char *q = (char *)strtoull;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_cv_flag__isoc99_source=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+tcl_cv_flag__isoc99_source=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+
+    if test "x${tcl_cv_flag__isoc99_source}" = "xyes" ; then
+	cat >>confdefs.h <<\_ACEOF
+#define _ISOC99_SOURCE 1
+_ACEOF
+
+	tcl_flags="$tcl_flags _ISOC99_SOURCE"
+    fi
+
+
+    if test "${tcl_cv_flag__largefile64_source+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <sys/stat.h>
+int
+main ()
+{
+struct stat64 buf; int i = stat64("/", &buf);
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_cv_flag__largefile64_source=no
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#define _LARGEFILE64_SOURCE 1
+#include <sys/stat.h>
+int
+main ()
+{
+struct stat64 buf; int i = stat64("/", &buf);
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_cv_flag__largefile64_source=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+tcl_cv_flag__largefile64_source=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+
+    if test "x${tcl_cv_flag__largefile64_source}" = "xyes" ; then
+	cat >>confdefs.h <<\_ACEOF
+#define _LARGEFILE64_SOURCE 1
+_ACEOF
+
+	tcl_flags="$tcl_flags _LARGEFILE64_SOURCE"
+    fi
+
+    if test "x${tcl_flags}" = "x" ; then
+	echo "$as_me:$LINENO: result: none" >&5
+echo "${ECHO_T}none" >&6
+    else
+	echo "$as_me:$LINENO: result: ${tcl_flags}" >&5
+echo "${ECHO_T}${tcl_flags}" >&6
+    fi
+
+
+    echo "$as_me:$LINENO: checking for 64-bit integer type" >&5
+echo $ECHO_N "checking for 64-bit integer type... $ECHO_C" >&6
+    if test "${tcl_cv_type_64bit+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+	tcl_cv_type_64bit=none
+	# See if the compiler knows natively about __int64
+	cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+int
+main ()
+{
+__int64 value = (__int64) 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_type_64bit=__int64
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+tcl_type_64bit="long long"
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+	# See if we should use long anyway  Note that we substitute in the
+	# type that is our current guess for a 64-bit type inside this check
+	# program, so it should be modified only carefully...
+        cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+int
+main ()
+{
+switch (0) {
+            case 1: case (sizeof(${tcl_type_64bit})==sizeof(long)): ;
+        }
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_cv_type_64bit=${tcl_type_64bit}
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+
+    if test "${tcl_cv_type_64bit}" = none ; then
+	cat >>confdefs.h <<\_ACEOF
+#define TCL_WIDE_INT_IS_LONG 1
+_ACEOF
+
+	echo "$as_me:$LINENO: result: using long" >&5
+echo "${ECHO_T}using long" >&6
+    elif test "${tcl_cv_type_64bit}" = "__int64" ; then
+	# We actually want to use the default tcl.h checks in this
+	# case to handle both TCL_WIDE_INT_TYPE and TCL_LL_MODIFIER*
+	echo "$as_me:$LINENO: result: using Tcl header defaults" >&5
+echo "${ECHO_T}using Tcl header defaults" >&6
+    else
+	cat >>confdefs.h <<_ACEOF
+#define TCL_WIDE_INT_TYPE ${tcl_cv_type_64bit}
+_ACEOF
+
+	echo "$as_me:$LINENO: result: ${tcl_cv_type_64bit}" >&5
+echo "${ECHO_T}${tcl_cv_type_64bit}" >&6
+
+	# Now check for auxiliary declarations
+	echo "$as_me:$LINENO: checking for struct dirent64" >&5
+echo $ECHO_N "checking for struct dirent64... $ECHO_C" >&6
+	if test "${tcl_cv_struct_dirent64+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+	    cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <sys/types.h>
+#include <sys/dirent.h>
+int
+main ()
+{
+struct dirent64 p;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_cv_struct_dirent64=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+tcl_cv_struct_dirent64=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+
+	if test "x${tcl_cv_struct_dirent64}" = "xyes" ; then
+	    cat >>confdefs.h <<\_ACEOF
+#define HAVE_STRUCT_DIRENT64 1
+_ACEOF
+
+	fi
+	echo "$as_me:$LINENO: result: ${tcl_cv_struct_dirent64}" >&5
+echo "${ECHO_T}${tcl_cv_struct_dirent64}" >&6
+
+	echo "$as_me:$LINENO: checking for struct stat64" >&5
+echo $ECHO_N "checking for struct stat64... $ECHO_C" >&6
+	if test "${tcl_cv_struct_stat64+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+	    cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <sys/stat.h>
+int
+main ()
+{
+struct stat64 p;
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_cv_struct_stat64=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+tcl_cv_struct_stat64=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+
+	if test "x${tcl_cv_struct_stat64}" = "xyes" ; then
+	    cat >>confdefs.h <<\_ACEOF
+#define HAVE_STRUCT_STAT64 1
+_ACEOF
+
+	fi
+	echo "$as_me:$LINENO: result: ${tcl_cv_struct_stat64}" >&5
+echo "${ECHO_T}${tcl_cv_struct_stat64}" >&6
+
+	echo "$as_me:$LINENO: checking for off64_t" >&5
+echo $ECHO_N "checking for off64_t... $ECHO_C" >&6
+	if test "${tcl_cv_type_off64_t+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+	    cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <sys/types.h>
+int
+main ()
+{
+off64_t offset;
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  tcl_cv_type_off64_t=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+tcl_cv_type_off64_t=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+
+	if test "x${tcl_cv_type_off64_t}" = "xyes" ; then
+	    cat >>confdefs.h <<\_ACEOF
+#define HAVE_TYPE_OFF64_T 1
+_ACEOF
+
+	fi
+	echo "$as_me:$LINENO: result: ${tcl_cv_type_off64_t}" >&5
+echo "${ECHO_T}${tcl_cv_type_off64_t}" >&6
+    fi
 
 
 
@@ -9935,7 +9924,6 @@ s,@DL_LIBS@,$DL_LIBS,;t t
 s,@CFLAGS_DEBUG@,$CFLAGS_DEBUG,;t t
 s,@CFLAGS_OPTIMIZE@,$CFLAGS_OPTIMIZE,;t t
 s,@CFLAGS_WARNING@,$CFLAGS_WARNING,;t t
-s,@EXTRA_CFLAGS@,$EXTRA_CFLAGS,;t t
 s,@STLIB_LD@,$STLIB_LD,;t t
 s,@SHLIB_LD@,$SHLIB_LD,;t t
 s,@SHLIB_CFLAGS@,$SHLIB_CFLAGS,;t t

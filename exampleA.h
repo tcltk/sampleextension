@@ -8,6 +8,9 @@
  *
  */
 
+#ifndef _EXAMPLEA
+#define _EXAMPLEA
+
 #include <tcl.h>
 
 /*
@@ -18,7 +21,7 @@
 #ifdef BUILD_exampleA
 #undef TCL_STORAGE_CLASS
 #define TCL_STORAGE_CLASS DLLEXPORT
-#endif
+#endif /* BUILD_exampleA */
 
 typedef struct {
     unsigned long state[5];
@@ -36,3 +39,5 @@ void SHA1Final	_ANSI_ARGS_((SHA1_CTX* context, unsigned char digest[20]));
  */
 
 EXTERN int	Examplea_Init _ANSI_ARGS_((Tcl_Interp * interp));
+
+#endif /* _EXAMPLEA */

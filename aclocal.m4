@@ -1768,7 +1768,7 @@ AC_DEFUN(SC_TCL_LINK_LIBS, [
 # SC_MAKE_LIB --
 #
 #	Generate a line that can be used to build a shared/unshared library
-#	in a platform independant manner.
+#	in a platform independent manner.
 #
 # Arguments:
 #	none

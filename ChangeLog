@@ -1,5 +1,7 @@
 2003-10-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* tea.pdf:         Set to binary so it downloads properly under Win32
+	
 	* win/rules.vc:    Fixed nmakehlp to find the correct Tcl or Tk
 	* win/nmakehlp.c:  version from the tcl.h header file. This will
 	* win/makefile.vc  then pick up the right libraries.

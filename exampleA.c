@@ -48,6 +48,7 @@
 #ifdef BIG_ENDIAN
 #define blk0(i) block->l[i]
 #else
+
 /*
  * for unknown byte order, to work with either
  * results in no change on big endian machines
@@ -300,7 +301,12 @@ void SHA1Final(context, digest)
     memset(context->state, 0, 20);
     memset(context->count, 0, 8);
     memset(&finalcount, 0, 8);
-#ifdef SHA1HANDSOFF  /* make SHA1Transform overwrite it's own static vars */
+
+    /*
+     * make SHA1Transform overwrite it's own static vars
+     */
+
+#ifdef SHA1HANDSOFF
     SHA1Transform(context->state, context->buffer);
 #endif
 }

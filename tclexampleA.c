@@ -8,7 +8,9 @@
  *
  */
 
-/* Modified from tclmd5.c by Dave Dykstra, dwd@bell-labs.com, 4/22/97 */
+/*
+ * Modified from tclmd5.c by Dave Dykstra, dwd@bell-labs.com, 4/22/97
+ */
 
 #include <tcl.h>
 #include <stdio.h>
@@ -56,8 +58,12 @@ Sha1(clientData, interp, argc, argv)
     int argc;			/* Number of arguments */
     char *argv[];		/* Argument strings */
 {
+    /*
+     * The default base is hex
+     */
+
+    int log2base = 4;
     int a;
-    int log2base = 4; /* the default base is hex */
     char *arg, *string = NULL;
     Tcl_Channel chan = (Tcl_Channel) NULL;
     Tcl_Channel copychan = (Tcl_Channel) NULL;
@@ -71,7 +77,12 @@ Sha1(clientData, interp, argc, argv)
     char *descriptor = NULL;
     int totalRead = 0;
     int i, j, n, mask, bits, offset;
-    char buf[129];  /* for binary representation + null char */
+
+    /*
+     * For binary representation + null char
+     */
+
+    char buf[129];
     unsigned char digest[DIGESTSIZE];
 
     for (a = 1; a < argc; a++) {
@@ -152,7 +163,7 @@ Sha1(clientData, interp, argc, argv)
 	if ((sscanf(descriptor, "sha1%d", &contextnum) != 1) ||
 	    (contextnum >= numcontexts) || (ctxtotalRead[contextnum] < 0)) {
 	    Tcl_AppendResult(interp, "invalid sha1 descriptor \"", 
-			    descriptor, "\"", (char *) NULL);
+		    descriptor, "\"", (char *) NULL);
 	    return TCL_ERROR;
 	}
     }
@@ -170,15 +181,15 @@ Sha1(clientData, interp, argc, argv)
 	bufPtr = ckalloc((unsigned) TCL_READ_CHUNK_SIZE);
 	totalRead = 0;
 	while ((n = Tcl_Read(chan, bufPtr,
-			maxbytes == 0
-			    ? TCL_READ_CHUNK_SIZE
-			    : (TCL_READ_CHUNK_SIZE < maxbytes
-				? TCL_READ_CHUNK_SIZE
-				: maxbytes))) != 0) {
+		maxbytes == 0
+		? TCL_READ_CHUNK_SIZE
+		: (TCL_READ_CHUNK_SIZE < maxbytes
+		? TCL_READ_CHUNK_SIZE
+		: maxbytes))) != 0) {
 	    if (n < 0) {
 		ckfree(bufPtr);
 		Tcl_AppendResult(interp, argv[0], ": ",
-		    Tcl_GetChannelName(chan), Tcl_PosixError(interp),
+			Tcl_GetChannelName(chan), Tcl_PosixError(interp),
 			(char *) NULL);
 		return TCL_ERROR;
 	    }
@@ -227,7 +238,7 @@ Sha1(clientData, interp, argc, argv)
      */
 
     n = log2base;
-    i =  j = bits = 0;
+    i = j = bits = 0;
 
     /*
      * if 160 bits doesn't divide exactly by n then the first character of

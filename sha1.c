@@ -1,4 +1,13 @@
 /*
+ * sha1.c --
+ *
+ *	This file implements a secure hashing algorithm
+ *
+ * Copyright (c) 1999 Scriptics Corporation.
+ *
+ */
+
+/*
 SHA-1 in C
 By Steve Reid <steve@edmweb.com>
 100% Public Domain

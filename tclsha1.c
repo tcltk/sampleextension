@@ -1,3 +1,13 @@
+/*
+ * tclsha1.c --
+ *
+ *	This file implements a Tcl interface to the secure hashing
+ *	algorithm functions in sha1.c
+ *
+ * Copyright (c) 1999 Scriptics Corporation.
+ *
+ */
+
 /* Modified from tclmd5.c by Dave Dykstra, dwd@bell-labs.com, 4/22/97 */
 
 #include <tcl.h>

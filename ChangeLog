@@ -1,11 +1,14 @@
 2002-03-05  Jeff Hobbs  <jeffh@ActiveState.com>
 
+	* Makefile.in: removed unused @vars@.  Cleaned up targets.  Added
+	dist and dist-clean generic targets.  Improved use of OBJEXT.
+
+	* configure.in: bumped package to 0.3, cleaned up macro usage.
+
 	* README: 
 	* README.cygwin: 
-	* Makefile.in:
 	* aclocal.m4:
 	* configure (new):
-	* configure.in:
 	* install-sh, mkinstalldirs, tcl.m4 (removed): complete revamp to
 	use the tclconfig updated TEA module
 

@@ -841,11 +841,11 @@ fi
 #------------------------------------------------------------------------
 
 if test -z "$no_pipe" -a -n "$GCC"; then
-  echo $ac_n "checking if the compiler understands -pipe""... $ac_c" 1>&6
+    echo $ac_n "checking if the compiler understands -pipe""... $ac_c" 1>&6
 echo "configure:846: checking if the compiler understands -pipe" >&5
-  OLDCC="$CC"
-  CC="$CC -pipe"
-  cat > conftest.$ac_ext <<EOF
+    OLDCC="$CC"
+    CC="$CC -pipe"
+    cat > conftest.$ac_ext <<EOF
 #line 850 "configure"
 #include "confdefs.h"
 
@@ -861,7 +861,7 @@ else
   cat conftest.$ac_ext >&5
   rm -rf conftest*
   CC="$OLDCC"
-    echo "$ac_t""no" 1>&6
+	echo "$ac_t""no" 1>&6
 fi
 rm -f conftest*
 fi
@@ -3444,13 +3444,6 @@ EOF
 
 
 #--------------------------------------------------------------------
-# eval these two values to dereference the ${DBGX} variable.
-#--------------------------------------------------------------------
-
-eval "SHARED_LIB_SUFFIX=${TCL_SHARED_LIB_SUFFIX}"
-eval "UNSHARED_LIB_SUFFIX=${TCL_UNSHARED_LIB_SUFFIX}"
-
-#--------------------------------------------------------------------
 # Shared libraries and static libraries have different names.
 #--------------------------------------------------------------------
 
@@ -3497,7 +3490,7 @@ fi
 
 
     echo $ac_n "checking for tclsh""... $ac_c" 1>&6
-echo "configure:3501: checking for tclsh" >&5
+echo "configure:3494: checking for tclsh" >&5
 
     if eval "test \"`echo '$''{'ac_cv_path_tclsh'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6

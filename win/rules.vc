@@ -14,7 +14,7 @@
 # Copyright (c) 2003 Patrick Thoyts
 #
 #------------------------------------------------------------------------------
-# RCS: @(#) $Id: rules.vc,v 1.2 2003/10/01 14:56:00 patthoyts Exp $
+# RCS: @(#) $Id: rules.vc,v 1.3 2004/07/04 23:15:23 patthoyts Exp $
 #------------------------------------------------------------------------------
 
 !ifndef _RULES_VC
@@ -29,7 +29,7 @@ rc32		= $(RC)   # built-in default.
 ### Assume the normal default.
 _INSTALLDIR	= C:\Program Files\Tcl
 !else
-### Fix the path seperators.
+### Fix the path separators.
 _INSTALLDIR	= $(INSTALLDIR:/=\)
 !endif
 
@@ -310,12 +310,17 @@ OPTDEFINES	= $(OPTDEFINES) -DTCL_CFG_DO64BIT
 
 !if "$(PROJECT)" != "tcl"
 
-!if !defined(TCLDIR)
+# If INSTALLDIR set to tcl root dir then reset to the lib dir.
 !if exist("$(_INSTALLDIR)\include\tcl.h")
+_INSTALLDIR=$(_INSTALLDIR)\lib
+!endif
+
+!if !defined(TCLDIR)
+!if exist("$(_INSTALLDIR)\..\include\tcl.h")
 TCLINSTALL	= 1
-_TCLDIR		= $(_INSTALLDIR)
-_TCL_H          = $(_INSTALLDIR)\include\tcl.h
-TCLDIR          = $(_INSTALLDIR)
+_TCLDIR		= $(_INSTALLDIR)\..
+_TCL_H          = $(_INSTALLDIR)\..\include\tcl.h
+TCLDIR          = $(_INSTALLDIR)\..
 !else
 MSG=^
 Failed to find tcl.h.  Set the TCLDIR macro.
@@ -325,14 +330,15 @@ Failed to find tcl.h.  Set the TCLDIR macro.
 _TCLDIR	= $(TCLDIR:/=\)
 !if exist("$(_TCLDIR)\include\tcl.h")
 TCLINSTALL	= 1
+_TCL_H          = $(_TCLDIR)\include\tcl.h
 !elseif exist("$(_TCLDIR)\generic\tcl.h")
 TCLINSTALL	= 0
+_TCL_H          = $(_TCLDIR)\generic\tcl.h
 !else
 MSG =^
 Failed to find tcl.h.  The TCLDIR macro does not appear correct.
 !error $(MSG)
 !endif
-_TCL_H          = $(_TCLDIR)\generic\tcl.h
 !endif
 
 !if [nmakehlp -v $(_TCL_H) ""] == 0
@@ -343,24 +349,16 @@ TCL_VERSION	= $(TCL_DOTVERSION:.=)
 !endif
 
 !if $(TCLINSTALL)
-TCLSH		= "$(_INSTALLDIR)\bin\tclsh$(TCL_VERSION)$(SUFX).exe"
-TCLSTUBLIB	= "$(_INSTALLDIR)\lib\tclstub$(TCL_VERSION).lib"
-TCLIMPLIB	= "$(_INSTALLDIR)\lib\tcl$(TCL_VERSION)$(SUFX).lib"
-TCL_LIBRARY	= $(_INSTALLDIR)\lib
-TCLREGLIB	= "$(_INSTALLDIR)\lib\tclreg11$(SUFX:t=).lib"
-TCLDDELIB	= "$(_INSTALLDIR)\lib\tcldde12$(SUFX:t=).lib"
-COFFBASE	= \must\have\tcl\sources\to\build\this\target
-TCLTOOLSDIR	= \must\have\tcl\sources\to\build\this\target
-TCL_INCLUDES    = -I"$(_INSTALLDIR)\include"
+TCLSH		= "$(_TCLDIR)\bin\tclsh$(TCL_VERSION)$(SUFX).exe"
+TCLSTUBLIB	= "$(_TCLDIR)\lib\tclstub$(TCL_VERSION).lib"
+TCLIMPLIB	= "$(_TCLDIR)\lib\tcl$(TCL_VERSION)$(SUFX).lib"
+TCL_LIBRARY	= $(_TCLDIR)\lib
+TCL_INCLUDES    = -I"$(_TCLDIR)\include"
 !else
 TCLSH		= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tclsh$(TCL_VERSION)$(SUFX).exe"
 TCLSTUBLIB	= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tclstub$(TCL_VERSION).lib"
 TCLIMPLIB	= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tcl$(TCL_VERSION)$(SUFX).lib"
 TCL_LIBRARY	= $(_TCLDIR)\library
-TCLREGLIB	= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tclreg11$(SUFX:t=).lib"
-TCLDDELIB	= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tcldde12$(SUFX:t=).lib"
-COFFBASE	= "$(_TCLDIR)\win\coffbase.txt"
-TCLTOOLSDIR	= $(_TCLDIR)\tools
 TCL_INCLUDES	= -I"$(_TCLDIR)\generic" -I"$(_TCLDIR)\win"
 !endif
 
@@ -373,11 +371,16 @@ TCL_INCLUDES	= -I"$(_TCLDIR)\generic" -I"$(_TCLDIR)\win"
 !if "$(PROJECT)" != "tcl" && "$(PROJECT)" != "tk"
 
 !if !defined(TKDIR)
-!if exist("$(_INSTALLDIR)\include\tk.h")
+!if exist("$(_INSTALLDIR)\..\include\tk.h")
 TKINSTALL      = 1
-_TKDIR         = $(_INSTALLDIR)
-_TK_H          = $(_INSTALLDIR)\include\tk.h
-TKDIR          = $(_INSTALLDIR)
+_TKDIR         = $(_INSTALLDIR)\..
+_TK_H          = $(_TKDIR)\include\tk.h
+TKDIR          = $(_TKDIR)
+!elseif exist("$(_TCLDIR)\include\tk.h")
+TKINSTALL      = 1
+_TKDIR         = $(_TCLDIR)
+_TK_H          = $(_TKDIR)\include\tk.h
+TKDIR          = $(_TKDIR)
 !else
 MSG =^
 Failed to find tk.h. Set the TKDIR macro.
@@ -387,14 +390,15 @@ Failed to find tk.h. Set the TKDIR macro.
 _TKDIR = $(TKDIR:/=\)
 !if exist("$(_TKDIR)\include\tk.h")
 TKINSTALL      = 1
+_TK_H          = $(_TKDIR)\include\tk.h
 !elseif exist("$(_TKDIR)\generic\tk.h")
 TKINSTALL      = 0
+_TK_H          = $(_TKDIR)\generic\tk.h
 !else
 MSG =^
 Failed to find tk.h. The TKDIR macro does not appear correct.
 !error $(MSG)
 !endif
-_TK_H          = $(_TKDIR)\generic\tk.h
 !endif
 
 !if [nmakehlp -v $(_TCL_H) $(_TK_H)] == 0
@@ -405,10 +409,10 @@ TK_VERSION	= $(TK_DOTVERSION:.=)
 !endif
 
 !if $(TKINSTALL)
-WISH		= "$(_INSTALLDIR)\bin\wish$(TK_VERSION)$(SUFX).exe"
-TKSTUBLIB	= "$(_INSTALLDIR)\lib\tkstub$(TK_VERSION).lib"
-TKIMPLIB	= "$(_INSTALLDIR)\lib\tk$(TK_VERSION)$(SUFX).lib"
-TK_INCLUDES     = -I"$(_INSTALLDIR)\include"
+WISH		= "$(_TKDIR)\bin\wish$(TK_VERSION)$(SUFX).exe"
+TKSTUBLIB	= "$(_TKDIR)\lib\tkstub$(TK_VERSION).lib"
+TKIMPLIB	= "$(_TKDIR)\lib\tk$(TK_VERSION)$(SUFX).lib"
+TK_INCLUDES     = -I"$(_TKDIR)\include"
 !else
 WISH		= "$(_TKDIR)\win\$(BUILDDIRTOP)\wish$(TCL_VERSION)$(SUFX).exe"
 TKSTUBLIB	= "$(_TKDIR)\win\$(BUILDDIRTOP)\tkstub$(TCL_VERSION).lib"

@@ -1,3 +1,11 @@
+2004-07-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* win/rules.vc:    Modified the nmake build system to support
+	* win/makefile.vc: an specific installation directory not in the
+	tcl install tree. eg: a site-lib directory. Some general fixups
+	too, get the tests working again, update the version, and use the
+	new PACKAGE_VERSION macro.
+
 2004-07-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* tests/all.tcl: Added a compatability function to permit running

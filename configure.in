@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in,v 1.36 2003/12/10 20:00:56 hobbs Exp $
+# RCS: @(#) $Id: configure.in,v 1.37 2003/12/10 21:29:07 hobbs Exp $
 
 #-----------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
@@ -84,27 +84,24 @@ TEA_ADD_TCL_SOURCES([])
 # A few miscellaneous platform-specific items:
 #
 # Define a special symbol for Windows (BUILD_sample in this case) so
-# that we create the export library with the dll.  See sha1.h on how
-# to use this.
+# that we create the export library with the dll.
 #
 # Windows creates a few extra files that need to be cleaned up.
 # You can add more files to clean if your extension creates any extra
 # files.
 #
-# Define any extra compiler flags in the PACKAGE_CFLAGS variable.
-# These will be appended to the current set of compiler flags for
-#
-# Add platform libs to LIBS or SHLIB_LD_LIBS as necessary.
+# TEA_ADD_* any platform specific compiler/build info here.
 #--------------------------------------------------------------------
 
 if test "${TEA_PLATFORM}" = "windows" ; then
     AC_DEFINE(BUILD_sample)
     CLEANFILES="pkgIndex.tcl *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     #TEA_ADD_SOURCES([win/winFile.c])
+    #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
 else
-    #LIBS="${LIBS} -lsuperfly"
     CLEANFILES="pkgIndex.tcl"
     #TEA_ADD_SOURCES([unix/unixFile.c])
+    #TEA_ADD_LIBS([-lsuperfly])
 fi
 AC_SUBST(CLEANFILES)
 
@@ -122,6 +119,7 @@ TEA_PUBLIC_TCL_HEADERS
 
 #TEA_PUBLIC_TK_HEADERS
 #TEA_PRIVATE_TK_HEADERS
+#TEA_PATH_X
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.

@@ -2197,7 +2197,7 @@ AC_DEFUN(SC_SIMPLE_EXEEXT, [
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_PROG_TCLSH, [
-    AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh82d${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}/../bin:${PATH})
+    AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh82d${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH})
 
     if test "x${TCLSH_PROG}" = "x:" ; then
 	AC_MSG_WARN(No tclsh executable found.  You will have to build the pkgIndex.tcl file manually.)

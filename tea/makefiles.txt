@@ -358,8 +358,56 @@ Load that particular pkgConfig.sh file.
 
 
 [section {The Makefile.in template}]
-P.M.
 
+If you study the (well-documented) make file template that comes with
+the sample extension, Makefile.in, you will notice that there is very
+little that you need to adapt. In fact, there are only two sections that
+require your attention:
+
+[list_begin bullet]
+
+[bullet]
+The section at the top for new variables that you may have defined via
+the [emph AC_SUBST] macro. This section - if needed - should contain one
+line for each new variable like:
+
+[example {
+    SAMPLE_NEW_VAR  = @SAMPLE_NEW_VAR@
+}]
+This defines a new variable "SAMPLE_NEW_VAR" in the make file which
+receives the value of the variable by the same name in the configure
+script.
+
+[nl]
+[emph Note:]
+For the sake of simplicity, always use the same names! There is no need
+to get creative at this point - it will only make things more difficult.
+
+[bullet]
+The section containing the user-definable targets. This section may look
+intimidating to someone not familiar with UNIX shells or make files,
+but in fact, most of the code found there is completely generic.
+[nl]
+The exceptions are the targets dealing with the documentation (doc and
+install-doc) and with the distribution of the code as a single archive
+(tar-file, zip-file or whatever).
+[nl]
+The reason these targets may need to be adjusted to your needs are:
+
+[list_begin bullet]
+
+[bullet]
+You use a different system of documentation
+
+[bullet]
+You require more files from different locations to be included
+(residing in other directories for instance).
+[list_end]
+
+As it is very difficult to make these tasks generic, this remains an
+issue for you as an extension programmer.
+
+[list_end]
 
 [section {Making the distribution}]
 
@@ -408,13 +456,21 @@ AC_OUTPUT macro:
 
 
 [section {Required software}]
-P.M.
 
-
-
-
-
-
+To create a working configure script via Autoconf, you will need to have
+Autoconf 2.50 or better. Autoconf is only needed if you are developing
+an extension. The users of your extension only need the configure script
+and the make file template.
+[para]
+Once the configure script is created, you can run it without any
+additional software on a UNIX/Linux/*BSD/MacOSX system, as these systems
+almost always have the UNIX shells and the make utility.
+[para]
+For Windows systems, you will need to have such tools as Cygwin or
+MingW/MSYS - both ports of the UNIX tools to Windows.
+[para]
+See the [sectref References] section for the websites where you can get
+this software.
 
 
 [section {Making the extension}]

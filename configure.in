@@ -24,6 +24,9 @@ PACKAGE=tclsha
 VERSION=${TCL_SHA1_VERSION}
 NODOT_VERSION=${TCL_SHA1_MAJOR_VERSION}${TCL_SHA1_MINOR_VERSION}
 
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
+
 #--------------------------------------------------------------------
 # We put this here so that you can compile with -DVERSION="1.2" to
 # encode the package version directly into the source files.

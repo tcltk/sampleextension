@@ -1,3 +1,8 @@
+2005-01-24  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in, tclconfig/tcl.m4: update to TEA 3.1, better CFLAGS
+	* configure, configure.in:       handling, evc4 and msys support.
+
 2004-12-29  Joe English  <jenglish@users.sourceforge.net>
 
 	* tclconfig/tcl.m4: Do not use ${DBGX} suffix when building

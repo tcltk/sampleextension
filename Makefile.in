@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.45 2003/12/06 01:17:06 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.46 2003/12/09 21:40:13 hobbs Exp $
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -60,6 +60,7 @@ PKG_HEADERS	= @PKG_HEADERS@
 #========================================================================
 
 PKG_LIB_FILE	= @PKG_LIB_FILE@
+PKG_STUB_LIB_FILE = @PKG_STUB_LIB_FILE@
 
 lib_BINARIES	= $(PKG_LIB_FILE)
 BINARIES	= $(lib_BINARIES)
@@ -360,8 +361,14 @@ install-lib-binaries:
 	  if test -f $$p; then \
 	    echo " $(INSTALL_PROGRAM) $$p $(DESTDIR)$(pkglibdir)/$$p"; \
 	    $(INSTALL_PROGRAM) $$p $(DESTDIR)$(pkglibdir)/$$p; \
-	    echo " $(RANLIB) $(DESTDIR)$(pkglibdir)/$$p"; \
-	    $(RANLIB) $(DESTDIR)$(pkglibdir)/$$p; \
+	    stub=`echo $$p|sed -e "s/.*\(stub\).*/\1/"`; \
+	    if test "x$$stub" = "xstub"; then \
+		echo " $(RANLIB_STUB) $(DESTDIR)$(pkglibdir)/$$p"; \
+		$(RANLIB_STUB) $(DESTDIR)$(pkglibdir)/$$p; \
+	    else \
+		echo " $(RANLIB) $(DESTDIR)$(pkglibdir)/$$p"; \
+		$(RANLIB) $(DESTDIR)$(pkglibdir)/$$p; \
+	    fi; \
 	    ext=`echo $$p|sed -e "s/.*\.//"`; \
 	    if test "x$$ext" = "xdll"; then \
 		lib=`basename $$p|sed -e 's/.[^.]*$$//'`.lib; \

@@ -1,3 +1,11 @@
+2003-07-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* README:           Added notes for the win/ build files.
+	
+	* win/Makefile.vc:  Patch #762878 applied to provide a sample VC++
+	* win/rules.vc:     build system. This is NOT TEA but is a useful
+	* win/nmakehlp.c:   alternative for win32 developers.
+
 2003-04-04  Andreas Kupries  <andreask@activestate.com>
 
 	* configure.in:

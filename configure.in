@@ -15,14 +15,15 @@ AC_INIT(sha1.h)
 # other systems.
 #--------------------------------------------------------------------
 
-TCL_SHA1_MAJOR_VERSION=0
-TCL_SHA1_MINOR_VERSION=2
-TCL_SHA1_PATCHLEVEL=
-TCL_SHA1_VERSION=${TCL_SHA1_MAJOR_VERSION}.${TCL_SHA1_MINOR_VERSION}${TCL_SHA1_PATCHLEVEL}
-
 PACKAGE=tclsha
-VERSION=${TCL_SHA1_VERSION}
-NODOT_VERSION=${TCL_SHA1_MAJOR_VERSION}${TCL_SHA1_MINOR_VERSION}
+
+MAJOR_VERSION=0
+MINOR_VERSION=2
+PATCHLEVEL=
+
+VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
+NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
+
 
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
@@ -84,25 +85,32 @@ SC_LOAD_TCLCONFIG
 #
 # "cygpath" is used on windows to generate native path names for include
 # files.
+# These variables should only be used with the compiler and linker since
+# they generate native path names.
+#
+# Unix tclConfig.sh points SRC_DIR at the top-level directory of
+# the Tcl sources, while the Windows tclConfig.sh points SRC_DIR at
+# the win subdirectory.  Hence the different usages of SRC_DIR below.
 #--------------------------------------------------------------------
 
 case "`uname -s`" in
     *win32* | *WIN32* | *CYGWIN_NT*)
-	PATHTYPE=-w
-	TCL_TOP_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/..`\"
-	TCL_GENERIC_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../generic`\"
-	TCL_UNIX_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../unix`\"
-	TCL_WIN_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../win`\"
-	TCL_BMAP_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../bitmaps`\"
-	TCL_TOOL_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../tools`\"
+	CYGPATH="cygpath -w"
+	TCL_TOP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/..`\"
+	TCL_GENERIC_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../generic`\"
+	TCL_UNIX_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../unix`\"
+	TCL_WIN_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../win`\"
+	TCL_BMAP_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../bitmaps`\"
+	TCL_TOOL_DIR_NATIVE=\"`${CYGPATH} ${TCL_SRC_DIR}/../tools`\"
     ;;
     *)
-	TCL_TOP_DIR=${TCL_SRC_DIR}/..
-	TCL_GENERIC_DIR='$(TCL_TOP_DIR)/generic'
-	TCL_UNIX_DIR='$(TCL_TOP_DIR)/unix'
-	TCL_WIN_DIR='$(TCL_TOP_DIR)/win'
-	TCL_BMAP_DIR='$(TCL_TOP_DIR)/bitmaps'
-	TCL_TOOL_DIR='$(TCL_TOP_DIR)/tools'
+	CYGPATH=echo
+	TCL_TOP_DIR_NATIVE=${TCL_SRC_DIR}
+	TCL_GENERIC_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/generic'
+	TCL_UNIX_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/unix'
+	TCL_WIN_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/win'
+	TCL_BMAP_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/bitmaps'
+	TCL_TOOL_DIR_NATIVE='$(TCL_TOP_DIR_NATIVE)/tools'
     ;;
 esac
 
@@ -112,10 +120,10 @@ esac
 
 case "`uname -s`" in
     *win32* | *WIN32* | *CYGWIN_NT*)
-	TCL_PLATFORM_DIR=${TCL_WIN_DIR}
+	TCL_PLATFORM_DIR_NATIVE=${TCL_WIN_DIR_NATIVE}
     ;;
     *)
-	TCL_PLATFORM_DIR=${TCL_UNIX_DIR}
+	TCL_PLATFORM_DIR_NATIVE=${TCL_UNIX_DIR_NATIVE}
     ;;
 esac
 
@@ -124,14 +132,15 @@ esac
 # include line.
 #--------------------------------------------------------------------
 
-AC_SUBST(TCL_TOP_DIR)
-AC_SUBST(TCL_GENERIC_DIR)
-AC_SUBST(TCL_UNIX_DIR)
-AC_SUBST(TCL_WIN_DIR)
-AC_SUBST(TCL_BMAP_DIR)
-AC_SUBST(TCL_TOOL_DIR)
-AC_SUBST(TCL_PLATFORM_DIR)
-AC_SUBST(TCL_BIN_DIR)
+AC_SUBST(TCL_TOP_DIR_NATIVE)
+AC_SUBST(TCL_GENERIC_DIR_NATIVE)
+AC_SUBST(TCL_UNIX_DIR_NATIVE)
+AC_SUBST(TCL_WIN_DIR_NATIVE)
+AC_SUBST(TCL_BMAP_DIR_NATIVE)
+AC_SUBST(TCL_TOOL_DIR_NATIVE)
+AC_SUBST(TCL_PLATFORM_DIR_NATIVE)
+AC_SUBST(TCL_BIN_DIR_NATIVE)
+AC_SUBST(CYGPATH)
 
 #--------------------------------------------------------------------
 # A few miscellaneous platform-specific items:
@@ -241,6 +250,7 @@ case "`uname -s`" in
 	;;
     *)
 	if test "${SHARED_BUILD}" = "1" ; then
+	    SHLIB_LD_LIBS=""
 	    eval "TCLSHA_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
 	    RANLIB=:
 	else

@@ -140,7 +140,7 @@ SC_LOAD_TCLCONFIG
 
 case "`uname -s`" in
     *win32* | *WIN32* | *CYGWIN_NT*)
-	AC_DEFINE(BUILD_exampleA)
+	AC_DEFINE_UNQUOTED(BUILD_${PACKAGE})
 	CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
 	AC_SUBST(CLEANFILES)
     ;;

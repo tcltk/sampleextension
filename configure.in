@@ -1,0 +1,256 @@
+#--------------------------------------------------------------------
+# This very first macro is used to verify that the configure script can 
+# find the sources.  The argument to AC_INIT should be a unique filename
+# for this package, and can be a relative path, such as:
+#
+# AC_INIT(../generic/tcl.h)
+#--------------------------------------------------------------------
+
+AC_INIT(sha1.h)
+
+#--------------------------------------------------------------------
+# Set your version numbers here.  The NODOT_VERSION is required
+# for constructing the library name on systems that don't like dots
+# in library names (Windows).  The VERSION variable is used on the
+# other systems.
+#--------------------------------------------------------------------
+
+TCL_SHA1_MAJOR_VERSION=0
+TCL_SHA1_MINOR_VERSION=2
+TCL_SHA1_PATCHLEVEL=
+TCL_SHA1_VERSION=${TCL_SHA1_MAJOR_VERSION}.${TCL_SHA1_MINOR_VERSION}${TCL_SHA1_PATCHLEVEL}
+
+PACKAGE=tclsha
+VERSION=${TCL_SHA1_VERSION}
+NODOT_VERSION=${TCL_SHA1_MAJOR_VERSION}${TCL_SHA1_MINOR_VERSION}
+
+#--------------------------------------------------------------------
+# We put this here so that you can compile with -DVERSION="1.2" to
+# encode the package version directly into the source files.
+#--------------------------------------------------------------------
+
+eval AC_DEFINE_UNQUOTED(VERSION, "${VERSION}")
+
+#--------------------------------------------------------------------
+# Check whether --enable-gcc or --disable-gcc was given.  Do this 
+# before AC_CYGWIN is called so the compiler can 
+# be fully tested by built-in autoconf tools.
+# This macro also calls AC_PROG_CC to set the compiler if --enable-gcc
+# was not used.
+#--------------------------------------------------------------------
+
+SC_ENABLE_GCC
+AC_PROG_INSTALL
+
+#--------------------------------------------------------------------
+# Checks to see if the make program sets the $MAKE variable.
+#--------------------------------------------------------------------
+
+AC_PROG_MAKE_SET
+
+#--------------------------------------------------------------------
+# Find where ranlib is located.
+#--------------------------------------------------------------------
+
+AC_PROG_RANLIB
+
+#--------------------------------------------------------------------
+# This macro macros perform additinal compiler tests.
+#--------------------------------------------------------------------
+
+AC_CYGWIN
+
+#--------------------------------------------------------------------
+# Determines the correct binary file extension (.o, .obj, .exe etc.)
+#--------------------------------------------------------------------
+
+AC_OBJEXT
+AC_EXEEXT
+
+#--------------------------------------------------------------------
+# Load the tclConfig.sh file
+#--------------------------------------------------------------------
+
+SC_PATH_TCLCONFIG
+SC_LOAD_TCLCONFIG
+
+#--------------------------------------------------------------------
+# Set some values that point to parts of the Tcl source tree.  Many
+# extensions require headers/source files that Tcl doesn't normally
+# export.
+#
+# "cygpath" is used on windows to generate native path names for include
+# files.
+#--------------------------------------------------------------------
+
+case "`uname -s`" in
+    *win32* | *WIN32* | *CYGWIN_NT*)
+	PATHTYPE=-w
+	TCL_TOP_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/..`\"
+	TCL_GENERIC_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../generic`\"
+	TCL_UNIX_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../unix`\"
+	TCL_WIN_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../win`\"
+	TCL_BMAP_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../bitmaps`\"
+	TCL_TOOL_DIR=\"`cygpath ${PATHTYPE} ${TCL_SRC_DIR}/../tools`\"
+    ;;
+    *)
+	TCL_TOP_DIR=${TCL_SRC_DIR}/..
+	TCL_GENERIC_DIR='$(TCL_TOP_DIR)/generic'
+	TCL_UNIX_DIR='$(TCL_TOP_DIR)/unix'
+	TCL_WIN_DIR='$(TCL_TOP_DIR)/win'
+	TCL_BMAP_DIR='$(TCL_TOP_DIR)/bitmaps'
+	TCL_TOOL_DIR='$(TCL_TOP_DIR)/tools'
+    ;;
+esac
+
+#--------------------------------------------------------------------
+# Locate the platform-specific piece of the Tcl source tree.
+#--------------------------------------------------------------------
+
+case "`uname -s`" in
+    *win32* | *WIN32* | *CYGWIN_NT*)
+	TCL_PLATFORM_DIR=${TCL_WIN_DIR}
+    ;;
+    *)
+	TCL_PLATFORM_DIR=${TCL_UNIX_DIR}
+    ;;
+esac
+
+#--------------------------------------------------------------------
+# Put all of these in the Makefile so we can add them to the compiler's
+# include line.
+#--------------------------------------------------------------------
+
+AC_SUBST(TCL_TOP_DIR)
+AC_SUBST(TCL_GENERIC_DIR)
+AC_SUBST(TCL_UNIX_DIR)
+AC_SUBST(TCL_WIN_DIR)
+AC_SUBST(TCL_BMAP_DIR)
+AC_SUBST(TCL_TOOL_DIR)
+AC_SUBST(TCL_PLATFORM_DIR)
+AC_SUBST(TCL_BIN_DIR)
+
+#--------------------------------------------------------------------
+# A few miscellaneous platform-specific items:
+#
+# Define a special symbol for Windows (BUILD_sha in this case) so
+# that we create the export library with the dll.  See sha1.h on how
+# to use this.
+#
+# Windows creates a few extra files that need to be cleaned up.
+#--------------------------------------------------------------------
+
+case "`uname -s`" in
+    *win32* | *WIN32* | *CYGWIN_NT*)
+	AC_DEFINE(BUILD_sha)
+	CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
+	AC_SUBST(CLEANFILES)
+    ;;
+    *)
+    ;;
+esac
+
+#--------------------------------------------------------------------
+# Check whether --enable-threads or --disable-threads was given.
+# So far only Tcl responds to this one.
+#--------------------------------------------------------------------
+
+SC_ENABLE_THREADS
+
+#--------------------------------------------------------------------
+# The statement below define a collection of symbols related to
+# building as a shared library instead of a static library.
+#--------------------------------------------------------------------
+
+SC_ENABLE_SHARED
+
+#--------------------------------------------------------------------
+# This macro figures out what flags to use with the compiler/linker
+# when building shared/static debug/optimized objects.  This information
+# is all taken from the tclConfig.sh file.
+#--------------------------------------------------------------------
+
+CFLAGS_DEBUG=${TCL_CFLAGS_DEBUG}
+CFLAGS_OPTIMIZE=${TCL_CFLAGS_OPTIMIZE}
+LDFLAGS_DEBUG=${TCL_LDFLAGS_DEBUG}
+LDFLAGS_OPTIMIZE=${TCL_LDFLAGS_OPTIMIZE}
+SHLIB_LD=${TCL_SHLIB_LD}
+STLIB_LD=${TCL_STLIB_LD}
+SHLIB_CFLAGS=${TCL_SHLIB_CFLAGS}
+
+AC_SUBST(CFLAGS_DEBUG)
+AC_SUBST(CFLAGS_OPTIMIZE)
+AC_SUBST(STLIB_LD)
+AC_SUBST(SHLIB_LD)
+AC_SUBST(SHLIB_CFLAGS)
+AC_SUBST(SHLIB_LDFLAGS)
+
+#--------------------------------------------------------------------
+# Set the default compiler switches based on the --enable-symbols 
+# option.
+#--------------------------------------------------------------------
+
+SC_ENABLE_SYMBOLS
+
+if test "${SHARED_BUILD}" = "1" ; then
+    CFLAGS='${CFLAGS_DEFAULT} ${CFLAGS_WARNING} ${SHLIB_CFLAGS}'
+else
+    CFLAGS='${CFLAGS_DEFAULT} ${CFLAGS_WARNING}'
+fi
+
+#--------------------------------------------------------------------
+# Everyone should be linking against the Tcl stub library.  If you
+# can't for some reason, remove this definition.  If you aren't using
+# stubs, you also need to modify the SHLIB_LD_LIBS setting below to
+# link against the non-stubbed Tcl library.
+#--------------------------------------------------------------------
+
+AC_DEFINE(USE_TCL_STUBS)
+
+#--------------------------------------------------------------------
+# This macro generates a line to use when building a library.  It
+# depends on values set by the SC_ENABLE_SHARED, SC_ENABLE_SYMBOLS,
+# and SC_LOAD_TCLCONFIG macros above.
+#--------------------------------------------------------------------
+
+SC_MAKE_LIB
+
+#--------------------------------------------------------------------
+# eval these two values to dereference the ${DBGX} variable.
+#--------------------------------------------------------------------
+
+eval "SHARED_LIB_SUFFIX=${TCL_SHARED_LIB_SUFFIX}"
+eval "UNSHARED_LIB_SUFFIX=${TCL_UNSHARED_LIB_SUFFIX}"
+
+#--------------------------------------------------------------------
+# Shared libraries and static libraries have different names.
+#--------------------------------------------------------------------
+
+case "`uname -s`" in
+    *win32* | *WIN32* | *CYGWIN_NT*)
+	if test "${SHARED_BUILD}" = "1" ; then
+	    SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
+	    eval "TCLSHA_LIB_FILE=tclsha${SHARED_LIB_SUFFIX}"
+	    RANLIB=:
+	else
+	    eval "TCLSHA_LIB_FILE=tclsha${UNSHARED_LIB_SUFFIX}"
+	fi
+	;;
+    *)
+	if test "${SHARED_BUILD}" = "1" ; then
+	    eval "TCLSHA_LIB_FILE=libtclsha${SHARED_LIB_SUFFIX}"
+	    RANLIB=:
+	else
+	    eval "TCLSHA_LIB_FILE=libtclsha${UNSHARED_LIB_SUFFIX}"
+	fi
+	;;
+esac
+
+AC_SUBST(TCLSHA_LIB_FILE)
+AC_SUBST(SHLIB_LD_LIBS)
+
+#--------------------------------------------------------------------
+# Finally, substitute all of the various values into the Makefile.
+#--------------------------------------------------------------------
+
+AC_OUTPUT([Makefile])

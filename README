@@ -1,14 +1,15 @@
 This is a sample extension showing an implementation of the Tcl Extension
-Architecture.  Please see the webpage
- http://www.scriptics.com/products/tcltk/tea/
-for more details on TEA.  You can also read the enclose "tea.pdf" document
+Architecture (TEA).  Please see the webpage
+
+	http://www.tcl.tk/doc/tea/
+
+for more details on TEA.  You can also read the enclosed "tea.pdf" document
 for instructions on how to adapt this sample extension to your extension.
 
 This package is a freely available open source package.  You can do
-virtually anything you like with it, such as modifying it,
-redistributing it, and selling it either in whole or in part.  See the
-file "license.terms" for complete information.
-
+virtually anything you like with it, such as modifying it, redistributing
+it, and selling it either in whole or in part.  See the file
+"license.terms" for complete information.
 
 CONTENTS
 ========
@@ -29,31 +30,35 @@ aclocal.m4	Generated file.  Do not edit.  Autoconf uses this as input
 		when generating the final configure script.  See "tcl.m4"
 		below.
 
-configure	Generated file.  Do not edit.
+configure	Generated file.  Do not edit.  This must be regenerated
+		anytime configure.in or tclconfig/tcl.m4 changes.
 
 configure.in	Configure script template.  Autoconf uses this file as input
 		to produce the final configure script.
-
-install-sh	Program used for copying binaries and script files to
-		their install locations.
 
 mkIndex.tcl.in	Script template used for generating an installed pkgIndex.tcl
 		file.  The configure script uses this as input to produce the
 		actual mkIndex.tcl script.
 
-mkinstalldirs	Program used to create a directory hierarchy (because
-		mkdir -p is not portable)
+sample.c	Core Secure Hash Algorithm code.
 
-exampleA.c	Core Secure Hash Algorithm code.
-
-exampleA.h	Header file for functions in the C files.
+sample.h	Header file for functions in the C files.
 
 sha1.n		Unix nroff man page
 
-tcl.m4		Collection of Tcl autoconf macros.  This file should be copied
-		to aclocal.m4 before running autoconf.
-
-tclexampleA.c	Implementation of new Tcl command "sha1".
+tclsample.c	Implementation of new Tcl command "sha1".
 
 tea.pdf		PDF file describing the current implementation of the
 		Tcl Extension Architecture
+
+tclconfig/	This directory contains various template files that build
+		the configure script.  They should not need modification.
+
+	install-sh	Program used for copying binaries and script files
+			to their install locations.
+
+	mkinstalldirs	Program used to create a directory hierarchy
+			(because mkdir -p is not portable)
+
+	tcl.m4		Collection of Tcl autoconf macros.  Included by
+			aclocal.m4 to define SC_* macros.

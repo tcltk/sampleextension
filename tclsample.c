@@ -1,5 +1,5 @@
 /*
- * tclexampleA.c --
+ * tclsample.c --
  *
  *	This file implements a Tcl interface to the secure hashing
  *	algorithm functions in sha1.c
@@ -18,7 +18,7 @@
 #include <tcl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "exampleA.h"
+#include "sample.h"
 
 #define TCL_READ_CHUNK_SIZE 4096
 
@@ -302,9 +302,9 @@ wrongArgs:
 /*
  *----------------------------------------------------------------------
  *
- * Examplea_Init --
+ * Sample_Init --
  *
- *	Initialize the new package.  The string "Examplea" in the
+ *	Initialize the new package.  The string "Sample" in the
  *	function name must match the PACKAGE declaration at the top of
  *	configure.in.
  *
@@ -319,17 +319,17 @@ wrongArgs:
  */
 
 int
-Examplea_Init(Tcl_Interp *interp)
+Sample_Init(Tcl_Interp *interp)
 {
+    /*
+     * This may work with 8.0, but we are using strictly stubs here,
+     * which requires 8.1.
+     */
     if (Tcl_InitStubs(interp, "8.1", 0) == NULL) {
 	return TCL_ERROR;
     }
-    if (Tcl_PkgRequire(interp, "Tcl", TCL_VERSION, 0) == NULL) {
-	if (TCL_VERSION[0] == '7') {
-	    if (Tcl_PkgRequire(interp, "Tcl", "8.0", 0) == NULL) {
-		return TCL_ERROR;
-	    }
-	}
+    if (Tcl_PkgRequire(interp, "Tcl", "8.1", 0) == NULL) {
+	return TCL_ERROR;
     }
     if (Tcl_PkgProvide(interp, "Tclsha1", VERSION) != TCL_OK) {
 	return TCL_ERROR;

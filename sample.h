@@ -1,5 +1,5 @@
 /*
- * exampleA.h --
+ * sample.h --
  *
  *	This header file contains the function declarations needed for
  *	all of the source files in this package.
@@ -11,20 +11,20 @@
  *
  */
 
-#ifndef _EXAMPLEA
-#define _EXAMPLEA
+#ifndef _SAMPLE
+#define _SAMPLE
 
 #include <tcl.h>
 
 /*
  * Windows needs to know which symbols to export.  Unix does not.
- * BUILD_exampleA should be undefined for Unix.
+ * BUILD_sample should be undefined for Unix.
  */
 
-#ifdef BUILD_exampleA
+#ifdef BUILD_sample
 #undef TCL_STORAGE_CLASS
 #define TCL_STORAGE_CLASS DLLEXPORT
-#endif /* BUILD_exampleA */
+#endif /* BUILD_sample */
 
 typedef struct {
     unsigned long state[5];
@@ -41,6 +41,6 @@ void SHA1Final	_ANSI_ARGS_((SHA1_CTX* context, unsigned char digest[20]));
  * Only the _Init function is exported.
  */
 
-EXTERN int	Examplea_Init _ANSI_ARGS_((Tcl_Interp * interp));
+EXTERN int	Sample_Init _ANSI_ARGS_((Tcl_Interp * interp));
 
-#endif /* _EXAMPLEA */
+#endif /* _SAMPLE */

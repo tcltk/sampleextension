@@ -1,3 +1,10 @@
+#!/bin/bash -norc
+dnl	This file is an input file used by the GNU "autoconf" program to
+dnl	generate the file "configure", which is run during Tcl installation
+dnl	to configure the system for the local environment.
+#
+# RCS: @(#) $Id: configure.in,v 1.21 2002/03/06 05:35:31 hobbs Exp $
+
 #--------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
 # need to modify this file are marked by the string __CHANGE__
@@ -12,11 +19,11 @@
 # AC_INIT(../generic/tcl.h)
 #--------------------------------------------------------------------
 
-AC_INIT(exampleA.h)
+AC_INIT(sample.h)
 
-#AC_CONFIG_AUX_DIR(config)
-#CONFIGDIR=${srcdir}/config
-#AC_SUBST(CONFIGDIR)
+CONFIGDIR=tclconfig
+AC_CONFIG_AUX_DIR($CONFIGDIR)
+AC_SUBST(CONFIGDIR)
 
 #--------------------------------------------------------------------
 # __CHANGE__
@@ -26,7 +33,7 @@ AC_INIT(exampleA.h)
 # other systems.
 #--------------------------------------------------------------------
 
-PACKAGE=exampleA
+PACKAGE=sample
 
 MAJOR_VERSION=0
 MINOR_VERSION=2
@@ -34,7 +41,6 @@ PATCHLEVEL=
 
 VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
 NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
-
 
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
@@ -54,7 +60,43 @@ eval AC_DEFINE_UNQUOTED(VERSION, "${VERSION}")
 # was not used.
 #--------------------------------------------------------------------
 
-SC_ENABLE_GCC
+#------------------------------------------------------------------------
+# Handle the --prefix=... option
+#------------------------------------------------------------------------
+
+if test "${prefix}" = "NONE"; then
+    prefix=/usr/local
+fi
+if test "${exec_prefix}" = "NONE"; then
+    exec_prefix=$prefix
+fi
+
+#------------------------------------------------------------------------
+# Standard compiler checks.
+# This uses the CC env var, or looks for gcc otherwise.
+#------------------------------------------------------------------------
+
+# If the user did not set CFLAGS, set it now to keep
+# the AC_PROG_CC macro from adding "-g -O2".
+if test "${CFLAGS+set}" != "set" ; then
+    CFLAGS=""
+fi
+
+AC_PROG_CC
+
+#------------------------------------------------------------------------
+# If we're using GCC, see if the compiler understands -pipe.  If so, use it.
+# It makes compiling go faster.  (This is only a performance feature.)
+#------------------------------------------------------------------------
+
+if test -z "$no_pipe" -a -n "$GCC"; then
+  AC_MSG_CHECKING([if the compiler understands -pipe])
+  OLDCC="$CC"
+  CC="$CC -pipe"
+  AC_TRY_COMPILE(,, AC_MSG_RESULT([yes]), CC="$OLDCC"
+    AC_MSG_RESULT([no]))
+fi
+
 AC_PROG_INSTALL
 
 #--------------------------------------------------------------------
@@ -83,28 +125,10 @@ AC_OBJEXT
 AC_EXEEXT
 
 #--------------------------------------------------------------------
-# "cygpath" is used on windows to generate native path names for include
-# files.
-# These variables should only be used with the compiler and linker since
-# they generate native path names.
-#
-# Unix tclConfig.sh points SRC_DIR at the top-level directory of
-# the Tcl sources, while the Windows tclConfig.sh points SRC_DIR at
-# the win subdirectory.  Hence the different usages of SRC_DIR below.
-#
-# This must be done before calling SC_PUBLIC_TCL_HEADERS
+# Call SC_TEA_INIT as the first SC_ macro to set up initial vars
 #--------------------------------------------------------------------
 
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*|*CYGWIN_98*|*CYGWIN_95*)
-	CYGPATH="cygpath -w"
-    ;;
-    *)
-	CYGPATH=echo
-    ;;
-esac
-
-AC_SUBST(CYGPATH)
+SC_TEA_INIT
 
 #--------------------------------------------------------------------
 # Load the tclConfig.sh file
@@ -114,22 +138,32 @@ SC_PATH_TCLCONFIG
 SC_LOAD_TCLCONFIG
 
 #--------------------------------------------------------------------
+# Load the tkConfig.sh file if necessary (Tk extension)
+#--------------------------------------------------------------------
+
+#SC_PATH_TKCONFIG
+#SC_LOAD_TKCONFIG
+
+#--------------------------------------------------------------------
 # __CHANGE__
 # Choose which headers you need.  Extension authors should try very
 # hard to only rely on the Tcl public header files.  Internal headers
 # contain private data structures and are subject to change without
 # notice.
-# This MUST be called after SC_PATH_TCLCONFIG/SC_LOAD_TCLCONFIG
+# This MUST be called after SC_LOAD_TCLCONFIG / SC_LOAD_TKCONFIG
 #--------------------------------------------------------------------
 
 SC_PUBLIC_TCL_HEADERS
 #SC_PRIVATE_TCL_HEADERS
 
+#SC_PUBLIC_TK_HEADERS
+#SC_PRIVATE_TK_HEADERS
+
 #--------------------------------------------------------------------
 # __CHANGE__
 # A few miscellaneous platform-specific items:
 #
-# Define a special symbol for Windows (BUILD_exampleA in this case) so
+# Define a special symbol for Windows (BUILD_sample in this case) so
 # that we create the export library with the dll.  See sha1.h on how
 # to use this.
 #
@@ -142,20 +176,25 @@ SC_PUBLIC_TCL_HEADERS
 # your system.
 #--------------------------------------------------------------------
 
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*|*CYGWIN_98*|*CYGWIN_95*)
-	AC_DEFINE_UNQUOTED(BUILD_${PACKAGE})
-	CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
-	AC_SUBST(CLEANFILES)
-    ;;
-    *)
-	CLEANFILES=
-    ;;
-esac
+if test "${TEA_PLATFORM}" = "windows" ; then
+    AC_DEFINE_UNQUOTED(BUILD_${PACKAGE})
+    CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
+    PLATFORM_SOURCES='$(WIN_SOURCES)'
+    PLATFORM_OBJECTS='$(WIN_OBJECTS)'
+    PLATFORM_DIR='$(WIN_DIR)'
+else
+    CLEANFILES=
+    PLATFORM_SOURCES='$(UNIX_SOURCES)'
+    PLATFORM_OBJECTS='$(UNIX_OBJECTS)'
+    PLATFORM_DIR='$(UNIX_DIR)'
+fi
+AC_SUBST(CLEANFILES)
+AC_SUBST(PLATFORM_SOURCES)
+AC_SUBST(PLATFORM_OBJECTS)
+AC_SUBST(PLATFORM_DIR)
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.
-# So far only Tcl responds to this one.
 #--------------------------------------------------------------------
 
 SC_ENABLE_THREADS
@@ -170,27 +209,13 @@ SC_ENABLE_SHARED
 #--------------------------------------------------------------------
 # This macro figures out what flags to use with the compiler/linker
 # when building shared/static debug/optimized objects.  This information
-# is all taken from the tclConfig.sh file.
+# can be taken from the tclConfig.sh file, but this figures it all out.
 #--------------------------------------------------------------------
 
-CFLAGS_DEBUG=${TCL_CFLAGS_DEBUG}
-CFLAGS_OPTIMIZE=${TCL_CFLAGS_OPTIMIZE}
-LDFLAGS_DEBUG=${TCL_LDFLAGS_DEBUG}
-LDFLAGS_OPTIMIZE=${TCL_LDFLAGS_OPTIMIZE}
-SHLIB_LD=${TCL_SHLIB_LD}
-STLIB_LD=${TCL_STLIB_LD}
-SHLIB_CFLAGS=${TCL_SHLIB_CFLAGS}
-
-AC_SUBST(CFLAGS_DEBUG)
-AC_SUBST(CFLAGS_OPTIMIZE)
-AC_SUBST(STLIB_LD)
-AC_SUBST(SHLIB_LD)
-AC_SUBST(SHLIB_CFLAGS)
-AC_SUBST(SHLIB_LDFLAGS)
+SC_CONFIG_CFLAGS
 
 #--------------------------------------------------------------------
-# Set the default compiler switches based on the --enable-symbols 
-# option.
+# Set the default compiler switches based on the --enable-symbols option.
 #--------------------------------------------------------------------
 
 SC_ENABLE_SYMBOLS
@@ -229,26 +254,23 @@ eval "UNSHARED_LIB_SUFFIX=${TCL_UNSHARED_LIB_SUFFIX}"
 # Shared libraries and static libraries have different names.
 #--------------------------------------------------------------------
 
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*|*CYGWIN_98*|*CYGWIN_95*)
-	if test "${SHARED_BUILD}" = "1" ; then
-	    SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
-	    eval "${PACKAGE}_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
-	    RANLIB=:
-	else
-	    eval "${PACKAGE}_LIB_FILE=${PACKAGE}${UNSHARED_LIB_SUFFIX}"
-	fi
-	;;
-    *)
-	if test "${SHARED_BUILD}" = "1" ; then
-	    SHLIB_LD_LIBS="${TCL_STUB_LIB_SPEC}"
-	    eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
-	    RANLIB=:
-	else
-	    eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${UNSHARED_LIB_SUFFIX}"
-	fi
-	;;
-esac
+if test "${TEA_PLATFORM}" = "windows" ; then
+    if test "${SHARED_BUILD}" = "1" ; then
+	SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
+	eval "${PACKAGE}_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
+	RANLIB=:
+    else
+	eval "${PACKAGE}_LIB_FILE=${PACKAGE}${UNSHARED_LIB_SUFFIX}"
+    fi
+else
+    if test "${SHARED_BUILD}" = "1" ; then
+	SHLIB_LD_LIBS="${TCL_STUB_LIB_SPEC}"
+	eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
+	RANLIB=:
+    else
+	eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${UNSHARED_LIB_SUFFIX}"
+    fi
+fi
 
 AC_SUBST(SHARED_BUILD)
 
@@ -257,7 +279,7 @@ AC_SUBST(SHARED_BUILD)
 # Change the name from exampeA_LIB_FILE to match your package name.
 #--------------------------------------------------------------------
 
-AC_SUBST(exampleA_LIB_FILE)
+AC_SUBST(sample_LIB_FILE)
 AC_SUBST(SHLIB_LD_LIBS)
 
 #--------------------------------------------------------------------
@@ -266,9 +288,11 @@ AC_SUBST(SHLIB_LD_LIBS)
 # ${CYGPATH} because it's being used directly by make.
 # Require that we use a tclsh shell version 8.2 or later since earlier
 # versions have bugs in the pkg_mkIndex routine.
+# Add WISH as well if this is a Tk extension.
 #--------------------------------------------------------------------
 
 SC_PROG_TCLSH
+#SC_PROG_WISH
 
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.

@@ -1,3 +1,8 @@
+2004-12-29  Joe English  <jenglish@users.sourceforge.net>
+
+	* tclconfig/tcl.m4: Do not use ${DBGX} suffix when building
+	shared libraries [patch #1081595, TIP #34]
+
 2004-12-02  Donal K. Fellows  <donal.k.fellows@man.ac.uk>
 
 	* generic/tclsample.c (Sha1_Cmd): Rewrote to use the Tcl_Obj API

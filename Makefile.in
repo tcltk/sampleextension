@@ -5,7 +5,7 @@
 # "autoconf" program (constructs like "@foo@" will get replaced in the actual
 # Makefile.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.14 1999/08/23 20:09:33 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.15 1999/08/23 23:05:45 wart Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -152,7 +152,6 @@ TCL_BMAP_DIR_NATIVE = @TCL_BMAP_DIR_NATIVE@
 TCL_PLATFORM_DIR_NATIVE = @TCL_PLATFORM_DIR_NATIVE@
 TCL_GENERIC_DIR_NATIVE = @TCL_GENERIC_DIR_NATIVE@
 TCLSH_PROG = @TCLSH_PROG@
-PACKAGE_CFLAGS = @PACKAGE_CFLAGS@
 
 AUTOCONF = autoconf
 
@@ -160,7 +159,7 @@ LDFLAGS = $(LDFLAGS_DEFAULT)
 
 INCLUDES = @TCL_INCLUDES@
 
-EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS) $(PACKAGE_CFLAGS)
+EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS)
 
 DEFS = @DEFS@ $(EXTRA_CFLAGS)
 

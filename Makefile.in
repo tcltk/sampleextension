@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.33 2002/03/13 02:11:40 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.34 2002/03/20 00:54:06 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -140,9 +140,7 @@ EXTRA_CFLAGS	= $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $
 
 DEFS		= @DEFS@ $(EXTRA_CFLAGS)
 
-ACLOCAL_M4	= $(srcdir)/aclocal.m4
-CONFIGDIR	= @CONFIGDIR@
-CONFIG_CLEAN_FILES = mkIndex.tcl
+CONFIG_CLEAN_FILES = Makefile
 
 CPPFLAGS	= @CPPFLAGS@
 LIBS		= @LIBS@
@@ -171,7 +169,7 @@ all: binaries libraries doc
 # of the Makefile, in the "BINARIES" variable.
 #========================================================================
 
-binaries: $(BINARIES)
+binaries: $(BINARIES) pkgIndex.tcl
 
 libraries:
 
@@ -184,9 +182,8 @@ doc:
 install: all install-binaries install-libraries install-doc
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
-	$(TCLSH_PROG) mkIndex.tcl $($(PACKAGE)_LIB_FILE)
 	if test "x$(SHARED_BUILD)" = "x1"; then \
-	    $(TCLSH_PROG) mkIndex.tcl $($(PACKAGE)_LIB_FILE); \
+	    $(INSTALL_DATA) pkgIndex.tcl $(pkglibdir)
 	fi
 
 #========================================================================
@@ -217,12 +214,11 @@ install-doc: doc
 	    done
 
 test: binaries libraries
-	( echo pkg_mkIndex . $($(PACKAGE)_LIB_FILE) \; exit; ) | $(TCLSH_PROG)
-	LD_LIBRARY_PATH="$(BUILD_DIR):$(TCL_BIN_DIR):$(LD_LIBRARY_PATH)" \
-	LIBPATH="$(BUILD_DIR):$(TCL_BIN_DIR):${LIBPATH}" \
-	SHLIB_PATH="$(BUILD_DIR):$(TCL_BIN_DIR):${SHLIB_PATH}" \
-	TCLLIBPATH=. \
-	PATH="$(BUILD_DIR):$(TCL_BIN_DIR):$(PATH)" \
+	LD_LIBRARY_PATH="$(top_builddir):$(TCL_BIN_DIR):$(LD_LIBRARY_PATH)" \
+	LIBPATH="$(top_builddir):$(TCL_BIN_DIR):${LIBPATH}" \
+	SHLIB_PATH="$(top_builddir):$(TCL_BIN_DIR):${SHLIB_PATH}" \
+	TCLLIBPATH=$(top_builddir) \
+	PATH="$(top_builddir):$(TCL_BIN_DIR):$(PATH)" \
 	$(TCLSH_PROG) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
 
 depend:
@@ -264,6 +260,22 @@ VPATH = $(srcdir):$(srcdir)/generic:$(srcdir)/unix:$(srcdir)/win
 
 .c.$(OBJEXT):
 	$(COMPILE) -c `@CYGPATH@ $<` -o $@
+
+#========================================================================
+# Create the pkgIndex.tcl file.
+# It is usually easiest to let Tcl do this for you with pkg_mkIndex, but
+# you may find that you need to customize the package.  If so, either
+# modify the -hand version, or create a pkgIndex.tcl.in file and have
+# the configure script output the pkgIndex.tcl by editing configure.in.
+#========================================================================
+
+pkgIndex.tcl:
+	( echo pkg_mkIndex . $($(PACKAGE)_LIB_FILE) \; exit; ) | $(TCLSH_PROG)
+
+pkgIndex.tcl-hand:
+	(echo 'package ifneeded $(PACKAGE) $(VERSION) \
+	    [list load [file join $$dir $($(PACKAGE)_LIB_FILE)]]'\
+	) > pkgIndex.tcl
 
 #========================================================================
 # Distribution creation
@@ -320,17 +332,16 @@ clean:
 
 distclean: clean
 	-rm -f *.tab.c
-	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f $(CONFIG_CLEAN_FILES)
 	-rm -f config.cache config.log config.status
 
 #========================================================================
 # Install binary object libraries.  On Windows this includes both .dll and
 # .lib files.  Because the .lib files are not explicitly listed anywhere,
 # we need to deduce their existence from the .dll file of the same name.
-# Additionally, the .dll files go into the bin directory, but the .lib
-# files go into the lib directory.  On Unix platforms, all library files
-# go into the lib directory.  In addition, this will generate the pkgIndex.tcl
-# file in the install location (assuming it can find a usable tclsh8.2 shell)
+# Library files go into the lib directory.
+# In addition, this will generate the pkgIndex.tcl
+# file in the install location (assuming it can find a usable tclsh shell)
 #
 # You should not have to modify this target.
 #========================================================================
@@ -338,32 +349,29 @@ distclean: clean
 install-lib-binaries: installdirs
 	@list='$(lib_BINARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(pkglibdir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(pkglibdir)/$$p; \
+	    echo " $(RANLIB) $(DESTDIR)$(pkglibdir)/$$p"; \
+	    $(RANLIB) $(DESTDIR)$(pkglibdir)/$$p; \
 	    ext=`echo $$p|sed -e "s/.*\.//"`; \
 	    if test "x$$ext" = "xdll"; then \
-	        echo " $(INSTALL_DATA) $$p $(DESTDIR)$(bindir)/$$p"; \
-	        $(INSTALL_DATA) $$p $(DESTDIR)$(bindir)/$$p; \
 		lib=`basename $$p|sed -e 's/.[^.]*$$//'`.lib; \
 		if test -f $$lib; then \
-		    echo " $(INSTALL_DATA) $$lib $(DESTDIR)$(libdir)/$$lib"; \
-	            $(INSTALL_DATA) $$lib $(DESTDIR)$(libdir)/$$lib; \
+		    echo " $(INSTALL_DATA) $$lib $(DESTDIR)$(pkglibdir)/$$lib"; \
+	            $(INSTALL_DATA) $$lib $(DESTDIR)$(pkglibdir)/$$lib; \
 		fi; \
 	    else \
-		echo " $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p"; \
-	        $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
 	    fi; \
-	  else :; fi; \
-	done
-	@list='$(lib_BINARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
-	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
 	  else :; fi; \
 	done
 
 #========================================================================
-# Install binary executables (e.g. .exe files)
+# Install binary executables (e.g. .exe files and dependent .dll files)
+# This is for files that must go in the bin directory (located next to
+# wish and tclsh), like dependent .dll files on Windows.
 #
-# You should not have to modify this target.
+# You should not have to modify this target, except to define bin_BINARIES
+# above if necessary.
 #========================================================================
 
 install-bin-binaries: installdirs

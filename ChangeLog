@@ -1,3 +1,20 @@
+2002-03-19  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* README:
+	* mkIndex.tcl.in (removed): removed the need for this script by
+	simplifying the default install structure to use pkglibdir for the
+	main dynamic library file generated.
+
+	* configure:
+	* configure.in: use double eval on the ${PACKAGE}_LIB_FILE to
+	substitute the ${DBGX} variable.
+	Remove output of the mkIndex.tcl script.
+
+	* Makefile.in: added pkgIndex.tcl to binaries dependencies.
+	Removed use of mkIndex.tcl script.  Simple pkgIndex.tcl target
+	added and install-lib-binaries modified to use pkglibdir instead
+	of bindir and libdir directories.
+
 2002-03-12  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure: regenerated

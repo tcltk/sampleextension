@@ -1,3 +1,15 @@
+dnl aclocal.m4 generated automatically by aclocal 1.4a
+
+dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl This program is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+dnl even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+dnl PARTICULAR PURPOSE.
+
 # Copyright (c) 1999 Scriptics Corporation.
 
 #------------------------------------------------------------------------
@@ -1782,7 +1794,7 @@ AC_DEFUN(SC_MAKE_LIB, [
 	    ;;
 	*)
 	    MAKE_STATIC_LIB="\${STLIB_LD} \[$]@ \$(\[$]@_OBJECTS)"
-	    MAKE_SHARED_LIB="\${SHLIB_LD} -o \[$]@ \$(\[$]@_OBJECTS) \${SHLIB_LDFLAGS} ${SHLIB_LD_LIBS}"
+	    MAKE_SHARED_LIB="\${SHLIB_LD} -o \[$]@ \$(\[$]@_OBJECTS) \${SHLIB_LDFLAGS} \${SHLIB_LD_LIBS}"
 	    ;;
     esac
 
@@ -1814,6 +1826,7 @@ AC_DEFUN(SC_MAKE_LIB, [
 #	Defines the following vars:
 #		${basename}_LIB_NAME	The computed library name.
 #------------------------------------------------------------------------
+
 AC_DEFUN(SC_LIB_NAME, [
     AC_MSG_CHECKING(for $1 library file)
     eval "sc_lib_name_dir=${libdir}"

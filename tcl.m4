@@ -1782,7 +1782,7 @@ AC_DEFUN(SC_MAKE_LIB, [
 	    ;;
 	*)
 	    MAKE_STATIC_LIB="\${STLIB_LD} \[$]@ \$(\[$]@_OBJECTS)"
-	    MAKE_SHARED_LIB="\${SHLIB_LD} -o \[$]@ \$(\[$]@_OBJECTS) \${SHLIB_LDFLAGS} ${SHLIB_LD_LIBS}"
+	    MAKE_SHARED_LIB="\${SHLIB_LD} -o \[$]@ \$(\[$]@_OBJECTS) \${SHLIB_LDFLAGS} \${SHLIB_LD_LIBS}"
 	    ;;
     esac
 

@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Scriptics Corporation.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.3 2002/07/11 23:54:52 hobbs Exp $
+# RCS: @(#) $Id: all.tcl,v 1.4 2004/07/04 22:04:20 patthoyts Exp $
 
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
@@ -18,7 +18,15 @@ set ::tcltest::testSingleFile false
 set ::tcltest::testsDirectory [file dir [info script]]
 
 # We need to ensure that the testsDirectory is absolute
-::tcltest::normalizePath ::tcltest::testsDirectory
+if {[catch {::tcltest::normalizePath ::tcltest::testsDirectory}]} {
+    # The version of tcltest we have here does not support
+    # 'normalizePath', so we have to do this on our own.
+
+    set oldpwd [pwd]
+    catch {cd $::tcltest::testsDirectory}
+    set ::tcltest::testsDirectory [pwd]
+    cd $oldpwd
+}
 
 set chan $::tcltest::outputChannel
 

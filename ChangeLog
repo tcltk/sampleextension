@@ -1,3 +1,8 @@
+2004-07-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* tests/all.tcl: Added a compatability function to permit running
+	tests on tcl 8.2.
+
 2003-12-10  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in:      added TEA_ADD_LIBS, TEA_ADD_INCLUDES and

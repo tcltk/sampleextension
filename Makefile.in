@@ -20,8 +20,7 @@
 # library that we are building.
 #========================================================================
 
-lib_LIBRARIES = $(TCLSHA_LIB_FILE)
-LIBRARIES = $(TCLSHA_LIB_FILE)
+BINARIES = $(TCLSHA_LIB_FILE)
 
 #========================================================================
 # Enumerate the names of the source files included in this package.
@@ -161,7 +160,7 @@ INCLUDES = -I$(TCL_PLATFORM_DIR_NATIVE) -I$(TCL_GENERIC_DIR_NATIVE) -I$(TCL_BMAP
 
 EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS)
 
-DEFS = @DEFS@ $(EXTRA_CFLAGS) -I. -I$(srcdir)
+DEFS = @DEFS@ $(EXTRA_CFLAGS)
 
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -184,12 +183,12 @@ LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 # independant files, and the "binaries:" target inclues executable programs and
 # platform-dependant libraries.  Modify these targets so that they install
 # the various pieces of your package.  The make and install rules
-# for the lib_LIBRARIES that you specified above have already been done.
+# for the BINARIES that you specified above have already been done.
 #========================================================================
 
 all: binaries libraries doc
 
-binaries: $(LIBRARIES)
+binaries: $(BINARIES)
 
 libraries:
 
@@ -202,31 +201,31 @@ doc:
 
 install: all install-binaries install-libraries install-doc
 
-install-binaries: $(lib_LIBRARIES)
+install-binaries: binaries
 	@$(NORMAL_INSTALL)
 	$(mkinstalldirs) $(DESTDIR)$(libdir)
-	@list='$(lib_LIBRARIES)'; for p in $$list; do \
+	@list='$(BINARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
 	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p"; \
 	    $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
 	  else :; fi; \
 	done
 	@$(POST_INSTALL)
-	@list='$(lib_LIBRARIES)'; for p in $$list; do \
+	@list='$(BINARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
 	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
 	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
 	  else :; fi; \
 	done
 
-install-libraries:
+install-libraries: libraries
 	echo "Installing header files in $(includedir)"
 	@for i in $(GENERIC_HDRS) ; do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(includedir) ; \
 	done;
 
-install-doc:
+install-doc: doc
 	$(mkinstalldirs) $(mandir)/man1
 	$(mkinstalldirs) $(mandir)/man3
 	$(mkinstalldirs) $(mandir)/mann
@@ -242,10 +241,16 @@ test:
 
 depend:
 
-clean:  clean-libLIBRARIES clean-compile \
-		clean-generic mostlyclean-am
+clean:  
+	-test -z "$(BINARIES)" || rm -f $(BINARIES)
+	-rm -f *.o core *.core
+	-rm -f *.$(OBJEXT)
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
-distclean: distclean-libLIBRARIES distclean-compile distclean-generic clean-am
+distclean: clean
+	-rm -f *.tab.c
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 	-rm -f config.status
 
 #========================================================================
@@ -288,73 +293,18 @@ config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 $(srcdir)/configure: $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && $(AUTOCONF)
 
-mostlyclean-libLIBRARIES:
 
-clean-libLIBRARIES:
-	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
-
-distclean-libLIBRARIES:
-
-maintainer-clean-libLIBRARIES:
-
-uninstall-libLIBRARIES:
+uninstall-binaries:
 	@$(NORMAL_UNINSTALL)
-	list='$(lib_LIBRARIES)'; for p in $$list; do \
+	list='$(BINARIES)'; for p in $$list; do \
 	  rm -f $(DESTDIR)$(libdir)/$$p; \
 	done
-
-# FIXME: We need a "make depend" rule
-depend:
-
-mostlyclean-compile:
-	-rm -f *.o core *.core
-	-rm -f *.$(OBJEXT)
-
-clean-compile:
-
-distclean-compile:
-	-rm -f *.tab.c
-
-maintainer-clean-compile:
 
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir)
 
-mostlyclean-generic:
-
-clean-generic:
-	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
-
-distclean-generic:
-	-rm -f Makefile $(CONFIG_CLEAN_FILES)
-	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
-
-maintainer-clean-generic:
-mostlyclean-am:  mostlyclean-libLIBRARIES mostlyclean-compile \
-		mostlyclean-generic
-
-mostlyclean: mostlyclean-am
-
-maintainer-clean-am:  maintainer-clean-libLIBRARIES \
-		maintainer-clean-compile \
-		maintainer-clean-generic \
-		distclean-am
-	@echo "This command is intended for maintainers to use;"
-	@echo "it deletes files that may require special tools to rebuild."
-
-maintainer-clean: maintainer-clean-am
-	-rm -f config.status
-
-.PHONY: mostlyclean-libLIBRARIES distclean-libLIBRARIES \
-clean-libLIBRARIES maintainer-clean-libLIBRARIES uninstall-libLIBRARIES \
-install-libLIBRARIES mostlyclean-compile distclean-compile \
-clean-compile maintainer-clean-compile \
-distdir info-am info dvi-am dvi check check-am \
-installcheck-am installcheck install-exec-am install-exec \
-install-data-am install-data install-am install uninstall-am uninstall \
-all-redirect all-am all installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+.PHONY: all binaries clean depend distclean doc install installdirs \
+libraries test
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

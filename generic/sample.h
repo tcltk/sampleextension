@@ -5,6 +5,7 @@
  *	all of the source files in this package.
  *
  * Copyright (c) 1998-1999 Scriptics Corporation.
+ * Copyright (c) 2003 ActiveState Corporation.
  *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -32,15 +33,14 @@ typedef struct {
     unsigned char buffer[64];
 } SHA1_CTX;
 
-void SHA1Init	_ANSI_ARGS_((SHA1_CTX* context));
-void SHA1Update	_ANSI_ARGS_((SHA1_CTX* context, unsigned char* data,
-		 unsigned int len));
-void SHA1Final	_ANSI_ARGS_((SHA1_CTX* context, unsigned char digest[20]));
+void SHA1Init	(SHA1_CTX* context);
+void SHA1Update	(SHA1_CTX* context, unsigned char* data, unsigned int len);
+void SHA1Final	(SHA1_CTX* context, unsigned char digest[20]);
 
 /*
  * Only the _Init function is exported.
  */
 
-EXTERN int	Sample_Init _ANSI_ARGS_((Tcl_Interp * interp));
+EXTERN int	Sample_Init(Tcl_Interp * interp);
 
 #endif /* _SAMPLE */

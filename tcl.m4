@@ -2198,10 +2198,28 @@ AC_DEFUN(SC_SIMPLE_EXEEXT, [
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_PROG_TCLSH, [
-    AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh82d${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH})
+    AC_MSG_CHECKING([for tclsh])
 
-    if test "x${TCLSH_PROG}" = "x:" ; then
-	AC_MSG_WARN(No tclsh executable found.  You will have to build the pkgIndex.tcl file manually.)
+    AC_CACHE_VAL(ac_cv_path_tclsh, [
+	search_path=`echo ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH} | sed -e 's/:/ /g'`
+	for dir in $search_path ; do
+	    for j in `ls -r $dir/tclsh[[8-9]]* 2> /dev/null \
+		    ls -r $dir/tclsh* 2> /dev/null` ; do
+		if test x"$ac_cv_path_tclsh" = x ; then
+		    if test -f "$j" ; then
+			ac_cv_path_tclsh=$j
+			break
+		    fi
+		fi
+	    done
+	done
+    ])
+
+    if test -f "$ac_cv_path_tclsh" ; then
+	TCLSH_PROG=$ac_cv_path_tclsh
+	AC_MSG_RESULT($TCLSH_PROG)
+    else
+	AC_MSG_ERROR(No tclsh found in PATH:  $search_path)
     fi
     AC_SUBST(TCLSH_PROG)
 ])
@@ -2224,10 +2242,29 @@ AC_DEFUN(SC_PROG_TCLSH, [
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_PROG_WISH, [
-    AC_PATH_PROGS(WISH_PROG, wish8.2${EXEEXT} wish8.2d${EXEEXT} wish82${EXEEXT} wish82d${EXEEXT} wish${EXEEXT}, :, ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH})
+    AC_MSG_CHECKING([for wish])
 
-    if test "x${WISH_PROG}" = "x:" ; then
-	AC_MSG_WARN(No wish executable found.)
+    AC_CACHE_VAL(ac_cv_path_wish, [
+	search_path=`echo ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH} | sed -e 's/:/ /g'`
+	for dir in $search_path ; do
+	    for j in `ls -r $dir/wish[[8-9]]* 2> /dev/null \
+		    ls -r $dir/wish* 2> /dev/null` ; do
+		if test x"$ac_cv_path_wish" = x ; then
+		    if test -f "$j" ; then
+			ac_cv_path_wish=$j
+			break
+		    fi
+		fi
+	    done
+	done
+    ])
+
+    if test -f "$ac_cv_path_wish" ; then
+	WISH_PROG=$ac_cv_path_wish
+	AC_MSG_RESULT($WISH_PROG)
+    else
+	AC_MSG_ERROR(No wish found in PATH:  $search_path)
     fi
     AC_SUBST(WISH_PROG)
 ])
+

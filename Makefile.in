@@ -20,7 +20,8 @@
 # library that we are building.
 #========================================================================
 
-BINARIES = $(TCLSHA_LIB_FILE)
+lib_BINARIES=$(TCLSHA_LIB_FILE)
+BINARIES=$(lib_BINARIES)
 
 #========================================================================
 # Enumerate the names of the source files included in this package.
@@ -151,6 +152,7 @@ TCL_PLATFORM_DIR_NATIVE = @TCL_PLATFORM_DIR_NATIVE@
 TCL_GENERIC_DIR_NATIVE = @TCL_GENERIC_DIR_NATIVE@
 TK_LIB_FILE = @TK_LIB_FILE@
 TK_SRC_DIR = @TK_SRC_DIR@
+TCLSH_PROG = @TCLSH_PROG@
 
 AUTOCONF = autoconf
 
@@ -164,7 +166,7 @@ DEFS = @DEFS@ $(EXTRA_CFLAGS)
 
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
-CONFIG_CLEAN_FILES = 
+CONFIG_CLEAN_FILES = mkIndex.tcl
 
 CPPFLAGS = @CPPFLAGS@
 LIBS = @LIBS@
@@ -201,24 +203,58 @@ doc:
 
 install: all install-binaries install-libraries install-doc
 
-install-binaries: binaries
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libdir)
-	@list='$(BINARIES)'; for p in $$list; do \
+install-binaries: binaries install-lib-binaries install-bin-binaries
+
+#========================================================================
+# Install binary object libraries.  On Windows this includes both .dll and
+# .lib files.  Because the .lib files are not explicitly listed anywhere,
+# we need to deduce their existence from the .dll file of the same name.
+# Additionally, the .dll files go into the bin directory, but the .lib
+# files go into the lib directory.  On Unix platforms, all library files
+# go into the lib directory.
+#========================================================================
+
+install-lib-binaries: installdirs
+	@list='$(lib_BINARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p"; \
-	    $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
+	    ext=`echo $$p|sed -e "s/.*\.//"`; \
+	    if test "x$$ext" = "xdll"; then \
+	        echo " $(INSTALL_DATA) $$p $(DESTDIR)$(bindir)/$$p"; \
+	        $(INSTALL_DATA) $$p $(DESTDIR)$(bindir)/$$p; \
+		lib=`basename $$p|sed -e 's/.[^.]*$$//'`.lib; \
+		if test -f $$lib; then \
+		    echo " $(INSTALL_DATA) $$lib $(DESTDIR)$(libdir)/$$lib"; \
+	            $(INSTALL_DATA) $$lib $(DESTDIR)$(libdir)/$$lib; \
+		fi; \
+	    else \
+		echo " $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p"; \
+	        $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
+	    fi; \
 	  else :; fi; \
 	done
-	@$(POST_INSTALL)
-	@list='$(BINARIES)'; for p in $$list; do \
+	@list='$(lib_BINARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
-	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
+	    echo " $(RANLIB) $(DESTDIR)$(bindir)/$$p"; \
+	    $(RANLIB) $(DESTDIR)$(bindir)/$$p; \
+	  else :; fi; \
+	done
+	$(TCLSH_PROG) mkIndex.tcl
+
+#========================================================================
+# Install binary executables (e.g. .exe files)
+#========================================================================
+
+install-bin-binaries: installdirs
+	@list='$(bin_BINARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(bindir)/$$p"; \
+	    $(INSTALL_DATA) $$p $(DESTDIR)$(bindir)/$$p; \
 	  else :; fi; \
 	done
 
 install-libraries: libraries
+	$(mkinstalldirs) $(includedir)
+	$(mkinstalldirs) $(pkglibdir)
 	echo "Installing header files in $(includedir)"
 	@for i in $(GENERIC_HDRS) ; do \
 	    echo "Installing $$i" ; \
@@ -302,6 +338,8 @@ uninstall-binaries:
 
 installdirs:
 	$(mkinstalldirs)  $(DESTDIR)$(libdir)
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
+	$(mkinstalldirs)  $(DESTDIR)$(pkglibdir)
 
 .PHONY: all binaries clean depend distclean doc install installdirs \
 libraries test

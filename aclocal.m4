@@ -1787,12 +1787,12 @@ AC_DEFUN(SC_MAKE_LIB, [
 	*win32* | *WIN32* | *CYGWIN_NT*)
 	    if test "${CC-cc}" = "cl"; then
 		MAKE_STATIC_LIB="\${STLIB_LD} -out:\[$]@ \$(\[$]@_OBJECTS) "
-		MAKE_SHARED_LIB="\${SHLIB_LD} \${SHLIB_LD_LIBS} \$(LDFLAGS) -out:\[$]@ \$(\[$]@_OBJECTS) "
+		MAKE_SHARED_LIB="\${SHLIB_LD} \${SHLIB_LDFLAGS} \${SHLIB_LD_LIBS} \$(LDFLAGS) -out:\[$]@ \$(\[$]@_OBJECTS) "
 	    fi
 	    ;;
 	*)
 	    MAKE_STATIC_LIB="\${STLIB_LD} \[$]@ \$(\[$]@_OBJECTS)"
-	    MAKE_SHARED_LIB="\${SHLIB_LD} -o \[$]@ \$(\[$]@_OBJECTS) ${SHLIB_LD_LIBS}"
+	    MAKE_SHARED_LIB="\${SHLIB_LD} -o \[$]@ \$(\[$]@_OBJECTS) \${SHLIB_LDFLAGS} ${SHLIB_LD_LIBS}"
 	    ;;
     esac
 
@@ -1805,5 +1805,40 @@ AC_DEFUN(SC_MAKE_LIB, [
     AC_SUBST(MAKE_LIB)
     AC_SUBST(MAKE_SHARED_LIB)
     AC_SUBST(MAKE_STATIC_LIB)
+])
+
+#------------------------------------------------------------------------
+# SC_LIB_NAME --
+#
+#	Compute the name of an existing object library located in libdir
+#	from the given base name.
+#
+# Arguments:
+#	basename	The base name of the library without version
+#			numbers, extensions, or "lib" prefixes.
+#
+#	Requires:
+#
+# Results:
+#
+#	Defines the following vars:
+#		${basename}_LIB_NAME	The computed library name.
+#------------------------------------------------------------------------
+AC_DEFUN(SC_LIB_NAME, [
+    AC_MSG_CHECKING(for $1 library file)
+    eval "sc_lib_name_dir=${libdir}"
+    for i in \
+	    `ls -dr ${sc_lib_name_dir}/$1[[0-9]]*.lib 2>/dev/null ` \
+	    `ls -dr ${sc_lib_name_dir}/lib$1[[0-9]]* 2>/dev/null ` ; do
+	if test -f "$i" ; then
+	    $1_LIB_NAME=`basename $i`
+	    break
+	fi
+    done
+    if test "x$1_LIB_NAME" = x ; then
+	AC_MSG_ERROR(not found)
+    else
+	AC_MSG_RESULT($1_LIB_NAME)
+    fi
 ])
 

@@ -2206,6 +2206,31 @@ AC_DEFUN(SC_PROG_TCLSH, [
 ])
 
 #------------------------------------------------------------------------
+# SC_PROG_WISH
+#	Locate a wish shell in the following directories:
+#		${exec_prefix}
+#		${prefix}/bin
+#		${TCL_BIN_DIR}/../bin
+#		${PATH}
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		WISH_PROG
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_PROG_WISH, [
+    AC_PATH_PROGS(WISH_PROG, wish8.2${EXEEXT} wish8.2d${EXEEXT} wish82${EXEEXT} wish82d${EXEEXT} wish${EXEEXT}, :, ${exec_prefix}/bin:${prefix}/bin:${TCL_BIN_DIR}:${TCL_BIN_DIR}/../bin:${PATH})
+
+    if test "x${WISH_PROG}" = "x:" ; then
+	AC_MSG_WARN(No wish executable found.)
+    fi
+    AC_SUBST(WISH_PROG)
+])
+
+#------------------------------------------------------------------------
 # SC_PATH_PROTOOLS
 #	Path to a valid Tclpro installation
 #

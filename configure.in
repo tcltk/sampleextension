@@ -140,15 +140,11 @@ case "`uname -s`" in
 	AC_DEFINE(BUILD_exampleA)
 	CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
 	AC_SUBST(CLEANFILES)
-	PACKAGE_CFLAGS=
     ;;
     *)
-	PACKAGE_CFLAGS=
 	CLEANFILES=
     ;;
 esac
-
-AC_SUBST(PACKAGE_CFLAGS)
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.

@@ -80,7 +80,7 @@ proc Nativepath {pathName} {
 set prefix "@prefix@"
 set exec_prefix "@exec_prefix@"
 
-set exec_prefix_native [Nativepath $exec_prefix] 
+set exec_prefix [Nativepath $exec_prefix] 
 
 set libdir @libdir@
 set package @PACKAGE@

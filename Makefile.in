@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.47 2003/12/10 20:00:55 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.48 2003/12/10 21:28:08 hobbs Exp $
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -381,8 +381,9 @@ install-lib-binaries:
 	done
 	@list='$(PKG_TCL_SOURCES)'; for p in $$list; do \
 	  if test -f $(srcdir)/$$p; then \
-	    echo " Install $$p $(DESTDIR)$(pkglibdir)/$$p"; \
-	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkglibdir)/$$p; \
+	    destp=`basename $$p`; \
+	    echo " Install $$destp $(DESTDIR)$(pkglibdir)/$$destp"; \
+	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkglibdir)/$$destp; \
 	  fi; \
 	done
 
@@ -415,6 +416,7 @@ uninstall-binaries:
 	  rm -f $(DESTDIR)$(pkglibdir)/$$p; \
 	done
 	list='$(PKG_TCL_SOURCES)'; for p in $$list; do \
+	  p=`basename $$p`; \
 	  rm -f $(DESTDIR)$(pkglibdir)/$$p; \
 	done
 	list='$(bin_BINARIES)'; for p in $$list; do \

@@ -1,0 +1,50 @@
+# This script generates a pkgIndex.tcl file for an installed extension.
+# It assumes that the pkgIndex.tcl file will be put in a subdirectory
+# immediately below the loadable binary extension called @PACKAGE@.
+#
+# If you redefine $(libdir) using the configure switch --libdir=, then
+# this script will probably fail for you.
+#
+# UNIX:
+#      exec_prefix
+#           |
+#           |
+#           |
+#          lib
+#          / \
+#         /   \
+#        /     \
+#   PACKAGE   (.so files)
+#       |
+#       |
+#       |
+#  pkgIndex.tcl
+#
+# WIN:
+#      exec_prefix
+#          / \
+#         /   \
+#        /     \
+#      bin     lib
+#       |        \
+#       |         \
+#       |          \
+# (.dll files)   PACKAGE
+#                    |
+#                    |
+#                    |
+#                pkgIndex.tcl
+       
+set prefix {@prefix@}
+set exec_prefix {@exec_prefix_NATIVE@}
+set libdir @libdir@
+set package @PACKAGE@
+
+cd $libdir
+puts "Making pkgIndex.tcl in [file join [pwd] $package]"
+
+if {$tcl_platform(platform) == "unix"} {
+    pkg_mkIndex $package ../*[info sharedlibextension] *.tcl
+} else {
+    pkg_mkIndex $package [file join .. .. bin *[info sharedlibextension]]
+}

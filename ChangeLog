@@ -1,3 +1,16 @@
+2002-03-12  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure: regenerated
+	* configure.in: removed pulling (UN)SHARED_LIB_SUFFIX from
+	tclConfig.sh as these are defined by SC_CONFIG_CFLAGS.
+
+	* Makefile.in (TCLSH_PROG): added a viable TCL_LIBRARY for when
+	the TCLSH_PROG is a built, but not installed, executable.
+	(install-binaries, test, LIB_FILE): use	$($(PACKAGE)_LIB_FILE)
+	instead of directly referencing package name to reduce number of
+	lines that need changing.
+	(dist): removed install of no longer existent tclconfig/config.*
+
 2002-03-11  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in:

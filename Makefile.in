@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.32 2002/03/12 04:41:48 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.33 2002/03/13 02:11:40 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -58,7 +58,7 @@ GENERIC_HDRS	= $(srcdir)/sample.h
 # have been added to the configure script.
 #========================================================================
 
-SAMPLE_NEW_VAR	= @SAMPLE_NEW_VAR@
+#SAMPLE_NEW_VAR	= @SAMPLE_NEW_VAR@
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -131,7 +131,7 @@ TCL_SRC_DIR	= @TCL_SRC_DIR@
 TCL_DBGX	= @TCL_DBGX@
 TCL_STUB_LIB_FILE = @TCL_STUB_LIB_FILE@
 TCL_STUB_LIB_SPEC = @TCL_STUB_LIB_SPEC@
-TCLSH_PROG	= @TCLSH_PROG@
+TCLSH_PROG	= TCL_LIBRARY=`@CYGPATH@ $(TCL_SRC_DIR)/library` @TCLSH_PROG@
 SHARED_BUILD	= @SHARED_BUILD@
 
 INCLUDES	= @TCL_INCLUDES@
@@ -184,9 +184,9 @@ doc:
 install: all install-binaries install-libraries install-doc
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
-	$(TCLSH_PROG) mkIndex.tcl $(sample_LIB_FILE)
+	$(TCLSH_PROG) mkIndex.tcl $($(PACKAGE)_LIB_FILE)
 	if test "x$(SHARED_BUILD)" = "x1"; then \
-	    $(TCLSH_PROG) mkIndex.tcl $(sample_LIB_FILE); \
+	    $(TCLSH_PROG) mkIndex.tcl $($(PACKAGE)_LIB_FILE); \
 	fi
 
 #========================================================================
@@ -217,35 +217,30 @@ install-doc: doc
 	    done
 
 test: binaries libraries
-	( echo pkg_mkIndex . $(sample_LIB_FILE) \; exit; ) | $(TCLSH_PROG)
-	TCL_LIBRARY=$(TCL_LIBRARY_DIR) \
-	LD_LIBRARY_PATH=$(BUILD_DIR):$(TCL_BIN_DIR):$(LD_LIBRARY_PATH) \
-	LIBPATH=$(BUILD_DIR):$(TCL_BIN_DIR):${LIBPATH} \
-	SHLIB_PATH=$(BUILD_DIR):$(TCL_BIN_DIR):${SHLIB_PATH} \
+	( echo pkg_mkIndex . $($(PACKAGE)_LIB_FILE) \; exit; ) | $(TCLSH_PROG)
+	LD_LIBRARY_PATH="$(BUILD_DIR):$(TCL_BIN_DIR):$(LD_LIBRARY_PATH)" \
+	LIBPATH="$(BUILD_DIR):$(TCL_BIN_DIR):${LIBPATH}" \
+	SHLIB_PATH="$(BUILD_DIR):$(TCL_BIN_DIR):${SHLIB_PATH}" \
 	TCLLIBPATH=. \
-	PATH="$(BUILD_DIR)":"$(TCL_BIN_DIR)":"$(PATH)" \
+	PATH="$(BUILD_DIR):$(TCL_BIN_DIR):$(PATH)" \
 	$(TCLSH_PROG) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
 
 depend:
 
 #========================================================================
-# Enumerate the names of the object files included in this package.
-# These objects are created and linked into the final library.  In
-# most cases these object files will correspond to the source files
-# above.
+# $($(PACKAGE)_LIB_FILE) should be listed as part of the BINARIES variable
+# mentioned above.  That will ensure that this target is built when you
+# run "make binaries".
 #
-# $(sample_LIB_FILE) should be listed as part of the BINARIES variable
-# mentioned below.  That will ensure that this target is built
-# when you run "make binaries".
-#
-# You shouldn't need to modify this target, except to change the package
-# name from "sample" to your package's name.
+# The $($(PACKAGE)_OBJECTS) objects are created and linked into the final
+# library.  In most cases these object files will correspond to the
+# source files above.
 #========================================================================
 
-$(sample_LIB_FILE): $(sample_OBJECTS)
-	-rm -f $(sample_LIB_FILE)
+$($(PACKAGE)_LIB_FILE): $($(PACKAGE)_OBJECTS)
+	-rm -f $($(PACKAGE)_LIB_FILE)
 	${MAKE_LIB}
-	$(RANLIB) $(sample_LIB_FILE)
+	$(RANLIB) $($(PACKAGE)_LIB_FILE)
 
 #========================================================================
 # We need to enumerate the list of .c to .o lines here.
@@ -294,9 +289,8 @@ dist: dist-clean
 	cp -p $(srcdir)/*.[ch] $(DIST_DIR)/
 
 	mkdir $(DIST_DIR)/tclconfig
-	cp $(srcdir)/tclconfig/install-sh \
-		$(srcdir)/tclconfig/config.* \
-		$(srcdir)/tclconfig/tcl.m4 $(DIST_DIR)/tclconfig/
+	cp $(srcdir)/tclconfig/install-sh $(srcdir)/tclconfig/tcl.m4 \
+		$(DIST_DIR)/tclconfig/
 	chmod 664 $(DIST_DIR)/tclconfig/tcl.m4
 	chmod +x $(DIST_DIR)/tclconfig/install-sh
 

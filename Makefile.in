@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.48 2003/12/10 21:28:08 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.49 2004/07/17 02:04:37 hobbs Exp $
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -137,15 +137,15 @@ SHARED_BUILD	= @SHARED_BUILD@
 
 INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@
 
-EXTRA_CFLAGS	= @EXTRA_CFLAGS@ @PKG_CFLAGS@
+PKG_CFLAGS	= @PKG_CFLAGS@
 
 # TCL_DEFS is not strictly need here, but if you remove it, then you
 # must make sure that configure.in checks for the necessary components
 # that your library may use.  TCL_DEFS can actually be a problem if
 # you do not compile with a similar machine setup as the Tcl core was
 # compiled with.
-#DEFS		= $(TCL_DEFS) @DEFS@ $(EXTRA_CFLAGS)
-DEFS		= @DEFS@ $(EXTRA_CFLAGS)
+#DEFS		= $(TCL_DEFS) @DEFS@ $(PKG_CFLAGS)
+DEFS		= @DEFS@ $(PKG_CFLAGS)
 
 CONFIG_CLEAN_FILES = Makefile
 
@@ -189,18 +189,16 @@ doc:
 install: all install-binaries install-libraries install-doc
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
-	if test "x$(SHARED_BUILD)" = "x1"; then \
-	    $(INSTALL_DATA) pkgIndex.tcl $(DESTDIR)$(pkglibdir); \
-	fi
 
 #========================================================================
 # This rule installs platform-independent files, such as header files.
+# The list=...; for p in $$list handles the empty list case x-platform.
 #========================================================================
 
 install-libraries: libraries
 	@mkdir -p $(DESTDIR)$(includedir)
 	@echo "Installing header files in $(DESTDIR)$(includedir)"
-	@for i in $(PKG_HEADERS) ; do \
+	@list='$(PKG_HEADERS)'; for i in $$list; do \
 	    echo "Installing $(srcdir)/$$i" ; \
 	    $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir) ; \
 	done;
@@ -213,7 +211,7 @@ install-libraries: libraries
 install-doc: doc
 	@mkdir -p $(DESTDIR)$(mandir)/mann
 	@echo "Installing documentation in $(DESTDIR)$(mandir)"
-	@for i in $(srcdir)/doc/*.n; do \
+	@list='$(srcdir)/doc/*.n'; for i in $$list; do \
 	    echo "Installing $$i"; \
 	    rm -f $(DESTDIR)$(mandir)/mann/`basename $$i`; \
 	    $(INSTALL_DATA) $$i $(DESTDIR)$(mandir)/mann ; \
@@ -386,6 +384,10 @@ install-lib-binaries:
 	    $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)$(pkglibdir)/$$destp; \
 	  fi; \
 	done
+	@if test "x$(SHARED_BUILD)" = "x1"; then \
+	    echo " Install pkgIndex.tcl $(DESTDIR)$(pkglibdir)"; \
+	    $(INSTALL_DATA) pkgIndex.tcl $(DESTDIR)$(pkglibdir); \
+	fi
 
 #========================================================================
 # Install binary executables (e.g. .exe files and dependent .dll files)

@@ -1,3 +1,10 @@
+2004-07-16  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure.in, configure, Makefile.in: Reorder configure.in for
+	better 64-bit build configuration, replacing EXTRA_CFLAGS with
+	CFLAGS.  [Bug #874058]
+	(install-doc, install-libraries): guard against null globs
+
 2004-07-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* win/rules.vc:    Modified the nmake build system to support

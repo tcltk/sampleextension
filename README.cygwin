@@ -3,7 +3,7 @@ you will need to do.
 
 1.  Make sure you have a working Visual C++ (version 5.0 or later) compiler.
 
-2.  Download and install the Cygnus Cywgin full tools package from
+2.  Download and install the free Cygnus Cywgin full tools package from
 	ftp://go.cygnus.com/pub/sourceware.cygnus.com/pub/cygwin/cygwin-b20/full.exe
 
 3.  Create a directory called "C:\bin".  Copy the sh.exe

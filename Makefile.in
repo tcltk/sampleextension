@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.23 2000/02/02 22:26:51 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.24 2000/02/03 22:36:04 wart Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -171,7 +171,8 @@ EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $
 DEFS = @DEFS@ $(EXTRA_CFLAGS)
 
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIGDIR = $(top_srcdir)
+mkinstalldirs = $(SHELL) $(CONFIGDIR)/mkinstalldirs
 CONFIG_CLEAN_FILES = mkIndex.tcl
 
 CPPFLAGS = @CPPFLAGS@
@@ -251,7 +252,16 @@ install-doc: doc
 	    $(INSTALL_DATA) $$i $(mandir)/mann ; \
 	    done
 
-test:
+test: binaries libraries
+	( echo \
+	  pkg_mkIndex . $(exampleA_LIB_FILE) \;\
+	  exit; ) | \
+	$(TCLSH_PROG)
+	TCL_LIBRARY=$(TCL_LIBRARY_DIR) \
+	LD_LIBRARY_PATH=$(BUILD_DIR):$(TCL_BIN_DIR):$(LD_LIBRARY_PATH) \
+	TCLLIBPATH=. \
+	PATH="$(BUILD_DIR)":"$(TCL_BIN_DIR)":"$(PATH)" \
+	$(TCLSH_PROG) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TCLTESTARGS)
 
 depend:
 

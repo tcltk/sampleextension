@@ -10,9 +10,7 @@
 
 /* definitions extracted from sha1.c by Dave Dykstra, 4/22/97 */
 
-#ifndef _TCL
-#   include <tcl.h>
-#endif
+#include <tcl.h>
 
 /*
  * Windows needs to know which symbols to export.  Unix does not.
@@ -33,7 +31,7 @@ typedef struct {
 void SHA1Init	_ANSI_ARGS_((SHA1_CTX* context));
 void SHA1Update	_ANSI_ARGS_((SHA1_CTX* context, unsigned char* data,
 		 unsigned int len));
-void SHA1Final	_ANSI_ARGS_((unsigned char digest[20], SHA1_CTX* context));
+void SHA1Final	_ANSI_ARGS_((SHA1_CTX* context, unsigned char digest[20]));
 
 /*
  * Only the _Init function is exported.

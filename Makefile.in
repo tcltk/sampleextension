@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.31 2002/03/07 02:56:44 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.32 2002/03/12 04:41:48 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -21,8 +21,10 @@
 #========================================================================
 # Enumerate the names of the source files included in this package.
 # This will be used when a dist target is added to the Makefile.
-# EXTRA_SOURCES will be replaced by WIN_SOURCES or UNIX_SOURCES, as
-# is appropriate for your platform.
+# EXTRA_SOURCES will be replaced by WIN_SOURCES or UNIX_SOURCES, as is
+# appropriate for your platform.  It is not important to specify the
+# directory, as long as it is the $(srcdir) or in the generic, win or
+# unix subdirectory.
 #========================================================================
 
 sample_SOURCES	= sample.c tclsample.c @EXTRA_SOURCES@
@@ -255,8 +257,8 @@ $(sample_LIB_FILE): $(sample_OBJECTS)
 # containing your extension.  If your sources are in a subdirectory,
 # you will have to modify the paths to reflect this:
 #
-# sample.$(OBJEXT): $(srcdir)/src/win/sample.c
-# 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/src/win/sample.c` -o $@
+# sample.$(OBJEXT): $(srcdir)/generic/sample.c
+# 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/generic/sample.c` -o $@
 #
 # Setting the VPATH variable to a list of paths will cause the 
 # makefile to look into these paths when resolving .c to .obj
@@ -264,9 +266,6 @@ $(sample_LIB_FILE): $(sample_OBJECTS)
 #========================================================================
 
 VPATH = $(srcdir):$(srcdir)/generic:$(srcdir)/unix:$(srcdir)/win
-
-sample.$(OBJEXT): $(srcdir)/sample.c
-	$(COMPILE) -c `@CYGPATH@ $(srcdir)/sample.c` -o $@
 
 .c.$(OBJEXT):
 	$(COMPILE) -c `@CYGPATH@ $<` -o $@

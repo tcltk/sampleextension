@@ -1,3 +1,11 @@
+2002-03-11  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in:
+	* doc/sha1.n: moved from sha1.n
+	* generic/sample.c: moved from sample.c
+	* generic/sample.h: moved from sample.h
+	* generic/tclsample.c: moved from tclsample.c
+
 2002-03-06  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in: add EXTRA_SOURCES, WIN_SOURCES, UNIX_SOURCES

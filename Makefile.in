@@ -7,45 +7,16 @@
 #	replaced in the actual Makefile.
 #
 # Copyright (c) 1999 Scriptics Corporation.
-# Copyright (c) 2002 ActiveState SRL.
+# Copyright (c) 2002-2003 ActiveState Corporation.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.42 2003/10/07 00:19:01 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.43 2003/12/03 08:15:26 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
 #========================================================================
-
-#========================================================================
-# Enumerate the names of the source files included in this package.
-# This will be used when a dist target is added to the Makefile.
-# EXTRA_SOURCES will be replaced by WIN_SOURCES or UNIX_SOURCES, as is
-# appropriate for your platform.  It is not important to specify the
-# directory, as long as it is the $(srcdir) or in the generic, win or
-# unix subdirectory.
-#========================================================================
-
-sample_SOURCES	= sample.c tclsample.c @EXTRA_SOURCES@
-
-WIN_SOURCES	= 
-UNIX_SOURCES	= 
-
-#========================================================================
-# Identify the object files.  This replaces .c with .$(OBJEXT) for all
-# the named source files.   These objects are created and linked into the
-# final library.  In these do not correspond directly to the source files
-# above, you will need to enumerate the object files here.
-# Normally we would use $(OBJEXT), but certain make executables won't do
-# the extra macro in a macro conversion properly.
-#
-# "sample_LIB_FILE" refers to the library (dynamic or static as per
-# configuration options) composed of the named objects.
-#========================================================================
-
-sample_OBJECTS	= $(sample_SOURCES:.c=.@OBJEXT@)
-sample_LIB_FILE	= @sample_LIB_FILE@
 
 #========================================================================
 # RUNTIME_SOURCES identifies Tcl runtime files that are associated with
@@ -55,12 +26,6 @@ sample_LIB_FILE	= @sample_LIB_FILE@
 #RUNTIME_SOURCES =
 
 #========================================================================
-# This is a list of header files to be installed
-#========================================================================
-
-GENERIC_HDRS	= $(srcdir)/generic/sample.h
-
-#========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
 # have been added to the configure script.
 #========================================================================
@@ -68,17 +33,36 @@ GENERIC_HDRS	= $(srcdir)/generic/sample.h
 #SAMPLE_NEW_VAR	= @SAMPLE_NEW_VAR@
 
 #========================================================================
-# Nothing of the variables below this line need to be changed.  Please
-# check the TARGETS section below to make sure the make targets are
-# correct.
+# Nothing of the variables below this line should need to be changed.
+# Please check the TARGETS section below to make sure the make targets
+# are correct.
 #========================================================================
 
 #========================================================================
-# The variable "$(PACKAGE)_LIB_FILE" is the parameterized name of the
-# library that we are building.
+# The names of the source files is defined in the configure script.
+# The object files are used for linking into the final library.
+# This will be used when a dist target is added to the Makefile.
+# It is not important to specify the directory, as long as it is the
+# $(srcdir) or in the generic, win or unix subdirectory.
 #========================================================================
 
-lib_BINARIES	= $($(PACKAGE)_LIB_FILE)
+PKG_SOURCES	= @PKG_SOURCES@
+PKG_OBJECTS	= @PKG_OBJECTS@
+
+#========================================================================
+# This is a list of public header files to be installed
+#========================================================================
+
+PKG_HEADERS	= @PKG_HEADERS@
+
+#========================================================================
+# "PKG_LIB_FILE" refers to the library (dynamic or static as per
+# configuration options) composed of the named objects.
+#========================================================================
+
+PKG_LIB_FILE	= @PKG_LIB_FILE@
+
+lib_BINARIES	= $(PKG_LIB_FILE)
 BINARIES	= $(lib_BINARIES)
 
 SHELL		= @SHELL@
@@ -95,7 +79,7 @@ includedir	= @includedir@
 
 DESTDIR		=
 
-PKG_DIR		= $(PACKAGE)$(VERSION)
+PKG_DIR		= $(PACKAGE_NAME)$(PACKAGE_VERSION)
 pkgdatadir	= $(datadir)/$(PKG_DIR)
 pkglibdir	= $(libdir)/$(PKG_DIR)
 pkgincludedir	= $(includedir)/$(PKG_DIR)
@@ -107,8 +91,8 @@ INSTALL_PROGRAM	= @INSTALL_PROGRAM@
 INSTALL_DATA	= @INSTALL_DATA@
 INSTALL_SCRIPT	= @INSTALL_SCRIPT@
 
-PACKAGE		= @PACKAGE@
-VERSION		= @VERSION@
+PACKAGE_NAME	= @PACKAGE_NAME@
+PACKAGE_VERSION	= @PACKAGE_VERSION@
 CC		= @CC@
 CFLAGS_DEBUG	= @CFLAGS_DEBUG@
 CFLAGS_DEFAULT	= @CFLAGS_DEFAULT@
@@ -157,9 +141,15 @@ SHARED_BUILD	= @SHARED_BUILD@
 
 INCLUDES	= @TCL_INCLUDES@
 
-EXTRA_CFLAGS	= $(MEM_DEBUG_FLAGS) @EXTRA_CFLAGS@
+EXTRA_CFLAGS	= @EXTRA_CFLAGS@
 
-DEFS		= $(TCL_DEFS) @DEFS@ $(EXTRA_CFLAGS)
+# TCL_DEFS is not strictly need here, but if you remove it, then you
+# must make sure that configure.in checks for the necessary components
+# that your library may use.  TCL_DEFS can actually be a problem if
+# you do not compile with a similar machine setup as the Tcl core was
+# compiled with.
+#DEFS		= $(TCL_DEFS) @DEFS@ $(EXTRA_CFLAGS)
+DEFS		= @DEFS@ $(EXTRA_CFLAGS)
 
 CONFIG_CLEAN_FILES = Makefile
 
@@ -214,9 +204,9 @@ install-binaries: binaries install-lib-binaries install-bin-binaries
 install-libraries: libraries
 	@mkdir -p $(DESTDIR)$(includedir)
 	@echo "Installing header files in $(DESTDIR)$(includedir)"
-	@for i in $(GENERIC_HDRS) ; do \
-	    echo "Installing $$i" ; \
-	    $(INSTALL_DATA) $$i $(DESTDIR)$(includedir) ; \
+	@for i in $(PKG_HEADERS) ; do \
+	    echo "Installing $(srcdir)/$$i" ; \
+	    $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir) ; \
 	done;
 
 #========================================================================
@@ -245,19 +235,19 @@ gdb:
 depend:
 
 #========================================================================
-# $($(PACKAGE)_LIB_FILE) should be listed as part of the BINARIES variable
+# $(PKG_LIB_FILE) should be listed as part of the BINARIES variable
 # mentioned above.  That will ensure that this target is built when you
 # run "make binaries".
 #
-# The $($(PACKAGE)_OBJECTS) objects are created and linked into the final
+# The $(PKG_OBJECTS) objects are created and linked into the final
 # library.  In most cases these object files will correspond to the
 # source files above.
 #========================================================================
 
-$($(PACKAGE)_LIB_FILE): $($(PACKAGE)_OBJECTS)
-	-rm -f $($(PACKAGE)_LIB_FILE)
+$(PKG_LIB_FILE): $(PKG_OBJECTS)
+	-rm -f $(PKG_LIB_FILE)
 	${MAKE_LIB}
-	$(RANLIB) $($(PACKAGE)_LIB_FILE)
+	$(RANLIB) $(PKG_LIB_FILE)
 
 #========================================================================
 # We need to enumerate the list of .c to .o lines here.
@@ -288,11 +278,11 @@ VPATH = $(srcdir)/generic:$(srcdir)/unix:$(srcdir)/win
 #========================================================================
 
 pkgIndex.tcl:
-	( echo pkg_mkIndex . $($(PACKAGE)_LIB_FILE) \; exit; ) | $(TCLSH)
+	( echo pkg_mkIndex . $(PKG_LIB_FILE) \; exit; ) | $(TCLSH)
 
 pkgIndex.tcl-hand:
-	(echo 'package ifneeded $(PACKAGE) $(VERSION) \
-	    [list load [file join $$dir $($(PACKAGE)_LIB_FILE)]]'\
+	(echo 'package ifneeded $(PACKAGE_NAME) $(PACKAGE_VERSION) \
+	    [list load [file join $$dir $(PKG_LIB_FILE)]]'\
 	) > pkgIndex.tcl
 
 #========================================================================

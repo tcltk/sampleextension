@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in,v 1.33 2002/10/15 18:43:39 hobbs Exp $
+# RCS: @(#) $Id: configure.in,v 1.34 2003/12/03 08:15:26 hobbs Exp $
 
 #-----------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
@@ -12,56 +12,24 @@ dnl	to configure the system for the local environment.
 
 #-----------------------------------------------------------------------
 # __CHANGE__
-# This very first macro is used to verify that the configure script can 
-# find the sources.  The argument to AC_INIT should be a unique filename
-# for this package, and can be a relative path, such as:
+# Set your package name and version numbers here.
 #
-# AC_INIT(generic/tcl.h)
+# This initializes the environment with PACKAGE_NAME and PACKAGE_VERSION
+# set as provided.  These will also be added as -D defs in your Makefile
+# so you can encode the package version directly into the source files.
 #-----------------------------------------------------------------------
 
-AC_INIT(generic/sample.h)
-
-AC_CONFIG_AUX_DIR(tclconfig)
-CONFIGDIR=${srcdir}/tclconfig
-AC_SUBST(CONFIGDIR)
-
-#----------------------------------------------------------------------
-# __CHANGE__
-# Set your package name and version numbers here.  The NODOT_VERSION is
-# required for constructing the library name on systems that don't like
-# dots in library names (Windows).  The VERSION variable is used on the
-# other systems.
-#----------------------------------------------------------------------
-
-PACKAGE=sample
-
-MAJOR_VERSION=0
-MINOR_VERSION=4
-PATCHLEVEL=
-
-VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
-NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
-
-AC_SUBST(PACKAGE)
-AC_SUBST(VERSION)
-# This package name must be replaced statically for AC_SUBST to work
-AC_SUBST(sample_LIB_FILE)
-# Substitute stub_LIB_FILE if your package creates a stub library too.
-#AC_SUBST(samplestub_LIB_FILE)
-
-#--------------------------------------------------------------------
-# We put this here so that you can compile with -DVERSION="1.2" to
-# encode the package version directly into the source files.
-#--------------------------------------------------------------------
-
-eval AC_DEFINE_UNQUOTED(VERSION, "${VERSION}")
+AC_INIT([sample], [0.5])
 
 #--------------------------------------------------------------------
 # Call TEA_INIT as the first TEA_ macro to set up initial vars.
-# This will define a ${TEA_PLATFORM} variable == "unix" or "windows".
+# This will define a ${TEA_PLATFORM} variable == "unix" or "windows"
+# as well as PKG_LIB_FILE and PKG_STUB_LIB_FILE.
 #--------------------------------------------------------------------
 
-TEA_INIT
+TEA_INIT([3.0])
+
+AC_CONFIG_AUX_DIR(tclconfig)
 
 #--------------------------------------------------------------------
 # Load the tclConfig.sh file
@@ -93,20 +61,14 @@ TEA_PREFIX
 
 TEA_SETUP_COMPILER
 
-#--------------------------------------------------------------------
+#-----------------------------------------------------------------------
 # __CHANGE__
-# Choose which headers you need.  Extension authors should try very
-# hard to only rely on the Tcl public header files.  Internal headers
-# contain private data structures and are subject to change without
-# notice.
-# This MUST be called after TEA_LOAD_TCLCONFIG / TEA_LOAD_TKCONFIG
-#--------------------------------------------------------------------
+# Specify the source files to compile and public headers that need to be
+# installed.  This defines PKG_SOURCES, PKG_OBJECTS and PKG_HEADERS.
+#-----------------------------------------------------------------------
 
-TEA_PUBLIC_TCL_HEADERS
-#TEA_PRIVATE_TCL_HEADERS
-
-#TEA_PUBLIC_TK_HEADERS
-#TEA_PRIVATE_TK_HEADERS
+TEA_ADD_SOURCES([generic/sample.c generic/tclsample.c])
+TEA_ADD_HEADERS([generic/sample.h])
 
 #--------------------------------------------------------------------
 # __CHANGE__
@@ -122,19 +84,35 @@ TEA_PUBLIC_TCL_HEADERS
 #
 # Define any extra compiler flags in the PACKAGE_CFLAGS variable.
 # These will be appended to the current set of compiler flags for
-# your system.
+#
+# Add platform libs to LIBS or SHLIB_LD_LIBS as necessary.
 #--------------------------------------------------------------------
 
 if test "${TEA_PLATFORM}" = "windows" ; then
     AC_DEFINE(BUILD_sample)
     CLEANFILES="pkgIndex.tcl *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
-    EXTRA_SOURCES='$(WIN_SOURCES)'
+    #TEA_ADD_SOURCES(win/winFile.c)
 else
+    #LIBS="${LIBS} -lsuperfly"
     CLEANFILES="pkgIndex.tcl"
-    EXTRA_SOURCES='$(UNIX_SOURCES)'
+    #TEA_ADD_SOURCES(unix/unixFile.c)
 fi
 AC_SUBST(CLEANFILES)
-AC_SUBST(EXTRA_SOURCES)
+
+#--------------------------------------------------------------------
+# __CHANGE__
+# Choose which headers you need.  Extension authors should try very
+# hard to only rely on the Tcl public header files.  Internal headers
+# contain private data structures and are subject to change without
+# notice.
+# This MUST be called after TEA_LOAD_TCLCONFIG / TEA_LOAD_TKCONFIG
+#--------------------------------------------------------------------
+
+TEA_PUBLIC_TCL_HEADERS
+#TEA_PRIVATE_TCL_HEADERS
+
+#TEA_PUBLIC_TK_HEADERS
+#TEA_PRIVATE_TK_HEADERS
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.
@@ -180,13 +158,6 @@ AC_DEFINE(USE_TCL_STUBS)
 #--------------------------------------------------------------------
 
 TEA_MAKE_LIB
-
-#--------------------------------------------------------------------
-# __CHANGE__
-# Add platform libs to LIBS or SHLIB_LD_LIBS as necessary.
-#--------------------------------------------------------------------
-
-#LIBS="${LIBS} -lsuperfly"
 
 #--------------------------------------------------------------------
 # Find tclsh so that we can run pkg_mkIndex to generate the pkgIndex.tcl

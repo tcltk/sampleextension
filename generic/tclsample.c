@@ -5,6 +5,7 @@
  *	algorithm functions in sha1.c
  *
  * Copyright (c) 1999 Scriptics Corporation.
+ * Copyright (c) 2003 ActiveState Corporation.
  *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -30,8 +31,8 @@ static int numcontexts = 0;
 static SHA1_CTX *sha1Contexts = NULL;
 static int *ctxtotalRead = NULL;
 
-static int Sha1_Cmd _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
-		int argc, char *argv[]));
+static int Sha1_Cmd(ClientData clientData, Tcl_Interp *interp,
+		int argc, char *argv[]);
 
 #define DIGESTSIZE 20
 
@@ -52,11 +53,12 @@ static int Sha1_Cmd _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
  */
 
 static int
-Sha1_Cmd(clientData, interp, argc, argv)
-    ClientData clientData;	/* Not used. */
-    Tcl_Interp *interp;		/* Current interpreter */
-    int argc;			/* Number of arguments */
-    char *argv[];		/* Argument strings */
+Sha1_Cmd(
+    ClientData clientData,	/* Not used. */
+    Tcl_Interp *interp,		/* Current interpreter */
+    int argc,			/* Number of arguments */
+    char *argv[]		/* Argument strings */
+    )
 {
     /*
      * The default base is hex
@@ -75,7 +77,7 @@ Sha1_Cmd(clientData, interp, argc, argv)
     int doinit = 1;
     int dofinal = 1;
     char *descriptor = NULL;
-    int totalRead = 0;
+    unsigned int totalRead = 0;
     int i, j, n, mask, bits, offset;
 
     /*
@@ -198,7 +200,7 @@ Sha1_Cmd(clientData, interp, argc, argv)
 
 	    totalRead += n;
 
-	    SHA1Update(&sha1Context, (unsigned char *) bufPtr, n);
+	    SHA1Update(&sha1Context, (unsigned char *) bufPtr, (unsigned int) n);
 
 	    if (copychan != (Tcl_Channel) NULL) {
 		n = Tcl_Write(copychan, bufPtr, n);
@@ -332,10 +334,10 @@ Sample_Init(Tcl_Interp *interp)
     if (Tcl_PkgRequire(interp, "Tcl", "8.1", 0) == NULL) {
 	return TCL_ERROR;
     }
-    if (Tcl_PkgProvide(interp, "Tclsha1", VERSION) != TCL_OK) {
+    if (Tcl_PkgProvide(interp, "Tclsha1", PACKAGE_VERSION) != TCL_OK) {
 	return TCL_ERROR;
     }
-    Tcl_CreateCommand(interp, "sha1", Sha1_Cmd,
+    Tcl_CreateCommand(interp, "sha1", (Tcl_CmdProc *) Sha1_Cmd,
 	    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
     numcontexts = 1;

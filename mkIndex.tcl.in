@@ -54,6 +54,10 @@ if {[catch {package require Tcl 8.2} msg]} {
     exit 0
 }
 
+# The name of the library(s) should be passed in as arguments.
+
+set libraryList $argv
+
 # Nativepath --
 #
 #	Convert a Cygnus style path to a native path
@@ -84,12 +88,20 @@ set exec_prefix [Nativepath $exec_prefix]
 
 set libdir @libdir@
 set package @PACKAGE@
+set version @VERSION@
 
 cd $libdir
 puts "Making pkgIndex.tcl in [file join [pwd] $package]"
 
 if {$tcl_platform(platform) == "unix"} {
-    pkg_mkIndex $package ../*[info sharedlibextension] *.tcl
+    if {[llength $libraryList] > 0} {
+	set libraryPathList {}
+	foreach lib $libraryList {
+	    lappend libraryPathList [file join .. $lib]
+	}
+	puts "eval pkg_mkIndex $package$version $libraryPathList *.tcl"
+	eval pkg_mkIndex $package$version $libraryPathList *.tcl
+    }
 } else {
-    pkg_mkIndex $package [file join .. .. bin *[info sharedlibextension]]
+    pkg_mkIndex $package$version [file join .. .. bin *[info sharedlibextension]]
 }

@@ -385,7 +385,6 @@ AC_DEFUN(SC_ENABLE_THREADS, [
 	[tcl_ok=$enableval], [tcl_ok=no])
 
     if test "$tcl_ok" = "yes"; then
-	AC_MSG_RESULT(yes)
 	TCL_THREADS=1
 	AC_DEFINE(TCL_THREADS)
 	AC_DEFINE(_REENTRANT)
@@ -402,6 +401,7 @@ AC_DEFUN(SC_ENABLE_THREADS, [
 		    AC_MSG_RESULT(yes)
 		else
 		    TCL_THREADS=0
+		    AC_MSG_RESULT(no)
 		    AC_MSG_WARN("Don t know how to find pthread lib on your system - you must disable thread support or edit the LIBS in the Makefile...")
 		fi
 		;;

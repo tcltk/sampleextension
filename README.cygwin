@@ -3,14 +3,10 @@ you will need to do.
 
 1.  Make sure you have a working Visual C++ (version 5.0 or later) compiler.
 
-2.  Download and install the Cygnus Cywgin user tools package from
-	ftp://go.cygnus.com/pub/sourceware.cygnus.com/pub/cygwin/cygwin-b20/usertools.exe
+2.  Download and install the Cygnus Cywgin full tools package from
+	ftp://go.cygnus.com/pub/sourceware.cygnus.com/pub/cygwin/cygwin-b20/full.exe
 
-3.  Install GNU make for windows.  You can get the GNU make
-	binary from the same location as the TEA sample extension:
-	ftp://ftp.scriptics.com/pub/tcl/examples/tea/extras/gmake.exe
-
-4.  Create a directory called "C:\bin".  Copy the sh.exe
+3.  Create a directory called "C:\bin".  Copy the sh.exe
 	program from the cygnus bin directory
 	(C:\cygnus\cygwin-b20\H-i586-cygwin32\bin\sh.exe) to "C:\bin".
 	This will allow you to run shell scripts that use the
@@ -19,15 +15,15 @@ you will need to do.
 	Create another directory called "C:\tmp".  The bash.exe program
 	requires this directory for storing temporary files.
 
-5.  Set your environment variable "MAKE_MODE" to have the value "UNIX"
+4.  Set your environment variable "MAKE_MODE" to have the value "UNIX"
 	This will set up the "make" program to operate in a more sane manner.
 
-6.  Run vcvars32.bat.  You must do this every time you wish to
+5.  Run vcvars32.bat.  You must do this every time you wish to
 	perform a build of an extension.  It is strongly recommended
 	that you modify your sytem environment so that you don't have to
 	run vcvars32.bat all the time.  If you look in the vcvars32.bat
 	file you will see what system environment variables need to be
 	set in order to make this work.
 
-7.  If you are authoring a TEA extension, you will also want the GNU
+6.  If you are authoring a TEA extension, you will also want the GNU
     autoconf package.  This can be obtained from http://www.gnu.org

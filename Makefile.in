@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.40 2002/04/04 06:29:23 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.41 2002/07/12 00:12:19 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -158,7 +158,7 @@ INCLUDES	= @TCL_INCLUDES@
 
 EXTRA_CFLAGS	= $(MEM_DEBUG_FLAGS) @EXTRA_CFLAGS@
 
-DEFS		= @DEFS@ $(TCL_DEFS) $(EXTRA_CFLAGS)
+DEFS		= $(TCL_DEFS) @DEFS@ $(EXTRA_CFLAGS)
 
 CONFIG_CLEAN_FILES = Makefile
 

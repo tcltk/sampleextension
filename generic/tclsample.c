@@ -30,7 +30,7 @@ static int numcontexts = 0;
 static SHA1_CTX *sha1Contexts = NULL;
 static int *ctxtotalRead = NULL;
 
-static int Sha1 _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
+static int Sha1_Cmd _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
 		int argc, char *argv[]));
 
 #define DIGESTSIZE 20
@@ -52,7 +52,7 @@ static int Sha1 _ANSI_ARGS_((ClientData clientData, Tcl_Interp *interp,
  */
 
 static int
-Sha1(clientData, interp, argc, argv)
+Sha1_Cmd(clientData, interp, argc, argv)
     ClientData clientData;	/* Not used. */
     Tcl_Interp *interp;		/* Current interpreter */
     int argc;			/* Number of arguments */
@@ -335,7 +335,7 @@ Sample_Init(Tcl_Interp *interp)
     if (Tcl_PkgProvide(interp, "Tclsha1", VERSION) != TCL_OK) {
 	return TCL_ERROR;
     }
-    Tcl_CreateCommand(interp, "sha1", Sha1,
+    Tcl_CreateCommand(interp, "sha1", Sha1_Cmd,
 	    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
     numcontexts = 1;

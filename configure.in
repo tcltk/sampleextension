@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in,v 1.28 2002/03/28 01:57:52 hobbs Exp $
+# RCS: @(#) $Id: configure.in,v 1.29 2002/03/28 02:36:32 hobbs Exp $
 
 #--------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
@@ -44,6 +44,8 @@ NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
 
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
+# This package name must be replaced statically for AC_SUBST to work
+AC_SUBST(sample_LIB_FILE)
 
 #--------------------------------------------------------------------
 # We put this here so that you can compile with -DVERSION="1.2" to

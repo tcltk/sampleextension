@@ -18,7 +18,7 @@
 # Copyright (c) 2003 Pat Thoyts
 #
 #-------------------------------------------------------------------------
-# RCS: @(#)$Id: makefile.vc,v 1.1 2003/07/02 00:34:06 patthoyts Exp $
+# RCS: @(#)$Id: makefile.vc,v 1.2 2003/10/01 14:56:00 patthoyts Exp $
 #-------------------------------------------------------------------------
 
 !if "$(MSVCDIR)" == ""
@@ -241,8 +241,8 @@ crt = -MT
 !endif
 !endif
 
-TCL_INCLUDES	= -I"$(TCLDIR)\include" -I"$(WINDIR)" -I"$(GENERICDIR)"
-BASE_CLFAGS	= $(cflags) $(cdebug) $(crt) $(TCL_INCLUDES)
+INCLUDES	= $(TCL_INCLUDES) -I"$(WINDIR)" -I"$(GENERICDIR)"
+BASE_CLFAGS	= $(cflags) $(cdebug) $(crt) $(INCLUDES)
 CON_CFLAGS	= $(cflags) $(cdebug) $(crt) -DCONSOLE
 TCL_CFLAGS	= -DUSE_TCL_STUBS -DVERSION="\"$(DOTVERSION)\"" $(BASE_CLFAGS) $(OPTDEFINES)
 

@@ -307,7 +307,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS PKG_HEADERS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING EXTRA_CFLAGS STLIB_LD SHLIB_LD SHLIB_CFLAGS SHLIB_LD_FLAGS SHLIB_LD_LIBS LDFLAGS_DEBUG LDFLAGS_OPTIMIZE TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB TCLSH_PROG LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS PKG_HEADERS PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING EXTRA_CFLAGS STLIB_LD SHLIB_LD SHLIB_CFLAGS SHLIB_LD_FLAGS SHLIB_LD_LIBS LDFLAGS_DEBUG LDFLAGS_OPTIMIZE LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB TCLSH_PROG LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -6101,16 +6101,23 @@ done
 
 #-----------------------------------------------------------------------
 # __CHANGE__
-# Specify the source files to compile and public headers that need to be
-# installed.  This defines PKG_SOURCES, PKG_OBJECTS and PKG_HEADERS.
+# Specify the C source files to compile in TEA_ADD_SOURCES,
+# public headers that need to be installed in TEA_ADD_HEADERS,
+# stub library C source files to compile in TEA_ADD_STUB_SOURCES,
+# and runtime Tcl library files in TEA_ADD_TCL_SOURCES.
+# This defines PKG(_STUB)_SOURCES, PKG(_STUB)_OBJECTS, PKG_HEADERS
+# and PKG_TCL_SOURCES.
 #-----------------------------------------------------------------------
 
 
-    for i in generic/sample.c generic/tclsample.c; do
-	# check for existence - may allow for generic/win/unix VPATH
-	if test ! -f "${srcdir}/$i" ; then
-	    { { echo "$as_me:$LINENO: error: source file '${srcdir}/$i' does not exist" >&5
-echo "$as_me: error: source file '${srcdir}/$i' does not exist" >&2;}
+    vars="sample.c tclsample.c"
+    for i in $vars; do
+	# check for existence - allows for generic/win/unix VPATH
+	if test ! -f "${srcdir}/$i" -a ! -f "${srcdir}/generic/$i" \
+	    -a ! -f "${srcdir}/win/$i" -a ! -f "${srcdir}/unix/$i" \
+	    ; then
+	    { { echo "$as_me:$LINENO: error: could not find source file '$i'" >&5
+echo "$as_me: error: could not find source file '$i'" >&2;}
    { (exit 1); exit 1; }; }
 	fi
 	PKG_SOURCES="$PKG_SOURCES $i"
@@ -6128,14 +6135,53 @@ echo "$as_me: error: source file '${srcdir}/$i' does not exist" >&2;}
 
 
 
-    for i in generic/sample.h; do
-	# check for existence - may allow for generic/win/unix VPATH
+    vars=""
+    for i in $vars; do
+	# check for existence, be strict because it is installed
 	if test ! -f "${srcdir}/$i" ; then
-	    { { echo "$as_me:$LINENO: error: source file '${srcdir}/$i' does not exist" >&5
-echo "$as_me: error: source file '${srcdir}/$i' does not exist" >&2;}
+	    { { echo "$as_me:$LINENO: error: could not find header file '${srcdir}/$i'" >&5
+echo "$as_me: error: could not find header file '${srcdir}/$i'" >&2;}
    { (exit 1); exit 1; }; }
 	fi
 	PKG_HEADERS="$PKG_HEADERS $i"
+    done
+
+
+
+    vars=""
+    for i in $vars; do
+	# check for existence - allows for generic/win/unix VPATH
+	if test ! -f "${srcdir}/$i" -a ! -f "${srcdir}/generic/$i" \
+	    -a ! -f "${srcdir}/win/$i" -a ! -f "${srcdir}/unix/$i" \
+	    ; then
+	    { { echo "$as_me:$LINENO: error: could not find stub source file '$i'" >&5
+echo "$as_me: error: could not find stub source file '$i'" >&2;}
+   { (exit 1); exit 1; }; }
+	fi
+	PKG_STUB_SOURCES="$PKG_STUB_SOURCES $i"
+	# this assumes it is in a VPATH dir
+	i=`basename $i`
+	# handle user calling this before or after TEA_SETUP_COMPILER
+	if test x"${OBJEXT}" != x ; then
+	    j="`echo $i | sed -e 's/\.[^.]*$//'`.${OBJEXT}"
+	else
+	    j="`echo $i | sed -e 's/\.[^.]*$//'`.\${OBJEXT}"
+	fi
+	PKG_STUB_OBJECTS="$PKG_STUB_OBJECTS $j"
+    done
+
+
+
+
+    vars=""
+    for i in $vars; do
+	# check for existence, be strict because it is installed
+	if test ! -f "${srcdir}/$i" ; then
+	    { { echo "$as_me:$LINENO: error: could not find tcl source file '${srcdir}/$i'" >&5
+echo "$as_me: error: could not find tcl source file '${srcdir}/$i'" >&2;}
+   { (exit 1); exit 1; }; }
+	fi
+	PKG_TCL_SOURCES="$PKG_TCL_SOURCES $i"
     done
 
 
@@ -7081,6 +7127,7 @@ echo "${ECHO_T}no" >&6
 fi
 
     STLIB_LD='${AR} cr'
+    LD_LIBRARY_PATH_VAR="LD_LIBRARY_PATH"
     case $system in
 	windows)
 	    # This is a 2-stage check to make sure we have the 64-bit SDK
@@ -7326,6 +7373,7 @@ echo "${ECHO_T}Using $CC for compiling with threads" >&6
 
 	    DL_OBJS="tclLoadDl.o"
 	    LDFLAGS=""
+	    LD_LIBRARY_PATH_VAR="LIBPATH"
 
 	    # AIX v<=4.1 has some different flags than 4.2+
 	    if test "$system" = "AIX-4.1" -o "`uname -v`" -lt "4" ; then
@@ -7554,6 +7602,7 @@ fi
 		LDFLAGS="-Wl,-E"
 		LD_SEARCH_FLAGS='-Wl,+s,+b,${LIB_RUNTIME_DIR}:.'
 	    fi
+	    LD_LIBRARY_PATH_VAR="SHLIB_PATH"
 
 	    # Users may want PA-RISC 1.1/2.0 portable code - needs HP cc
 	    #EXTRA_CFLAGS="+DAportable"
@@ -7658,6 +7707,7 @@ fi
 		LDFLAGS="-Wl,-E"
 		LD_SEARCH_FLAGS='-Wl,+s,+b,${LIB_RUNTIME_DIR}:.'
 	    fi
+	    LD_LIBRARY_PATH_VAR="SHLIB_PATH"
 	    ;;
 	IRIX-4.*)
 	    SHLIB_CFLAGS="-G 0"
@@ -8306,6 +8356,7 @@ fi
 	    DL_LIBS=""
 	    LDFLAGS="-prebind"
 	    LD_SEARCH_FLAGS=""
+	    LD_LIBRARY_PATH_VAR="DYLD_LIBRARY_PATH"
 	    CFLAGS_OPTIMIZE="-O3"
 	    EXTRA_CFLAGS="-arch ppc -pipe"
 	    ;;
@@ -8899,6 +8950,7 @@ fi;
 
 
 
+
 #--------------------------------------------------------------------
 # Set the default compiler switches based on the --enable-symbols option.
 #--------------------------------------------------------------------
@@ -9006,6 +9058,7 @@ _ACEOF
     # substituted.
     #--------------------------------------------------------------------
 
+    RANLIB_STUB="${RANLIB}"
     if test "${TEA_PLATFORM}" = "windows" ; then
 	if test "${SHARED_BUILD}" = "1" ; then
 	    # We force the unresolved linking of symbols that are really in
@@ -9042,6 +9095,7 @@ _ACEOF
     if test "${SHARED_BUILD}" = "1" ; then
 	CFLAGS="${CFLAGS} \${SHLIB_CFLAGS}"
     fi
+
 
 
 
@@ -9778,6 +9832,9 @@ s,@MATH_LIBS@,$MATH_LIBS,;t t
 s,@PKG_SOURCES@,$PKG_SOURCES,;t t
 s,@PKG_OBJECTS@,$PKG_OBJECTS,;t t
 s,@PKG_HEADERS@,$PKG_HEADERS,;t t
+s,@PKG_STUB_SOURCES@,$PKG_STUB_SOURCES,;t t
+s,@PKG_STUB_OBJECTS@,$PKG_STUB_OBJECTS,;t t
+s,@PKG_TCL_SOURCES@,$PKG_TCL_SOURCES,;t t
 s,@CLEANFILES@,$CLEANFILES,;t t
 s,@TCL_INCLUDES@,$TCL_INCLUDES,;t t
 s,@TCL_THREADS@,$TCL_THREADS,;t t
@@ -9796,6 +9853,7 @@ s,@SHLIB_LD_FLAGS@,$SHLIB_LD_FLAGS,;t t
 s,@SHLIB_LD_LIBS@,$SHLIB_LD_LIBS,;t t
 s,@LDFLAGS_DEBUG@,$LDFLAGS_DEBUG,;t t
 s,@LDFLAGS_OPTIMIZE@,$LDFLAGS_OPTIMIZE,;t t
+s,@LD_LIBRARY_PATH_VAR@,$LD_LIBRARY_PATH_VAR,;t t
 s,@TCL_DBGX@,$TCL_DBGX,;t t
 s,@CFLAGS_DEFAULT@,$CFLAGS_DEFAULT,;t t
 s,@LDFLAGS_DEFAULT@,$LDFLAGS_DEFAULT,;t t
@@ -9803,6 +9861,7 @@ s,@MAKE_LIB@,$MAKE_LIB,;t t
 s,@MAKE_SHARED_LIB@,$MAKE_SHARED_LIB,;t t
 s,@MAKE_STATIC_LIB@,$MAKE_STATIC_LIB,;t t
 s,@MAKE_STUB_LIB@,$MAKE_STUB_LIB,;t t
+s,@RANLIB_STUB@,$RANLIB_STUB,;t t
 s,@TCLSH_PROG@,$TCLSH_PROG,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

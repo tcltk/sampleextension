@@ -22,6 +22,11 @@ USING MICROSOFT VISUAL C++:
     autoconf package.  This can be obtained from http://www.gnu.org
     Autoconf version 2.13 or later is required.
 
+USING CYGWIN (gcc)
+
+1.  At this time, cygwin gcc is not supported due to compatibility issues
+    that have not been resolved.  Use mingw gcc instead.
+
 USING MINGW32 (gcc)
 
 1.  Download and install the free Cygnus Cywgin full tools package from
@@ -45,6 +50,6 @@ ftp://ftp.nanotech.wisc.edu/pub/khan/gnu-win32/mingw32/snapshots/gcc-2.95.2-1/
 
 4.  To compile the sample extension:
 
-	./configure
+	CC=gcc ./configure
 	make
 	make install

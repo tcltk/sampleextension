@@ -1,3 +1,8 @@
+2004-12-02  Donal K. Fellows  <donal.k.fellows@man.ac.uk>
+
+	* generic/tclsample.c (Sha1_Cmd): Rewrote to use the Tcl_Obj API
+	for arguments instead of the old string API. [FRQ #1076907]
+
 2004-07-16  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure.in, configure, Makefile.in: Reorder configure.in for

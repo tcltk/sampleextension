@@ -32,7 +32,7 @@ static SHA1_CTX *sha1Contexts = NULL;
 static int *ctxtotalRead = NULL;
 
 static int Sha1_Cmd(ClientData clientData, Tcl_Interp *interp,
-		int argc, char *argv[]);
+		int onjc, Tcl_Obj *const objv[]);
 
 #define DIGESTSIZE 20
 
@@ -56,8 +56,8 @@ static int
 Sha1_Cmd(
     ClientData clientData,	/* Not used. */
     Tcl_Interp *interp,		/* Current interpreter */
-    int argc,			/* Number of arguments */
-    char *argv[]		/* Argument strings */
+    int objc,			/* Number of arguments */
+    Tcl_Obj *const objv[]	/* Argument strings */
     )
 {
     /*
@@ -66,7 +66,7 @@ Sha1_Cmd(
 
     int log2base = 4;
     int a;
-    char *arg, *string = NULL;
+    Tcl_Obj *stringObj = NULL;
     Tcl_Channel chan = (Tcl_Channel) NULL;
     Tcl_Channel copychan = (Tcl_Channel) NULL;
     int mode;
@@ -76,7 +76,7 @@ Sha1_Cmd(
     int maxbytes = 0;
     int doinit = 1;
     int dofinal = 1;
-    char *descriptor = NULL;
+    Tcl_Obj *descriptorObj = NULL;
     unsigned int totalRead = 0;
     int i, j, n, mask, bits, offset;
 
@@ -87,86 +87,109 @@ Sha1_Cmd(
     char buf[129];
     unsigned char digest[DIGESTSIZE];
 
-    for (a = 1; a < argc; a++) {
-	arg = argv[a];
-	if (arg[0] == '-') {
-	    if (strcmp(arg, "-log2base") == 0) {
-		if ((sscanf(argv[++a], "%d", &log2base) != 1) ||
-			    (log2base < 1) || (log2base > 6)) {
-		    Tcl_AppendResult (interp, "invalid log2base: ", arg,
-			    " must be integer in range 1...6", (char *) NULL);
-		    return TCL_ERROR;
-		}
-	    } else if (strcmp(arg, "-string") == 0) {
-		string = argv[++a];
-	    } else if (strcmp(arg, "-copychan") == 0) {
-		copychan = Tcl_GetChannel(interp, argv[++a], &mode);
-		if (copychan == (Tcl_Channel) NULL) {
-		    return TCL_ERROR;
-		}
-		if ((mode & TCL_WRITABLE) == 0) {
-		    Tcl_AppendResult(interp, "copychan \"", argv[a],
-			    "\" wasn't opened for writing", (char *) NULL);
-		    return TCL_ERROR;
-		}
-	    } else if (strcmp(arg, "-chan") == 0) {
-		chan = Tcl_GetChannel(interp, argv[++a], &mode);
-		if (chan == (Tcl_Channel) NULL) {
-		    return TCL_ERROR;
-		}
-		if ((mode & TCL_READABLE) == 0) {
-		    Tcl_AppendResult(interp, "chan \"", argv[a],
-			    "\" wasn't opened for reading", (char *) NULL);
-		    return TCL_ERROR;
-		}
-	    } else if (strcmp(arg, "-maxbytes") == 0) {
-		if (sscanf(argv[++a], "%d", &maxbytes) != 1) {
-		    Tcl_AppendResult(interp, "parameter to -maxbytes \"",
-			    argv[a], "\" must be an integer", (char *) NULL);
-		    return TCL_ERROR;
-		}
-	    } else if (strcmp(arg, "-init") == 0) {
-		for (contextnum = 1; contextnum < numcontexts; contextnum++) {
-		    if (ctxtotalRead[contextnum] < 0) {
-			break;
-		    }
-		}
-		if (contextnum == numcontexts) {
-		    /*
-		     * Allocate a new context.
-		     */
+    static const char *options[] = {
+	"-chan", "-copychan", "-final", "-init", "-log2base", "-maxbytes",
+	"-string", "-update", NULL
+    };
+    enum ShaOpts {
+	SHAOPT_CHAN, SHAOPT_COPY, SHAOPT_FINAL, SHAOPT_INIT, SHAOPT_LOG,
+	SHAOPT_MAXB, SHAOPT_STRING, SHAOPT_UPDATE
+    };
 
-		    numcontexts++;
-		    sha1Contexts = (SHA1_CTX *) realloc((void *) sha1Contexts,
-			    numcontexts * sizeof(SHA1_CTX));
-		    ctxtotalRead = realloc((void *) ctxtotalRead,
-			    numcontexts * sizeof(int));
-		}
-		ctxtotalRead[contextnum] = 0;
-		SHA1Init(&sha1Context);
-		sprintf(buf, "sha1%d", contextnum);
-		Tcl_AppendResult(interp, buf, (char *)NULL);
-		return TCL_OK;
-	    } else if (strcmp(arg, "-update") == 0) {
-		descriptor = argv[++a];
-		doinit = 0;
-		dofinal = 0;
-	    } else if (strcmp(arg, "-final") == 0) {
-		descriptor = argv[++a];
-		doinit = 0;
-	    } else {
-		goto wrongArgs;
-	    }
-	} else {
+    for (a = 1; a < objc; a++) {
+	int index;
+
+	if (Tcl_GetIndexFromObj(interp, objv[a], options, "option", 0,
+		&index) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	/*
+	 * Everything except -init takes an argument...
+	 */
+	if ((index != SHAOPT_INIT) && (++a >= objc)) {
 	    goto wrongArgs;
+	}
+	switch ((enum ShaOpts) index) {
+	case SHAOPT_INIT:
+	    for (contextnum = 1; contextnum < numcontexts; contextnum++) {
+		if (ctxtotalRead[contextnum] < 0) {
+		    break;
+		}
+	    }
+	    if (contextnum == numcontexts) {
+		/*
+		 * Allocate a new context.
+		 */
+
+		numcontexts++;
+		sha1Contexts = (SHA1_CTX *) realloc((void *) sha1Contexts,
+			numcontexts * sizeof(SHA1_CTX));
+		ctxtotalRead = realloc((void *) ctxtotalRead,
+			numcontexts * sizeof(int));
+	    }
+	    ctxtotalRead[contextnum] = 0;
+	    SHA1Init(&sha1Context);
+	    sprintf(buf, "sha1%d", contextnum);
+	    Tcl_AppendResult(interp, buf, (char *)NULL);
+	    return TCL_OK;
+	case SHAOPT_CHAN:
+	    chan = Tcl_GetChannel(interp, Tcl_GetString(objv[a]), &mode);
+	    if (chan == (Tcl_Channel) NULL) {
+		return TCL_ERROR;
+	    }
+	    if ((mode & TCL_READABLE) == 0) {
+		Tcl_AppendResult(interp, "chan \"", Tcl_GetString(objv[a]),
+			"\" wasn't opened for reading", (char *) NULL);
+		return TCL_ERROR;
+	    }
+	    continue;
+	case SHAOPT_COPY:
+	    copychan = Tcl_GetChannel(interp, Tcl_GetString(objv[a]), &mode);
+	    if (copychan == (Tcl_Channel) NULL) {
+		return TCL_ERROR;
+	    }
+	    if ((mode & TCL_WRITABLE) == 0) {
+		Tcl_AppendResult(interp, "copychan \"", Tcl_GetString(objv[a]),
+			"\" wasn't opened for writing", (char *) NULL);
+		return TCL_ERROR;
+	    }
+	    continue;
+	case SHAOPT_FINAL:
+	    descriptorObj = objv[a];
+	    doinit = 0;
+	    continue;
+	case SHAOPT_LOG:
+	    if (Tcl_GetIntFromObj(interp, objv[a], &log2base) != TCL_OK) {
+		return TCL_ERROR;
+	    } else if ((log2base < 1) || (log2base > 6)) {
+		Tcl_AppendResult(interp, "parameter to -log2base \"",
+			Tcl_GetString(objv[a]),
+			"\" must be integer in range 1...6", (char *) NULL);
+		return TCL_ERROR;
+	    }
+	    continue;
+	case SHAOPT_MAXB:
+	    if (Tcl_GetIntFromObj(interp, objv[a], &maxbytes) != TCL_OK) {
+		return TCL_ERROR;
+	    }
+	    continue;
+	case SHAOPT_STRING:
+	    stringObj = objv[a];
+	    continue;
+	case SHAOPT_UPDATE:
+	    descriptorObj = objv[a];
+	    doinit = 0;
+	    dofinal = 0;
+	    continue;
 	}
     }
 
-    if (descriptor != NULL) {
-	if ((sscanf(descriptor, "sha1%d", &contextnum) != 1) ||
-		(contextnum >= numcontexts) || (ctxtotalRead[contextnum] < 0)) {
+    if (descriptorObj != NULL) {
+	if ((sscanf(Tcl_GetString(descriptorObj), "sha1%d",
+		&contextnum) != 1) || (contextnum >= numcontexts) ||
+		(ctxtotalRead[contextnum] < 0)) {
 	    Tcl_AppendResult(interp, "invalid sha1 descriptor \"", 
-		    descriptor, "\"", (char *) NULL);
+		    Tcl_GetString(descriptorObj), "\"", (char *) NULL);
 	    return TCL_ERROR;
 	}
     }
@@ -174,12 +197,13 @@ Sha1_Cmd(
     if (doinit) {
 	SHA1Init(&sha1Context);
     }
-    
-    if (string != NULL) {
+
+    if (stringObj != NULL) {
+	char *string;
 	if (chan != (Tcl_Channel) NULL) {
 	    goto wrongArgs;
 	}
-	totalRead = strlen(string);
+	string = Tcl_GetStringFromObj(stringObj, &totalRead);
 	SHA1Update(&sha1Context, (unsigned char *) string, totalRead);
     } else if (chan != (Tcl_Channel) NULL) {
 	bufPtr = ckalloc((unsigned) TCL_READ_CHUNK_SIZE);
@@ -192,7 +216,7 @@ Sha1_Cmd(
 		: maxbytes))) != 0) {
 	    if (n < 0) {
 		ckfree(bufPtr);
-		Tcl_AppendResult(interp, argv[0], ": ",
+		Tcl_AppendResult(interp, Tcl_GetString(objv[0]), ": ",
 			Tcl_GetChannelName(chan), Tcl_PosixError(interp),
 			(char *) NULL);
 		return TCL_ERROR;
@@ -206,10 +230,9 @@ Sha1_Cmd(
 		n = Tcl_Write(copychan, bufPtr, n);
 		if (n < 0) {
 		    ckfree(bufPtr);
-		    Tcl_AppendResult(interp, argv[0], ": ",
+		    Tcl_AppendResult(interp, Tcl_GetString(objv[0]), ": ",
 			    Tcl_GetChannelName(copychan),
-			     Tcl_PosixError(interp),
-			    (char *) NULL);
+			     Tcl_PosixError(interp), (char *) NULL);
 		    return TCL_ERROR;
 		}
 	    }
@@ -219,21 +242,19 @@ Sha1_Cmd(
 	    }
 	}
 	ckfree(bufPtr);
-    } else if (descriptor == NULL) {
+    } else if (descriptorObj == NULL) {
 	goto wrongArgs;
     }
-    
+
     if (!dofinal) {
 	ctxtotalRead[contextnum] += totalRead;
-	sprintf(buf, "%d", totalRead);
-	Tcl_AppendResult(interp, buf, (char *)NULL);
+	Tcl_SetObjResult(interp, Tcl_NewIntObj(totalRead));
 	return TCL_OK;
     }
 
-    if (string == NULL) {
+    if (stringObj == NULL) {
 	totalRead += ctxtotalRead[contextnum];
-	sprintf(buf, "%d", totalRead);
-	Tcl_AppendResult(interp, buf, (char *)NULL);
+	Tcl_SetObjResult(interp, Tcl_NewIntObj(totalRead));
     }
 
     SHA1Final(&sha1Context, digest);
@@ -280,22 +301,22 @@ Sha1_Cmd(
 wrongArgs:
     Tcl_AppendResult (interp, "wrong # args: should be either:\n",
 	    "  ",
-	    argv[0],
+	    Tcl_GetString(objv[0]),
 	    " ?-log2base log2base? -string string\n", 
 	    " or\n",
 	    "  ",
-	    argv[0],
+	    Tcl_GetString(objv[0]),
 	    " ?-log2base log2base? ?-copychan chanID? -chan chanID\n",
 	    " or\n",
 	    "  ",
-	    argv[0],
+	    Tcl_GetString(objv[0]),
 	    " -init (returns descriptor)\n",
 	    "  ",
-	    argv[0],
+	    Tcl_GetString(objv[0]),
 	    " -update descriptor ?-maxbytes n? ?-copychan chanID? -chan chanID\n",
 	    "    (any number of -update calls, returns number of bytes read)\n",
 	    "  ",
-	    argv[0],
+	    Tcl_GetString(objv[0]),
 	    " ?-log2base log2base? -final descriptor\n",
 	    " The default log2base is 4 (hex)",
 	    (char *) NULL);
@@ -337,7 +358,7 @@ Sample_Init(Tcl_Interp *interp)
     if (Tcl_PkgProvide(interp, "Tclsha1", PACKAGE_VERSION) != TCL_OK) {
 	return TCL_ERROR;
     }
-    Tcl_CreateCommand(interp, "sha1", (Tcl_CmdProc *) Sha1_Cmd,
+    Tcl_CreateObjCommand(interp, "sha1", (Tcl_ObjCmdProc *) Sha1_Cmd,
 	    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
 
     numcontexts = 1;

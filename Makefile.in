@@ -12,57 +12,44 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.30 2002/03/06 19:38:01 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.31 2002/03/07 02:56:44 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
 #========================================================================
 
 #========================================================================
-# Change the name of the variable "sample_LIB_FILE" to match the one
-# used in the configure script.  This is the parameterized name of the
-# library that we are building.
-#========================================================================
-
-lib_BINARIES	= $(sample_LIB_FILE)
-BINARIES	= $(lib_BINARIES)
-
-#========================================================================
 # Enumerate the names of the source files included in this package.
 # This will be used when a dist target is added to the Makefile.
+# EXTRA_SOURCES will be replaced by WIN_SOURCES or UNIX_SOURCES, as
+# is appropriate for your platform.
 #========================================================================
 
-sample_SOURCES	= sample.c tclsample.c
+sample_SOURCES	= sample.c tclsample.c @EXTRA_SOURCES@
+
+WIN_SOURCES	= 
+UNIX_SOURCES	= 
 
 #========================================================================
-# Enumerate the names of the object files included in this package.
-# These objects are created and linked into the final library.  In
-# most cases these object files will correspond to the source files
-# above.  Normally we would use $(OBJEXT), but certain make executables
-# won't do the extra macro in a macro conversion properly.  This allows
-# us to not have to explicitly name all objects like so:
-#  sample_OBJECTS = sample.$(OBJEXT) tclsample.$(OBJEXT)
+# Identify the object files.  This replaces .c with .$(OBJEXT) for all
+# the named source files.   These objects are created and linked into the
+# final library.  In these do not correspond directly to the source files
+# above, you will need to enumerate the object files here.
+# Normally we would use $(OBJEXT), but certain make executables won't do
+# the extra macro in a macro conversion properly.
+#
+# "sample_LIB_FILE" refers to the library (dynamic or static as per
+# configuration options) composed of the named objects.
 #========================================================================
 
 sample_OBJECTS	= $(sample_SOURCES:.c=.@OBJEXT@)
-
-#========================================================================
-# The substitution of "sample_LIB_FILE" into the variable name below
-# allows us to refer to the objects for the library without knowing the name
-# of the library in advance.  It also lets us use the "$@" variable in
-# the rule for building the library, so we can refer to both the list of 
-# objects and the library itself in a platform-independent manner.
-#========================================================================
-
 sample_LIB_FILE	= @sample_LIB_FILE@
-$(sample_LIB_FILE)_OBJECTS = $(sample_OBJECTS)
 
 #========================================================================
 # This is a list of header files to be installed
 #========================================================================
 
-GENERIC_HDRS	= \
-	$(srcdir)/sample.h
+GENERIC_HDRS	= $(srcdir)/sample.h
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -76,6 +63,14 @@ SAMPLE_NEW_VAR	= @SAMPLE_NEW_VAR@
 # check the TARGETS section below to make sure the make targets are
 # correct.
 #========================================================================
+
+#========================================================================
+# The variable "$(PACKAGE)_LIB_FILE" is the parameterized name of the
+# library that we are building.
+#========================================================================
+
+lib_BINARIES	= $($(PACKAGE)_LIB_FILE)
+BINARIES	= $(lib_BINARIES)
 
 SHELL		= @SHELL@
 
@@ -145,7 +140,6 @@ DEFS		= @DEFS@ $(EXTRA_CFLAGS)
 
 ACLOCAL_M4	= $(srcdir)/aclocal.m4
 CONFIGDIR	= @CONFIGDIR@
-mkinstalldirs	= $(SHELL) $(CONFIGDIR)/mkinstalldirs
 CONFIG_CLEAN_FILES = mkIndex.tcl
 
 CPPFLAGS	= @CPPFLAGS@
@@ -198,7 +192,7 @@ install-binaries: binaries install-lib-binaries install-bin-binaries
 #========================================================================
 
 install-libraries: libraries
-	$(mkinstalldirs) $(includedir)
+	mkdir -p $(includedir)
 	@echo "Installing header files in $(includedir)"
 	@for i in $(GENERIC_HDRS) ; do \
 	    echo "Installing $$i" ; \
@@ -211,7 +205,7 @@ install-libraries: libraries
 #========================================================================
 
 install-doc: doc
-	$(mkinstalldirs) $(mandir)/mann
+	mkdir -p $(mandir)/mann
 	@echo "Installing documentation in $(mandir)"
 	@for i in $(srcdir)/*.n; \
 	    do \
@@ -239,7 +233,7 @@ depend:
 # above.
 #
 # $(sample_LIB_FILE) should be listed as part of the BINARIES variable
-# at the top of the Makefile.  That will ensure that this target is built
+# mentioned below.  That will ensure that this target is built
 # when you run "make binaries".
 #
 # You shouldn't need to modify this target, except to change the package
@@ -267,16 +261,12 @@ $(sample_LIB_FILE): $(sample_OBJECTS)
 # Setting the VPATH variable to a list of paths will cause the 
 # makefile to look into these paths when resolving .c to .obj
 # dependencies.
-#
 #========================================================================
 
-VPATH = $(srcdir):$(srcdir)/generic:$(srcdir)/win
+VPATH = $(srcdir):$(srcdir)/generic:$(srcdir)/unix:$(srcdir)/win
 
 sample.$(OBJEXT): $(srcdir)/sample.c
 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/sample.c` -o $@
-
-tclsample.$(OBJEXT): $(srcdir)/tclsample.c
-	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclsample.c` -o $@
 
 .c.$(OBJEXT):
 	$(COMPILE) -c `@CYGPATH@ $<` -o $@
@@ -305,14 +295,11 @@ dist: dist-clean
 	cp -p $(srcdir)/*.[ch] $(DIST_DIR)/
 
 	mkdir $(DIST_DIR)/tclconfig
-	cp $(srcdir)/tclconfig/install-sh $(srcdir)/tclconfig/installFile.tcl \
-		$(srcdir)/tclconfig/mkinstalldirs \
+	cp $(srcdir)/tclconfig/install-sh \
 		$(srcdir)/tclconfig/config.* \
 		$(srcdir)/tclconfig/tcl.m4 $(DIST_DIR)/tclconfig/
 	chmod 664 $(DIST_DIR)/tclconfig/tcl.m4
-	chmod +x $(DIST_DIR)/tclconfig/install-sh \
-		$(DIST_DIR)/tclconfig/mkinstalldirs \
-		$(DIST_DIR)/tclconfig/installFile.tcl
+	chmod +x $(DIST_DIR)/tclconfig/install-sh
 
 	list='demos doc generic library mac tests unix win'; \
 	for p in $$list; do \
@@ -406,9 +393,9 @@ uninstall-binaries:
 	done
 
 installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(libdir)
-	$(mkinstalldirs)  $(DESTDIR)$(bindir)
-	$(mkinstalldirs)  $(DESTDIR)$(pkglibdir)
+	mkdir -p $(DESTDIR)$(libdir)
+	mkdir -p $(DESTDIR)$(bindir)
+	mkdir -p $(DESTDIR)$(pkglibdir)
 
 .PHONY: all binaries clean depend distclean doc install installdirs \
 libraries test

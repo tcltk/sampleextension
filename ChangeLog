@@ -1,3 +1,14 @@
+2002-03-06  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in: add EXTRA_SOURCES, WIN_SOURCES, UNIX_SOURCES
+	example lines, remove $(sample_LIB_FILE)_OBJECTS problematic
+	macro, move lib_BINARIES and BINARIES as they don't need editing.
+	Replace $(mkinstalldirs) with "mkdir -p", added $(srcdir)/unix to
+	VPATH, removed inclusion of tclconfig/installFile.tcl and
+	tclconfig/mkinstalldirs in dist: target.
+
+	* aclocal.m4: added comments
+
 2002-03-05  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in: removed unused @vars@.  Cleaned up targets.  Added

@@ -1,3 +1,4 @@
+
 #--------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
 # need to modify this file are marked by the string __CHANGE__
@@ -14,9 +15,10 @@
 
 AC_INIT(exampleA.h)
 
-#AC_CONFIG_AUX_DIR(config)
-#CONFIGDIR=${srcdir}/config
-#AC_SUBST(CONFIGDIR)
+AC_CONFIG_AUX_DIR(${srcdir})
+CONFIGDIR=${srcdir}
+AC_SUBST(CONFIGDIR)
+
 
 #--------------------------------------------------------------------
 # __CHANGE__
@@ -27,9 +29,8 @@ AC_INIT(exampleA.h)
 #--------------------------------------------------------------------
 
 PACKAGE=exampleA
-
 MAJOR_VERSION=0
-MINOR_VERSION=2
+MINOR_VERSION=3
 PATCHLEVEL=
 
 VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
@@ -46,6 +47,7 @@ AC_SUBST(VERSION)
 
 eval AC_DEFINE_UNQUOTED(VERSION, "${VERSION}")
 
+
 #--------------------------------------------------------------------
 # Check whether --enable-gcc or --disable-gcc was given.  Do this 
 # before AC_CYGWIN is called so the compiler can 
@@ -54,7 +56,7 @@ eval AC_DEFINE_UNQUOTED(VERSION, "${VERSION}")
 # was not used.
 #--------------------------------------------------------------------
 
-SC_ENABLE_GCC
+SC_SET_COMPILER
 AC_PROG_INSTALL
 
 #--------------------------------------------------------------------
@@ -77,10 +79,14 @@ AC_CYGWIN
 
 #--------------------------------------------------------------------
 # Determines the correct binary file extension (.o, .obj, .exe etc.)
+# AC_EXEEXT runs the compiler to determine the extension.  Use
+# SC_SIMPLE_EXEEXT instead of AC_EXEEXT if you want the file extension
+# based on the host type (less overhead).
 #--------------------------------------------------------------------
 
 AC_OBJEXT
 AC_EXEEXT
+#SC_SIMPLE_EXEEXT
 
 #--------------------------------------------------------------------
 # "cygpath" is used on windows to generate native path names for include
@@ -95,35 +101,26 @@ AC_EXEEXT
 # This must be done before calling SC_PUBLIC_TCL_HEADERS
 #--------------------------------------------------------------------
 
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*|*CYGWIN_98*|*CYGWIN_95*)
-	CYGPATH="cygpath -w"
-    ;;
-    *)
-	CYGPATH=echo
-    ;;
-esac
-
-AC_SUBST(CYGPATH)
+SC_SET_CYGPATH
 
 #--------------------------------------------------------------------
-# Load the tclConfig.sh file
+# Locate the Tcl source tree and build tree, if necessary.
 #--------------------------------------------------------------------
 
-SC_PATH_TCLCONFIG
-SC_LOAD_TCLCONFIG
+SC_TCL_SRC_DIR
+SC_TCL_BUILD_DIR
 
 #--------------------------------------------------------------------
 # __CHANGE__
 # Choose which headers you need.  Extension authors should try very
 # hard to only rely on the Tcl public header files.  Internal headers
 # contain private data structures and are subject to change without
-# notice.
-# This MUST be called after SC_PATH_TCLCONFIG/SC_LOAD_TCLCONFIG
+# notice.  Use one or the other of the following, but not both.
+# This MUST be called before SC_PATH_TCLCONFIG/SC_LOAD_TCLCONFIG
 #--------------------------------------------------------------------
 
-SC_PUBLIC_TCL_HEADERS
-#SC_PRIVATE_TCL_HEADERS
+#SC_PUBLIC_TCL_HEADERS
+SC_PRIVATE_TCL_HEADERS
 
 #--------------------------------------------------------------------
 # __CHANGE__
@@ -136,15 +133,11 @@ SC_PUBLIC_TCL_HEADERS
 # Windows creates a few extra files that need to be cleaned up.
 # You can add more files to clean if your extension creates any extra
 # files.
-#
-# Define any extra compiler flags in the PACKAGE_CFLAGS variable.
-# These will be appended to the current set of compiler flags for
-# your system.
 #--------------------------------------------------------------------
 
 case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*|*CYGWIN_98*|*CYGWIN_95*)
-	AC_DEFINE_UNQUOTED(BUILD_${PACKAGE})
+	*win32* | *WIN32* | *CYGWIN_NT*)
+	AC_DEFINE(BUILD_exampleA)
 	CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
 	AC_SUBST(CLEANFILES)
     ;;
@@ -152,6 +145,7 @@ case "`uname -s`" in
 	CLEANFILES=
     ;;
 esac
+
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.
@@ -173,20 +167,7 @@ SC_ENABLE_SHARED
 # is all taken from the tclConfig.sh file.
 #--------------------------------------------------------------------
 
-CFLAGS_DEBUG=${TCL_CFLAGS_DEBUG}
-CFLAGS_OPTIMIZE=${TCL_CFLAGS_OPTIMIZE}
-LDFLAGS_DEBUG=${TCL_LDFLAGS_DEBUG}
-LDFLAGS_OPTIMIZE=${TCL_LDFLAGS_OPTIMIZE}
-SHLIB_LD=${TCL_SHLIB_LD}
-STLIB_LD=${TCL_STLIB_LD}
-SHLIB_CFLAGS=${TCL_SHLIB_CFLAGS}
-
-AC_SUBST(CFLAGS_DEBUG)
-AC_SUBST(CFLAGS_OPTIMIZE)
-AC_SUBST(STLIB_LD)
-AC_SUBST(SHLIB_LD)
-AC_SUBST(SHLIB_CFLAGS)
-AC_SUBST(SHLIB_LDFLAGS)
+SC_COMPILER_INFO
 
 #--------------------------------------------------------------------
 # Set the default compiler switches based on the --enable-symbols 
@@ -195,17 +176,14 @@ AC_SUBST(SHLIB_LDFLAGS)
 
 SC_ENABLE_SYMBOLS
 
-if test "${SHARED_BUILD}" = "1" ; then
-    CFLAGS='${CFLAGS_DEFAULT} ${CFLAGS_WARNING} ${SHLIB_CFLAGS}'
-else
-    CFLAGS='${CFLAGS_DEFAULT} ${CFLAGS_WARNING}'
-fi
-
 #--------------------------------------------------------------------
 # Everyone should be linking against the Tcl stub library.  If you
 # can't for some reason, remove this definition.  If you aren't using
 # stubs, you also need to modify the SHLIB_LD_LIBS setting below to
 # link against the non-stubbed Tcl library.
+#
+# The USE_TCL_STUBS definition is used in tcl.h to activate the code
+# to load the stub table.
 #--------------------------------------------------------------------
 
 AC_DEFINE(USE_TCL_STUBS)
@@ -218,61 +196,35 @@ AC_DEFINE(USE_TCL_STUBS)
 
 SC_MAKE_LIB
 
-#--------------------------------------------------------------------
-# eval these two values to dereference the ${DBGX} variable.
-#--------------------------------------------------------------------
-
-eval "SHARED_LIB_SUFFIX=${TCL_SHARED_LIB_SUFFIX}"
-eval "UNSHARED_LIB_SUFFIX=${TCL_UNSHARED_LIB_SUFFIX}"
+SC_TCL_LINK_LIBS
 
 #--------------------------------------------------------------------
-# Shared libraries and static libraries have different names.
+# Figure out how to link against the Tcl library
 #--------------------------------------------------------------------
 
-case "`uname -s`" in
-    *win32* | *WIN32* | *CYGWIN_NT*|*CYGWIN_98*|*CYGWIN_95*)
-	if test "${SHARED_BUILD}" = "1" ; then
-	    SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
-	    eval "${PACKAGE}_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
-	    RANLIB=:
-	else
-	    eval "${PACKAGE}_LIB_FILE=${PACKAGE}${UNSHARED_LIB_SUFFIX}"
-	fi
-	;;
-    *)
-	if test "${SHARED_BUILD}" = "1" ; then
-	    SHLIB_LD_LIBS="${TCL_STUB_LIB_SPEC}"
-	    eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
-	    RANLIB=:
-	else
-	    eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${UNSHARED_LIB_SUFFIX}"
-	fi
-	;;
-esac
-
-AC_SUBST(SHARED_BUILD)
+SC_TCL_LIB_SPEC
 
 #--------------------------------------------------------------------
-# __CHANGE__
-# Change the name from exampeA_LIB_FILE to match your package name.
+# Generate the output library name
 #--------------------------------------------------------------------
+
+EXTRA_LD_LIBS=
+EXTRA_INCLUDES=
+
+SC_LIB_OUTPUT
 
 AC_SUBST(exampleA_LIB_FILE)
-AC_SUBST(SHLIB_LD_LIBS)
 
 #--------------------------------------------------------------------
 # Find tclsh so that we can run pkg_mkIndex to generate the pkgIndex.tcl
-# file during the install process.  Don't run the TCLSH_PROG through
-# ${CYGPATH} because it's being used directly by make.
-# Require that we use a tclsh shell version 8.2 or later since earlier
-# versions have bugs in the pkg_mkIndex routine.
+# file during the install process.
 #--------------------------------------------------------------------
 
 SC_PROG_TCLSH
+
 
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.
 #--------------------------------------------------------------------
 
-AC_OUTPUT([Makefile \
-	mkIndex.tcl])
+AC_OUTPUT([ Makefile ])

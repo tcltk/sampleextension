@@ -71,7 +71,7 @@ proc Nativepath {pathName} {
 
     if {![string match $tcl_platform(platform) unix]} {
 	if {[regexp {//(.)/(.*)} $pathName null driveLetter pathRemains]} {
-	    set pathName $driveLetter:/$pathName
+	    set pathName $driveLetter:/$pathRemains
 	}
     }
     return $pathName

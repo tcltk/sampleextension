@@ -52,6 +52,13 @@ $(TCLSHA_LIB_FILE)_OBJECTS = $(tclsha_OBJECTS)
 OBJECTS = $(tclsha_OBJECTS)
 
 #========================================================================
+# This is a list of header files to be installed
+#========================================================================
+
+GENERIC_HDRS= \
+	$(srcdir)/sha1.h
+
+#========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
 # have been added to the configure script.
 #========================================================================
@@ -196,6 +203,11 @@ install: all install-binaries install-libraries install-doc
 install-binaries: install-libLIBRARIES
 
 install-libraries:
+	echo "Installing header files in $(includedir)"
+	@for i in $(GENERIC_HDRS) ; do \
+	    echo "Installing $$i" ; \
+	    $(INSTALL_DATA) $$i $(includedir) ; \
+	done;
 
 install-doc:
 

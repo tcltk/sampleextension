@@ -69,10 +69,19 @@ example will install the extension in the /opt/tcl directory.
 WINDOWS BUILD
 =============
 
-See the tcl/win/README file included in the Tcl src dist for details
-about how to build the extension under Windows. We suggest using
-the Msys + Mingw build process since it is significantly easier
-than building with VC++ or Cygwin.
+The recommended method to build extensions under windows is to use the
+Msys + Mingw build process. This provides a Unix-style build while
+generating native Windows binaries. Using the Msys + Mingw build tools
+means that you can use the same configure script as per the Unix build
+to create a Makefile.
+
+If you have VC++ then you may wish to use the files in the win
+subdirectory and build the extension using just VC++. These files have
+been designed to be as generic as possible but will require some
+additional maintenance by the project developer to synchronise with
+the TEA configure.in and Makefile.in files. Instructions for using the
+VC++ makefile are written in the first part of the Makefile.vc
+file.
 
 INSTALLATION
 ============

@@ -1,6 +1,14 @@
-# This script generates a pkgIndex.tcl file for an installed extension.
-# It assumes that the pkgIndex.tcl file will be put in a subdirectory
-# immediately below the loadable binary extension called @PACKAGE@.
+# mkIndex.tcl --
+#
+#	This script generates a pkgIndex.tcl file for an installed extension.
+#
+# Copyright (c) 1999 Scriptics Corporation.
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+#
+#
+# Notes:
 #
 # If you redefine $(libdir) using the configure switch --libdir=, then
 # this script will probably fail for you.

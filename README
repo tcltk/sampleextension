@@ -1,9 +1,13 @@
-# Copyright (c) 1999 Scriptics Corporation.
-
 This is a sample extension showing an implementation of the Tcl Extension
 Architecture.  Please see the wepage
  http://www.scriptics.com/products/tcltk/tea/
 for more details on TEA.
+
+This package is a freely available open source package.  You can do
+virtually anything you like with it, such as modifying it,
+redistributing it, and selling it either in whole or in part.  See the
+file "license.terms" for complete information.
+
 
 CONTENTS
 ========

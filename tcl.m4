@@ -1812,7 +1812,9 @@ AC_DEFUN(SC_MAKE_LIB, [
 #	Defines the following vars:
 #		${basename}_LIB_NAME	The computed library name.
 #------------------------------------------------------------------------
+
 AC_DEFUN(SC_LIB_NAME, [
+    AC_MSG_CHECKING(for $1 library file)
     eval "sc_lib_name_dir=${libdir}"
     for i in \
 	    `ls -dr ${sc_lib_name_dir}/$1[[0-9]]*.lib 2>/dev/null ` \
@@ -1822,4 +1824,9 @@ AC_DEFUN(SC_LIB_NAME, [
 	    break
 	fi
     done
+    if test "x$1_LIB_NAME" = x ; then
+	AC_MSG_ERROR(not found)
+    else
+	AC_MSG_RESULT($1_LIB_NAME)
+    fi
 ])

@@ -20,3 +20,6 @@ Fourth step:  Run vcvars32.bat.  You must do this every time you wish to
 	run vcvars32.bat all the time.  If you look in the vcvars32.bat
 	file you will see what system environment variables need to be
 	set in order to make this work.
+
+Fifth step:  Set your environment variable "MAKE_MODE" to have the value "UNIX"
+	This will set up the "make" program to operate in a more sane manner.

@@ -263,7 +263,28 @@ AC_SUBST(TCLSHA_LIB_FILE)
 AC_SUBST(SHLIB_LD_LIBS)
 
 #--------------------------------------------------------------------
+# Find tclsh so that we can run pkg_mkIndex to generate the pkgIndex.tcl
+# file during the install process.  Don't run the TCLSH_PROG through
+# ${CYGPATH} because it's being used directly by make.
+#--------------------------------------------------------------------
+
+AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}:${PATH})
+
+if test "x${TCLSH_PROG}" = "x:" ; then
+    AC_MSG_WARN(No tclsh executable found.  You will have to build the pkgIndex.tcl file manually.)
+fi
+AC_SUBST(TCLSH_PROG)
+
+#--------------------------------------------------------------------
+# Some of our tool routines need native paths for these
+#--------------------------------------------------------------------
+
+exec_prefix_NATIVE=`${CYGPATH} ${exec_prefix}`
+AC_SUBST(exec_prefix_NATIVE)
+
+#--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.
 #--------------------------------------------------------------------
 
-AC_OUTPUT([Makefile])
+AC_OUTPUT([Makefile \
+	mkIndex.tcl])

@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "sample.h"
 
 #define Rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
@@ -93,18 +94,19 @@
 
 void
 SHA1Transform(state, buffer)
-    unsigned long state[5];	/* State variable */
+    sha_uint32_t state[5];	/* State variable */
     unsigned char buffer[64];	/* Modified buffer */
 {
 #if (!defined(BIG_ENDIAN) && !defined(LITTLE_ENDIAN))
     unsigned char *p;
 #endif
-    unsigned long a, b, c, d, e;
+    sha_uint32_t a, b, c, d, e;
     typedef union {
 	unsigned char c[64];
-	unsigned long l[16];
+	sha_uint32_t l[16];
     } CHAR64LONG16;
     CHAR64LONG16* block;
+
 #ifdef SHA1HANDSOFF
     static unsigned char workspace[64];
     block = (CHAR64LONG16*)workspace;
@@ -112,6 +114,8 @@ SHA1Transform(state, buffer)
 #else
     block = (CHAR64LONG16*)buffer;
 #endif
+
+    assert(sizeof(block->c) == sizeof(block->l));
 
     /*
      * Copy context->state[] to working vars
@@ -275,7 +279,7 @@ void SHA1Final(context, digest)
     SHA1_CTX* context;		/* Context to pad */
     unsigned char digest[20];	/* Returned message digest */
 {
-    unsigned long i, j;
+    sha_uint32_t i, j;
     unsigned char finalcount[8];
 
     for (i = 0; i < 8; i++) {
@@ -298,7 +302,7 @@ void SHA1Final(context, digest)
     SHA1Update(context, finalcount, 8);
     for (i = 0; i < 20; i++) {
         digest[i] = (unsigned char)
-         ((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
+		((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 
     /*
@@ -306,9 +310,7 @@ void SHA1Final(context, digest)
      */
 
     i = j = 0;
-    memset(context->buffer, 0, 64);
-    memset(context->state, 0, 20);
-    memset(context->count, 0, 8);
+    memset(context, 0, sizeof(SHA1_CTX));
     memset(&finalcount, 0, 8);
 
     /*

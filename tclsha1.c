@@ -26,13 +26,34 @@ static int *ctxtotalRead = NULL;
 
 #define DIGESTSIZE 20
 
+/*
+ *----------------------------------------------------------------------
+ *
+ * SHA1Init --
+ *
+ *	 Implements the new Tcl "sha1" command.
+ *
+ * Results:
+ *	Contents of context poineter are changed.
+ *
+ * Side effects:
+ *	None.
+ *
+ *----------------------------------------------------------------------
+ */
+
 static int
-Sha1 (ClientData clientData, Tcl_Interp *interp, int argc, char *argv[])
+Sha1(clientData, interp, argc, argv)
+    ClientData clientData;	/* Not used. */
+    Tcl_Interp *interp;		/* Current interpreter */
+    int argc;			/* Number of arguments */
+    char *argv[];		/* Argument strings */
 {
     int a;
     int log2base = 4; /* the default base is hex */
     char *arg, *string = NULL;
-    Tcl_Channel chan = (Tcl_Channel) NULL, copychan = (Tcl_Channel) NULL;
+    Tcl_Channel chan = (Tcl_Channel) NULL;
+    Tcl_Channel copychan = (Tcl_Channel) NULL;
     int mode;
     int contextnum = 0;
 #define sha1Context (sha1Contexts[contextnum])
@@ -192,7 +213,7 @@ Sha1 (ClientData clientData, Tcl_Interp *interp, int argc, char *argv[])
 	sprintf(interp->result, "%d ", totalRead);
     }
 
-    SHA1Final(digest, &sha1Context);
+    SHA1Final(&sha1Context, digest);
 
     /* take the 20 byte array and print it in the requested base */
     /* e.g. log2base=1 => binary,  log2base=4 => hex */
@@ -236,6 +257,22 @@ wrongArgs:
 	(char *) NULL);
     return TCL_ERROR;
 }
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * Tclsha_Init --
+ *
+ *	 Initialize the new package.
+ *
+ * Results:
+ *	The Tclsha1 package is created.
+ *
+ * Side effects:
+ *	One new command "sha1" is added to the Tcl interpreter.
+ *
+ *----------------------------------------------------------------------
+ */
 
 int
 Tclsha_Init(Tcl_Interp *interp)

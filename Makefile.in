@@ -7,23 +7,24 @@
 #	replaced in the actual Makefile.
 #
 # Copyright (c) 1999 Scriptics Corporation.
+# Copyright (c) 2002 ActiveState SRL.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.26 2000/06/26 23:28:15 wart Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.27 2002/03/06 05:35:30 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
 #========================================================================
 
 #========================================================================
-# Change the name of the variable "exampleA_LIB_FILE" to match the one
+# Change the name of the variable "sample_LIB_FILE" to match the one
 # used in the configure script.  This is the parameterized name of the
 # library that we are building.
 #========================================================================
 
-lib_BINARIES=$(exampleA_LIB_FILE)
+lib_BINARIES=$(sample_LIB_FILE)
 BINARIES=$(lib_BINARIES)
 
 #========================================================================
@@ -31,8 +32,8 @@ BINARIES=$(lib_BINARIES)
 # This will be used when a dist target is added to the Makefile.
 #========================================================================
 
-exampleA_SOURCES = exampleA.c tclexampleA.c
-SOURCES = $(exampleA_SOURCES)
+sample_SOURCES = sample.c tclsample.c
+SOURCES = $(sample_SOURCES)
 
 #========================================================================
 # Enumerate the names of the object files included in this package.
@@ -42,26 +43,26 @@ SOURCES = $(exampleA_SOURCES)
 #
 #========================================================================
 
-exampleA_OBJECTS =  exampleA.$(OBJEXT) tclexampleA.$(OBJEXT)
-OBJECTS = $(exampleA_OBJECTS)
+sample_OBJECTS =  sample.$(OBJEXT) tclsample.$(OBJEXT)
+OBJECTS = $(sample_OBJECTS)
 
 #========================================================================
-# The substitution of "exampleA_LIB_FILE" into the variable name below
+# The substitution of "sample_LIB_FILE" into the variable name below
 # allows us to refer to the objects for the library without knowing the name
 # of the library in advance.  It also lets us use the "$@" variable in
 # the rule for building the library, so we can refer to both the list of 
 # objects and the library itself in a platform-independent manner.
 #========================================================================
 
-exampleA_LIB_FILE = @exampleA_LIB_FILE@
-$(exampleA_LIB_FILE)_OBJECTS = $(exampleA_OBJECTS)
+sample_LIB_FILE = @sample_LIB_FILE@
+$(sample_LIB_FILE)_OBJECTS = $(sample_OBJECTS)
 
 #========================================================================
 # This is a list of header files to be installed
 #========================================================================
 
 GENERIC_HDRS= \
-	$(srcdir)/exampleA.h
+	$(srcdir)/sample.h
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -79,28 +80,20 @@ SAMPLE_NEW_VAR=@SAMPLE_NEW_VAR@
 SHELL = @SHELL@
 
 srcdir = @srcdir@
-top_srcdir = @top_srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 
 bindir = @bindir@
-sbindir = @sbindir@
-libexecdir = @libexecdir@
-datadir = @datadir@
-sysconfdir = @sysconfdir@
-sharedstatedir = @sharedstatedir@
-localstatedir = @localstatedir@
 libdir = @libdir@
-infodir = @infodir@
+datadir = @datadir@
 mandir = @mandir@
 includedir = @includedir@
-oldincludedir = /usr/include
 
 DESTDIR =
 
-pkgdatadir = $(datadir)/@PACKAGE@@VERSION@
-pkglibdir = $(libdir)/@PACKAGE@@VERSION@
-pkgincludedir = $(includedir)/@PACKAGE@@VERSION@
+pkgdatadir = $(datadir)/$(PACKAGE)$(VERSION)
+pkglibdir = $(libdir)/$(PACKAGE)$(VERSION)
+pkgincludedir = $(includedir)/$(PACKAGE)$(VERSION)
 
 top_builddir = .
 
@@ -149,14 +142,6 @@ TCL_SRC_DIR = @TCL_SRC_DIR@
 TCL_DBGX = @TCL_DBGX@
 TCL_STUB_LIB_FILE = @TCL_STUB_LIB_FILE@
 TCL_STUB_LIB_SPEC = @TCL_STUB_LIB_SPEC@
-TCL_TOOL_DIR_NATIVE = @TCL_TOOL_DIR_NATIVE@
-TCL_TOP_DIR_NATIVE = @TCL_TOP_DIR_NATIVE@
-TCL_UNIX_DIR_NATIVE = @TCL_UNIX_DIR_NATIVE@
-TCL_WIN_DIR_NATIVE = @TCL_WIN_DIR_NATIVE@
-INCLUDE_DIR_NATIVE = @INCLUDE_DIR_NATIVE@
-TCL_BMAP_DIR_NATIVE = @TCL_BMAP_DIR_NATIVE@
-TCL_PLATFORM_DIR_NATIVE = @TCL_PLATFORM_DIR_NATIVE@
-TCL_GENERIC_DIR_NATIVE = @TCL_GENERIC_DIR_NATIVE@
 TCLSH_PROG = @TCLSH_PROG@
 SHARED_BUILD = @SHARED_BUILD@
 
@@ -170,8 +155,8 @@ EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $
 
 DEFS = @DEFS@ $(EXTRA_CFLAGS)
 
-ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-CONFIGDIR = $(top_srcdir)
+ACLOCAL_M4 = $(srcdir)/aclocal.m4
+CONFIGDIR = @CONFIGDIR@
 mkinstalldirs = $(SHELL) $(CONFIGDIR)/mkinstalldirs
 CONFIG_CLEAN_FILES = mkIndex.tcl
 
@@ -212,15 +197,15 @@ doc:
 	@echo "If you have documentation to create, place the commands to"
 	@echo "build the docs in the 'doc:' target.  For example:"
 	@echo ""
-	@echo "xml2nroff exampleA.xml > exampleA.n"
-	@echo "xml2html exampleA.xml > exampleA.html"
+	@echo "xml2nroff sample.xml > sample.n"
+	@echo "xml2html sample.xml > sample.html"
 
 install: all install-binaries install-libraries install-doc
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
-	$(TCLSH_PROG) mkIndex.tcl $(exampleA_LIB_FILE)
+	$(TCLSH_PROG) mkIndex.tcl $(sample_LIB_FILE)
 	if test "x$(SHARED_BUILD)" = "x1"; then \
-	    $(TCLSH_PROG) mkIndex.tcl $(exampleA_LIB_FILE); \
+	    $(TCLSH_PROG) mkIndex.tcl $(sample_LIB_FILE); \
 	fi
 
 #========================================================================
@@ -254,7 +239,7 @@ install-doc: doc
 
 test: binaries libraries
 	( echo \
-	  pkg_mkIndex . $(exampleA_LIB_FILE) \;\
+	  pkg_mkIndex . $(sample_LIB_FILE) \;\
 	  exit; ) | \
 	$(TCLSH_PROG)
 	TCL_LIBRARY=$(TCL_LIBRARY_DIR) \
@@ -271,18 +256,18 @@ depend:
 # most cases these object files will correspond to the source files
 # above.
 #
-# $(exampleA_LIB_FILE) should be listed as part of the BINARIES variable
+# $(sample_LIB_FILE) should be listed as part of the BINARIES variable
 # at the top of the Makefile.  That will ensure that this target is built
 # when you run "make binaries".
 #
 # You shouldn't need to modify this target, except to change the package
-# name from "exampleA" to your package's name.
+# name from "sample" to your package's name.
 #========================================================================
 
-$(exampleA_LIB_FILE): $(exampleA_OBJECTS)
-	-rm -f $(exampleA_LIB_FILE)
+$(sample_LIB_FILE): $(sample_OBJECTS)
+	-rm -f $(sample_LIB_FILE)
 	@MAKE_LIB@
-	$(RANLIB) $(exampleA_LIB_FILE)
+	$(RANLIB) $(sample_LIB_FILE)
 
 #========================================================================
 # We need to enumerate the list of .c to .o lines here.
@@ -294,15 +279,15 @@ $(exampleA_LIB_FILE): $(exampleA_OBJECTS)
 # containing your extension.  If your sources are in a subdirectory,
 # you will have to modify the paths to reflect this:
 #
-# exampleA.$(OBJEXT): $(srcdir)/src/win/exampleA.c
-# 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/src/win/exampleA.c` -o $@
+# sample.$(OBJEXT): $(srcdir)/src/win/sample.c
+# 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/src/win/sample.c` -o $@
 #========================================================================
 
-exampleA.$(OBJEXT): $(srcdir)/exampleA.c
-	$(COMPILE) -c `@CYGPATH@ $(srcdir)/exampleA.c` -o $@
+sample.$(OBJEXT): $(srcdir)/sample.c
+	$(COMPILE) -c `@CYGPATH@ $(srcdir)/sample.c` -o $@
 
-tclexampleA.$(OBJEXT): $(srcdir)/tclexampleA.c
-	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclexampleA.c` -o $@
+tclsample.$(OBJEXT): $(srcdir)/tclsample.c
+	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclsample.c` -o $@
 
 
 #========================================================================

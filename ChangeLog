@@ -1,3 +1,22 @@
+2002-03-05  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* README: 
+	* README.cygwin: 
+	* Makefile.in:
+	* aclocal.m4:
+	* configure (new):
+	* configure.in:
+	* install-sh, mkinstalldirs, tcl.m4 (removed): complete revamp to
+	use the tclconfig updated TEA module
+
+	* exampleA.c, sample.c:
+	* exampleA.h, sample.h:
+	* tclexampleA.c, tclsample.c: s/exampleA/sample/g
+
+2001-05-21  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* tcl.m4: 419812
+
 2000-06-26  Mike Thomas  <wart@scriptics.com>
 
 	* Makefile.in:  Changed TCLTESTARGS to TESTFLAGS in test: target.

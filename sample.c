@@ -1,5 +1,5 @@
 /*
- * exampleA.c --
+ * sample.c --
  *
  *	This file implements a secure hashing algorithm
  *
@@ -35,7 +35,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "exampleA.h"
+#include "sample.h"
 
 #define Rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 

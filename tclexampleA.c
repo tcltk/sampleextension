@@ -141,7 +141,8 @@ Sha1(clientData, interp, argc, argv)
 		}
 		ctxtotalRead[contextnum] = 0;
 		SHA1Init(&sha1Context);
-		sprintf(interp->result, "sha1%d", contextnum);
+		sprintf(buf, "sha1%d", contextnum);
+		Tcl_AppendResult(interp, buf, (char *)NULL);
 		return TCL_OK;
 	    } else if (strcmp(arg, "-update") == 0) {
 		descriptor = argv[++a];
@@ -221,13 +222,15 @@ Sha1(clientData, interp, argc, argv)
     
     if (!dofinal) {
 	ctxtotalRead[contextnum] += totalRead;
-	sprintf(interp->result, "%d", totalRead);
+	sprintf(buf, "%d", totalRead);
+	Tcl_AppendResult(interp, buf, (char *)NULL);
 	return TCL_OK;
     }
 
     if (string == NULL) {
 	totalRead += ctxtotalRead[contextnum];
-	sprintf(interp->result, "%d ", totalRead);
+	sprintf(buf, "%d", totalRead);
+	Tcl_AppendResult(interp, buf, (char *)NULL);
     }
 
     SHA1Final(&sha1Context, digest);

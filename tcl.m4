@@ -1821,18 +1821,26 @@ AC_DEFUN(SC_LIB_SPEC, [
     eval "sc_lib_name_dir=${libdir}"
     for i in \
 	    `ls -dr ${sc_lib_name_dir}/$1[[0-9]]*.lib 2>/dev/null ` \
-	    `ls -dr ${sc_lib_name_dir}/lib$1[[0-9]]* 2>/dev/null ` ; do
+	    `ls -dr ${sc_lib_name_dir}/lib$1[[0-9]]* 2>/dev/null ` \
+	    `ls -dr /usr/lib/$1[[0-9]]*.lib 2>/dev/null ` \
+	    `ls -dr /usr/lib/lib$1[[0-9]]* 2>/dev/null ` \
+	    `ls -dr /usr/local/lib/$1[[0-9]]*.lib 2>/dev/null ` \
+	    `ls -dr /usr/local/lib/lib$1[[0-9]]* 2>/dev/null ` ; do
 	if test -f "$i" ; then
+
 	    sc_lib_name_dir=`dirname $i`
 	    $1_LIB_NAME=`basename $i`
 	    break
 	fi
     done
+
     case "`uname -s`" in
 	*win32* | *WIN32* | *CYGWIN_NT*)
 	    $1_LIB_SPEC=${$1_LIB_NAME}
 	    ;;
 	*)
+	    # Strip off the leading "lib" and trailing ".a" or ".so"
+
 	    sc_lib_name_lib=`echo ${$1_LIB_NAME}|sed -e 's/^lib//' -e 's/\.[[^.]]*$//'`
 	    $1_LIB_SPEC="-L${sc_lib_name_dir} -l${sc_lib_name_lib}"
 	    ;;
@@ -1911,41 +1919,69 @@ AC_DEFUN(SC_PRIVATE_TCL_HEADERS, [
 #------------------------------------------------------------------------
 # SC_PUBLIC_TCL_HEADERS --
 #
-#	Locate the public Tcl include files
+#	Locate the installed public Tcl header files
 #
 # Arguments:
+#	None.
 #
-#	Requires:
+# Requires:
+#	CYGPATH must be set
 #
 # Results:
+#
+#	Adds a --with-tclinclude switch to configure.
+#	Result is cached.
 #
 #	Substs the following vars:
 #		TCL_INCLUDES
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_PUBLIC_TCL_HEADERS, [
-    eval "INCLUDE_DIR=${includedir}"
+    AC_MSG_CHECKING(for Tcl public headers)
 
-    AC_MSG_CHECKING(for public tcl include files in ${INCLUDE_DIR})
+    AC_ARG_WITH(tclinclude, [ --with-tclinclude      directory containing the public Tcl header files.], with_tclinclude=${withval})
 
-    case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT*)
-	    CYGPATH="cygpath -w"
-	    INCLUDE_DIR_NATIVE=\"`${CYGPATH} ${INCLUDE_DIR}`\"
-	;;
-	*)
-	    CYGPATH=echo
-	    INCLUDE_DIR_NATIVE="${includedir}"
-	;;
-    esac
-
-    if test -f "${INCLUDE_DIR}/tcl.h" ; then
-	AC_MSG_RESULT(found)
+    if test x"${with_tclinclude}" != x ; then
+	if test -f "${with_tclinclude}/tcl.h" ; then
+	    ac_cv_c_tclh=${with_tclinclude}
+	else
+	    AC_MSG_ERROR([${with_tclinclude} directory does not contain Tcl public header file tcl.h])
+	fi
     else
-	AC_MSG_ERROR(not found)
+	AC_CACHE_VAL(ac_cv_c_tclh, [
+	    # Use the value from --with-tclinclude, if it was given
+
+	    if test x"${with_tclinclude}" != x ; then
+		ac_cv_c_tclh=${with_tclinclude}
+	    else
+		# Check in the includedir, if --prefix was specified
+
+		eval "temp_includedir=${includedir}"
+		for i in \
+			`ls -d ${temp_includedir} 2>/dev/null` \
+			/usr/local/include /usr/include ; do
+		    if test -f "$i/tcl.h" ; then
+			ac_cv_c_tclh=$i
+			break
+		    fi
+		done
+	    fi
+	])
     fi
 
-    TCL_INCLUDES=-I${INCLUDE_DIR_NATIVE}
+    # Print a message based on how we determined the include path
+
+    if test x"${ac_cv_c_tclh}" = x ; then
+	AC_MSG_ERROR(tcl.h not found.  Please specify its location with --with-tclinclude)
+    else
+	AC_MSG_RESULT(${ac_cv_c_tclh})
+    fi
+
+    # Convert to a native path and substitute into the output files.
+
+    INCLUDE_DIR_NATIVE=`${CYGPATH} ${ac_cv_c_tclh}`
+
+    TCL_INCLUDES=-I\"${INCLUDE_DIR_NATIVE}\"
 
     AC_SUBST(TCL_INCLUDES)
 ])

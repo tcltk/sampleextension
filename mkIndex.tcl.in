@@ -46,10 +46,36 @@ if {[catch {package require Tcl 8.2} msg]} {
     exit 0
 }
 
-set prefix {@prefix@}
-set exec_prefix {@exec_prefix_NATIVE@}
+# Nativepath --
+#
+#	Convert a Cygnus style path to a native path
+#
+# Arguments:
+#	pathName	Path to convert
+#
+# Results:
+#	The result is the native name of the input pathName.
+#	On Windows, this is z:/foo/bar, on Unix the input pathName is
+#	returned.
+
+proc Nativepath {pathName} {
+    global tcl_platform
+
+    if {![string match $tcl_platform(platform) unix]} {
+	if {[regexp {//(.)/(.*)} $pathName null driveLetter pathRemains]} {
+	    set pathName $driveLetter:/$pathName
+	}
+    }
+    return $pathName
+}
+
+set prefix "@prefix@"
+set exec_prefix "@exec_prefix@"
 set libdir @libdir@
 set package @PACKAGE@
+
+set exec_prefix_native [Nativepath $exec_prefix] 
+puts "exec_prefix_native = $exec_prefix_native"
 
 cd $libdir
 puts "Making pkgIndex.tcl in [file join [pwd] $package]"

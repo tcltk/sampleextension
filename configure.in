@@ -79,13 +79,6 @@ AC_OBJEXT
 AC_EXEEXT
 
 #--------------------------------------------------------------------
-# Load the tclConfig.sh file
-#--------------------------------------------------------------------
-
-SC_PATH_TCLCONFIG
-SC_LOAD_TCLCONFIG
-
-#--------------------------------------------------------------------
 # "cygpath" is used on windows to generate native path names for include
 # files.
 # These variables should only be used with the compiler and linker since
@@ -94,6 +87,8 @@ SC_LOAD_TCLCONFIG
 # Unix tclConfig.sh points SRC_DIR at the top-level directory of
 # the Tcl sources, while the Windows tclConfig.sh points SRC_DIR at
 # the win subdirectory.  Hence the different usages of SRC_DIR below.
+#
+# This must be done before calling SC_PUBLIC_TCL_HEADERS
 #--------------------------------------------------------------------
 
 case "`uname -s`" in
@@ -113,10 +108,18 @@ AC_SUBST(CYGPATH)
 # hard to only rely on the Tcl public header files.  Internal headers
 # contain private data structures and are subject to change without
 # notice.
+# This MUST be called before SC_PATH_TCLCONFIG/SC_LOAD_TCLCONFIG
 #--------------------------------------------------------------------
 
 SC_PUBLIC_TCL_HEADERS
 #SC_PRIVATE_TCL_HEADERS
+
+#--------------------------------------------------------------------
+# Load the tclConfig.sh file
+#--------------------------------------------------------------------
+
+SC_PATH_TCLCONFIG
+SC_LOAD_TCLCONFIG
 
 #--------------------------------------------------------------------
 # __CHANGE__
@@ -266,13 +269,6 @@ if test "x${TCLSH_PROG}" = "x:" ; then
 fi
 AC_SUBST(TCLSH_PROG)
 
-#--------------------------------------------------------------------
-# Some of our tool routines need native paths for these, in particular
-# the mkIndex.tcl script for generating pkgIndex.tcl upon installing.
-#--------------------------------------------------------------------
-
-exec_prefix_NATIVE=`${CYGPATH} ${exec_prefix}`
-AC_SUBST(exec_prefix_NATIVE)
 
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.

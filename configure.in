@@ -246,6 +246,8 @@ case "`uname -s`" in
 	;;
 esac
 
+AC_SUBST(SHARED_BUILD)
+
 #--------------------------------------------------------------------
 # __CHANGE__
 # Change the name from exampeA_LIB_FILE to match your package name.

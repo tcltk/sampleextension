@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.34 2002/03/20 00:54:06 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.35 2002/03/20 02:07:36 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -360,7 +360,6 @@ install-lib-binaries: installdirs
 		    echo " $(INSTALL_DATA) $$lib $(DESTDIR)$(pkglibdir)/$$lib"; \
 	            $(INSTALL_DATA) $$lib $(DESTDIR)$(pkglibdir)/$$lib; \
 		fi; \
-	    else \
 	    fi; \
 	  else :; fi; \
 	done

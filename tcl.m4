@@ -1894,6 +1894,8 @@ AC_DEFUN(SC_LIB_SPEC, [
     else
 	AC_MSG_RESULT(${$1_LIB_SPEC})
     fi
+    AC_SUBST($1_LIB_SPEC)
+    AC_SUBST($1_LIB_NAME)
 ])
 
 #------------------------------------------------------------------------

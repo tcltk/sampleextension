@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in,v 1.21 2002/03/06 05:35:31 hobbs Exp $
+# RCS: @(#) $Id: configure.in,v 1.22 2002/03/06 07:31:03 hobbs Exp $
 
 #--------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
@@ -16,13 +16,13 @@ dnl	to configure the system for the local environment.
 # find the sources.  The argument to AC_INIT should be a unique filename
 # for this package, and can be a relative path, such as:
 #
-# AC_INIT(../generic/tcl.h)
+# AC_INIT(generic/tcl.h)
 #--------------------------------------------------------------------
 
 AC_INIT(sample.h)
 
-CONFIGDIR=tclconfig
-AC_CONFIG_AUX_DIR($CONFIGDIR)
+AC_CONFIG_AUX_DIR(tclconfig)
+CONFIGDIR=${srcdir}/tclconfig
 AC_SUBST(CONFIGDIR)
 
 #--------------------------------------------------------------------
@@ -36,7 +36,7 @@ AC_SUBST(CONFIGDIR)
 PACKAGE=sample
 
 MAJOR_VERSION=0
-MINOR_VERSION=2
+MINOR_VERSION=3
 PATCHLEVEL=
 
 VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
@@ -179,19 +179,13 @@ SC_PUBLIC_TCL_HEADERS
 if test "${TEA_PLATFORM}" = "windows" ; then
     AC_DEFINE_UNQUOTED(BUILD_${PACKAGE})
     CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc50.pch"
-    PLATFORM_SOURCES='$(WIN_SOURCES)'
-    PLATFORM_OBJECTS='$(WIN_OBJECTS)'
-    PLATFORM_DIR='$(WIN_DIR)'
+    EXTRA_SOURCES='$(WIN_SOURCES)'
 else
     CLEANFILES=
-    PLATFORM_SOURCES='$(UNIX_SOURCES)'
-    PLATFORM_OBJECTS='$(UNIX_OBJECTS)'
-    PLATFORM_DIR='$(UNIX_DIR)'
+    EXTRA_SOURCES='$(UNIX_SOURCES)'
 fi
 AC_SUBST(CLEANFILES)
-AC_SUBST(PLATFORM_SOURCES)
-AC_SUBST(PLATFORM_OBJECTS)
-AC_SUBST(PLATFORM_DIR)
+AC_SUBST(EXTRA_SOURCES)
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.
@@ -230,10 +224,11 @@ fi
 # Everyone should be linking against the Tcl stub library.  If you
 # can't for some reason, remove this definition.  If you aren't using
 # stubs, you also need to modify the SHLIB_LD_LIBS setting below to
-# link against the non-stubbed Tcl library.
+# link against the non-stubbed Tcl library.  Add Tk too if necessary.
 #--------------------------------------------------------------------
 
 AC_DEFINE(USE_TCL_STUBS)
+#AC_DEFINE(USE_TK_STUBS)
 
 #--------------------------------------------------------------------
 # This macro generates a line to use when building a library.  It
@@ -256,7 +251,9 @@ eval "UNSHARED_LIB_SUFFIX=${TCL_UNSHARED_LIB_SUFFIX}"
 
 if test "${TEA_PLATFORM}" = "windows" ; then
     if test "${SHARED_BUILD}" = "1" ; then
-	SHLIB_LD_LIBS="\"`cygpath -w ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
+	SHLIB_LD_LIBS="\"`${CYGPATH} ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS}"
+	# For Tk extensions
+	#SHLIB_LD_LIBS="\"`${CYGPATH} ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}`\" ${TCL_SHLIB_LD_LIBS} \"`${CYGPATH} ${TK_BIN_DIR}/${TK_STUB_LIB_FILE}`\" ${TK_SHLIB_LD_LIBS}"
 	eval "${PACKAGE}_LIB_FILE=${PACKAGE}${SHARED_LIB_SUFFIX}"
 	RANLIB=:
     else
@@ -265,6 +262,8 @@ if test "${TEA_PLATFORM}" = "windows" ; then
 else
     if test "${SHARED_BUILD}" = "1" ; then
 	SHLIB_LD_LIBS="${TCL_STUB_LIB_SPEC}"
+	# For Tk extensions
+	#SHLIB_LD_LIBS="${TCL_STUB_LIB_SPEC} ${TK_STUB_LIB_SPEC}"
 	eval "${PACKAGE}_LIB_FILE=lib${PACKAGE}${SHARED_LIB_SUFFIX}"
 	RANLIB=:
     else

@@ -1,7 +1,8 @@
 This is a sample extension showing an implementation of the Tcl Extension
-Architecture.  Please see the wepage
+Architecture.  Please see the webpage
  http://www.scriptics.com/products/tcltk/tea/
-for more details on TEA.  You can also read te 
+for more details on TEA.  You can also read the enclose "tea.pdf" document
+for instructions on how to adapt this sample extension to your extension.
 
 This package is a freely available open source package.  You can do
 virtually anything you like with it, such as modifying it,
@@ -40,7 +41,7 @@ mkIndex.tcl.in	Script template used for generating an installed pkgIndex.tcl
 		file.  The configure script uses this as input to produce the
 		actual mkIndex.tcl script.
 
-mkinstalldirs	Program used to create a directory heirarchy (because
+mkinstalldirs	Program used to create a directory hierarchy (because
 		mkdir -p is not portable)
 
 exampleA.c	Core Secure Hash Algorithm code.

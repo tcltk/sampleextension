@@ -2056,12 +2056,16 @@ AC_DEFUN(SC_PRIVATE_TK_HEADERS, [
 	    TK_GENERIC_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../generic`\"
 	    TK_XLIB_DIR_NATIVE=\"`${CYGPATH} ${TK_SRC_DIR}/../xlib`\"
 	    TK_PLATFORM_DIR_NATIVE=${TK_WIN_DIR_NATIVE}
+
+	    TK_INCLUDES="-I${TK_GENERIC_DIR_NATIVE} -I${TK_PLATFORM_DIR_NATIVE} -I${TK_XLIB_DIR_NATIVE}"
 	;;
 	*)
+	    TK_GENERIC_DIR_NATIVE='$(TK_TOP_DIR_NATIVE)/generic'
 	    TK_UNIX_DIR_NATIVE='$(TK_TOP_DIR_NATIVE)/unix'
 	    TK_WIN_DIR_NATIVE='$(TK_TOP_DIR_NATIVE)/win'
 	    TK_PLATFORM_DIR_NATIVE=${TK_UNIX_DIR_NATIVE}
-	    TK_XLIB_DIR_NATIVE=
+
+	    TK_INCLUDES="-I${TK_GENERIC_DIR_NATIVE} -I${TK_PLATFORM_DIR_NATIVE}"
 	;;
     esac
 
@@ -2071,7 +2075,6 @@ AC_DEFUN(SC_PRIVATE_TK_HEADERS, [
     AC_SUBST(TK_XLIB_DIR_NATIVE)
     AC_SUBST(TK_PLATFORM_DIR_NATIVE)
 
-    TK_INCLUDES="-I${TK_GENERIC_DIR_NATIVE} -I${TK_PLATFORM_DIR_NATIVE} -I${TK_XLIB_DIR_NATIVE}"
     AC_SUBST(TK_INCLUDES)
     AC_MSG_RESULT(Using srcdir found in tkConfig.sh)
 ])
@@ -2176,3 +2179,27 @@ AC_DEFUN(SC_SIMPLE_EXEEXT, [
     AC_SUBST(EXEEXT)
 ])
 
+#------------------------------------------------------------------------
+# SC_PROG_TCLSH
+#	Locate a tclsh shell in the following directories:
+#		${exec_prefix}
+#		${prefix}/bin
+#		${TCL_BIN_DIR}/../bin
+#		${PATH}
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		TCLSH_PROG
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_PROG_TCLSH, [
+    AC_PATH_PROGS(TCLSH_PROG, tclsh8.2${EXEEXT} tclsh82${EXEEXT} tclsh82d${EXEEXT} tclsh${EXEEXT}, :, ${exec_prefix}:${prefix}/bin:${TCL_BIN_DIR}/../bin:${PATH})
+
+    if test "x${TCLSH_PROG}" = "x:" ; then
+	AC_MSG_WARN(No tclsh executable found.  You will have to build the pkgIndex.tcl file manually.)
+    fi
+    AC_SUBST(TCLSH_PROG)
+])

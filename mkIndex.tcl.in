@@ -103,5 +103,12 @@ if {$tcl_platform(platform) == "unix"} {
 	eval pkg_mkIndex $package$version $libraryPathList *.tcl
     }
 } else {
-    pkg_mkIndex $package$version [file join .. .. bin *[info sharedlibextension]]
+    if {[llength $libraryList] > 0} {
+	set libraryPathList {}
+	foreach lib $libraryList {
+	    lappend libraryPathList [file join .. .. bin $lib]
+	}
+	puts "eval pkg_mkIndex $package$version $libraryPathList *.tcl"
+	eval pkg_mkIndex $package$version $libraryPathList *.tcl
+    }
 }

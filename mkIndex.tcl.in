@@ -79,11 +79,11 @@ proc Nativepath {pathName} {
 
 set prefix "@prefix@"
 set exec_prefix "@exec_prefix@"
-set libdir @libdir@
-set package @PACKAGE@
 
 set exec_prefix_native [Nativepath $exec_prefix] 
-puts "exec_prefix_native = $exec_prefix_native"
+
+set libdir @libdir@
+set package @PACKAGE@
 
 cd $libdir
 puts "Making pkgIndex.tcl in [file join [pwd] $package]"

@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.27 2002/03/06 05:35:30 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.28 2002/03/06 07:31:14 hobbs Exp $
 
 #========================================================================
 # Edit the following few lines when writing a new extension
@@ -33,18 +33,18 @@ BINARIES=$(lib_BINARIES)
 #========================================================================
 
 sample_SOURCES = sample.c tclsample.c
-SOURCES = $(sample_SOURCES)
 
 #========================================================================
 # Enumerate the names of the object files included in this package.
 # These objects are created and linked into the final library.  In
 # most cases these object files will correspond to the source files
-# above.
-#
+# above.  Normally we would use $(OBJEXT), but certain make executables
+# won't do the extra macro in a macro conversion properly.  This allows
+# us to not have to explicitly name all objects like so:
+#  sample_OBJECTS = sample.$(OBJEXT) tclsample.$(OBJEXT)
 #========================================================================
 
-sample_OBJECTS =  sample.$(OBJEXT) tclsample.$(OBJEXT)
-OBJECTS = $(sample_OBJECTS)
+sample_OBJECTS = $(sample_SOURCES:.c=.@OBJEXT@)
 
 #========================================================================
 # The substitution of "sample_LIB_FILE" into the variable name below
@@ -91,9 +91,10 @@ includedir = @includedir@
 
 DESTDIR =
 
-pkgdatadir = $(datadir)/$(PACKAGE)$(VERSION)
-pkglibdir = $(libdir)/$(PACKAGE)$(VERSION)
-pkgincludedir = $(includedir)/$(PACKAGE)$(VERSION)
+PKG_DIR = $(PACKAGE)$(VERSION)
+pkgdatadir = $(datadir)/$(PKG_DIR)
+pkglibdir = $(libdir)/$(PKG_DIR)
+pkgincludedir = $(includedir)/$(PKG_DIR)
 
 top_builddir = .
 
@@ -101,15 +102,6 @@ INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
-INSTALL_STRIP_FLAG =
-transform = @program_transform_name@
-
-NORMAL_INSTALL = :
-PRE_INSTALL = :
-POST_INSTALL = :
-NORMAL_UNINSTALL = :
-PRE_UNINSTALL = :
-POST_UNINSTALL = :
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
@@ -145,10 +137,6 @@ TCL_STUB_LIB_SPEC = @TCL_STUB_LIB_SPEC@
 TCLSH_PROG = @TCLSH_PROG@
 SHARED_BUILD = @SHARED_BUILD@
 
-AUTOCONF = autoconf
-
-LDFLAGS = $(LDFLAGS_DEFAULT)
-
 INCLUDES = @TCL_INCLUDES@
 
 EXTRA_CFLAGS = $(TCL_DEFS) $(PROTO_FLAGS) $(SECURITY_FLAGS) $(MEM_DEBUG_FLAGS) $(KEYSYM_FLAGS) $(NO_DEPRECATED_FLAGS) $(TCL_EXTRA_CFLAGS)
@@ -165,8 +153,6 @@ LIBS = @LIBS@
 AR = ar
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 
 #========================================================================
 # Start of user-definable TARGETS section
@@ -196,9 +182,8 @@ libraries:
 doc:
 	@echo "If you have documentation to create, place the commands to"
 	@echo "build the docs in the 'doc:' target.  For example:"
-	@echo ""
-	@echo "xml2nroff sample.xml > sample.n"
-	@echo "xml2html sample.xml > sample.html"
+	@echo "        xml2nroff sample.xml > sample.n"
+	@echo "        xml2html sample.xml > sample.html"
 
 install: all install-binaries install-libraries install-doc
 
@@ -226,8 +211,6 @@ install-libraries: libraries
 #========================================================================
 
 install-doc: doc
-	$(mkinstalldirs) $(mandir)/man1
-	$(mkinstalldirs) $(mandir)/man3
 	$(mkinstalldirs) $(mandir)/mann
 	@echo "Installing documentation in $(mandir)"
 	@for i in $(srcdir)/*.n; \
@@ -238,12 +221,11 @@ install-doc: doc
 	    done
 
 test: binaries libraries
-	( echo \
-	  pkg_mkIndex . $(sample_LIB_FILE) \;\
-	  exit; ) | \
-	$(TCLSH_PROG)
+	( echo pkg_mkIndex . $(sample_LIB_FILE) \; exit; ) | $(TCLSH_PROG)
 	TCL_LIBRARY=$(TCL_LIBRARY_DIR) \
 	LD_LIBRARY_PATH=$(BUILD_DIR):$(TCL_BIN_DIR):$(LD_LIBRARY_PATH) \
+	LIBPATH=$(BUILD_DIR):$(TCL_BIN_DIR):${LIBPATH} \
+	SHLIB_PATH=$(BUILD_DIR):$(TCL_BIN_DIR):${SHLIB_PATH} \
 	TCLLIBPATH=. \
 	PATH="$(BUILD_DIR)":"$(TCL_BIN_DIR)":"$(PATH)" \
 	$(TCLSH_PROG) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
@@ -266,7 +248,7 @@ depend:
 
 $(sample_LIB_FILE): $(sample_OBJECTS)
 	-rm -f $(sample_LIB_FILE)
-	@MAKE_LIB@
+	${MAKE_LIB}
 	$(RANLIB) $(sample_LIB_FILE)
 
 #========================================================================
@@ -281,7 +263,14 @@ $(sample_LIB_FILE): $(sample_OBJECTS)
 #
 # sample.$(OBJEXT): $(srcdir)/src/win/sample.c
 # 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/src/win/sample.c` -o $@
+#
+# Setting the VPATH variable to a list of paths will cause the 
+# makefile to look into these paths when resolving .c to .obj
+# dependencies.
+#
 #========================================================================
+
+VPATH = $(srcdir):$(srcdir)/generic:$(srcdir)/win
 
 sample.$(OBJEXT): $(srcdir)/sample.c
 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/sample.c` -o $@
@@ -289,6 +278,49 @@ sample.$(OBJEXT): $(srcdir)/sample.c
 tclsample.$(OBJEXT): $(srcdir)/tclsample.c
 	$(COMPILE) -c `@CYGPATH@ $(srcdir)/tclsample.c` -o $@
 
+.c.$(OBJEXT):
+	$(COMPILE) -c `@CYGPATH@ $<` -o $@
+
+#========================================================================
+# Distribution creation
+# You may need to tweak this target to make it work correctly.
+#========================================================================
+
+#COMPRESS	= tar cvf $(PKG_DIR).tar $(PKG_DIR); compress $(PKG_DIR).tar
+COMPRESS	= gtar zcvf $(PKG_DIR).tar.gz $(PKG_DIR)
+DIST_ROOT	= /tmp/dist
+DIST_DIR	= $(DIST_ROOT)/$(PKG_DIR)
+
+dist-clean:
+	rm -rf $(DIST_DIR) $(DIST_ROOT)/$(PKG_DIR).tar.*
+
+dist: dist-clean
+	mkdir -p $(DIST_DIR)
+	cp -p $(srcdir)/ChangeLog $(srcdir)/README* $(srcdir)/license* \
+		$(srcdir)/Makefile.in $(srcdir)/aclocal.m4 \
+		$(srcdir)/configure $(srcdir)/configure.in  $(DIST_DIR)/
+	chmod 664 $(DIST_DIR)/Makefile.in $(DIST_DIR)/aclocal.m4
+	chmod 775 $(DIST_DIR)/configure $(DIST_DIR)/configure.in
+
+	mkdir $(DIST_DIR)/tclconfig
+	cp $(srcdir)/tclconfig/install-sh $(srcdir)/tclconfig/installFile.tcl \
+		$(srcdir)/tclconfig/mkinstalldirs \
+		$(srcdir)/tclconfig/config.* \
+		$(srcdir)/tclconfig/tcl.m4 $(DIST_DIR)/tclconfig/
+	chmod 664 $(DIST_DIR)/tclconfig/tcl.m4
+	chmod +x $(DIST_DIR)/tclconfig/install-sh \
+		$(DIST_DIR)/tclconfig/mkinstalldirs \
+		$(DIST_DIR)/tclconfig/installFile.tcl
+
+	list='demos doc generic library mac tests unix win'; \
+	for p in $$list; do \
+	    if test -d $(srcdir)/$$p ; then \
+		mkdir $(DIST_DIR)/$$p; \
+		cp -p $(srcdir)/$$p/*.* $(DIST_DIR)/$$p/; \
+	    fi; \
+	done
+
+	(cd $(DIST_ROOT); $(COMPRESS);)
 
 #========================================================================
 # End of user-definable section
@@ -301,8 +333,7 @@ tclsample.$(OBJEXT): $(srcdir)/tclsample.c
 
 clean:  
 	-test -z "$(BINARIES)" || rm -f $(BINARIES)
-	-rm -f *.o core *.core
-	-rm -f *.$(OBJEXT)
+	-rm -f *.$(OBJEXT) core *.core
 	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean: clean
@@ -362,14 +393,13 @@ install-bin-binaries: installdirs
 	  else :; fi; \
 	done
 
-.SUFFIXES: .c .o .obj
+.SUFFIXES: .c .$(OBJEXT)
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 uninstall-binaries:
-	@$(NORMAL_UNINSTALL)
 	list='$(BINARIES)'; for p in $$list; do \
 	  rm -f $(DESTDIR)$(libdir)/$$p; \
 	done

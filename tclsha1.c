@@ -230,6 +230,9 @@ wrongArgs:
 int
 Tclsha_Init(Tcl_Interp *interp)
 {
+    if (Tcl_InitStubs(interp, "8.0", 0) == NULL) {
+	return TCL_ERROR;
+    }
     if (Tcl_PkgRequire(interp, "Tcl", TCL_VERSION, 0) == NULL) {
 	if (TCL_VERSION[0] == '7') {
 	    if (Tcl_PkgRequire(interp, "Tcl", "8.0", 0) == NULL) {

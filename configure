@@ -307,7 +307,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES PKG_HEADERS PKG_INCLUDES PKG_LIBS PKG_CFLAGS TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING STLIB_LD SHLIB_LD SHLIB_CFLAGS SHLIB_LD_FLAGS SHLIB_LD_LIBS LDFLAGS_DEBUG LDFLAGS_OPTIMIZE LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB TCLSH_PROG LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES PKG_HEADERS PKG_INCLUDES PKG_LIBS PKG_CFLAGS TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR CELIB_DIR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING STLIB_LD SHLIB_LD SHLIB_CFLAGS SHLIB_LD_FLAGS SHLIB_LD_LIBS LDFLAGS_DEBUG LDFLAGS_OPTIMIZE LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB TCLSH_PROG LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1360,8 +1360,14 @@ fi
 	    ;;
     esac
 
-    # Check if exec_prefix is set. If not use fall back to prefix
-    if test x$exec_prefix = xNONE ; then exec_prefix=$prefix ; fi
+    # Check if exec_prefix is set. If not use fall back to prefix.
+    # Note when adjusted, so that TEA_PREFIX can correct for this.
+    # This is needed for recursive configures, since autoconf propagates
+    # $prefix, but not $exec_prefix (doh!).
+    if test x$exec_prefix = xNONE ; then
+	exec_prefix_default=yes
+	exec_prefix=$prefix
+    fi
 
 
 
@@ -1581,23 +1587,27 @@ echo "${ECHO_T}file not found" >&6
 #-----------------------------------------------------------------------
 
 
-    # Should be AC_MSG_NOTICE, but that requires autoconf 2.50
     if test "${prefix}" = "NONE"; then
 	prefix_default=yes
 	if test x"${TCL_PREFIX}" != x; then
-	    { echo "$as_me:$LINENO: WARNING: --prefix defaulting to TCL_PREFIX ${TCL_PREFIX}" >&5
-echo "$as_me: WARNING: --prefix defaulting to TCL_PREFIX ${TCL_PREFIX}" >&2;}
+	    { echo "$as_me:$LINENO: --prefix defaulting to TCL_PREFIX ${TCL_PREFIX}" >&5
+echo "$as_me: --prefix defaulting to TCL_PREFIX ${TCL_PREFIX}" >&6;}
 	    prefix=${TCL_PREFIX}
 	else
+	    { echo "$as_me:$LINENO: --prefix defaulting to /usr/local" >&5
+echo "$as_me: --prefix defaulting to /usr/local" >&6;}
 	    prefix=/usr/local
 	fi
     fi
-    if test "${exec_prefix}" = "NONE" -a x"${prefix_default}" = x"yes" ; then
+    if test "${exec_prefix}" = "NONE" -a x"${prefix_default}" = x"yes" \
+	-o x"${exec_prefix_default}" = x"yes" ; then
 	if test x"${TCL_EXEC_PREFIX}" != x; then
-	    { echo "$as_me:$LINENO: WARNING: --exec-prefix defaulting to TCL_EXEC_PREFIX ${TCL_EXEC_PREFIX}" >&5
-echo "$as_me: WARNING: --exec-prefix defaulting to TCL_EXEC_PREFIX ${TCL_EXEC_PREFIX}" >&2;}
+	    { echo "$as_me:$LINENO: --exec-prefix defaulting to TCL_EXEC_PREFIX ${TCL_EXEC_PREFIX}" >&5
+echo "$as_me: --exec-prefix defaulting to TCL_EXEC_PREFIX ${TCL_EXEC_PREFIX}" >&6;}
 	    exec_prefix=${TCL_EXEC_PREFIX}
 	else
+	    { echo "$as_me:$LINENO: --exec-prefix defaulting to ${prefix}" >&5
+echo "$as_me: --exec-prefix defaulting to ${prefix}" >&6;}
 	    exec_prefix=$prefix
 	fi
     fi
@@ -6826,20 +6836,27 @@ echo "${ECHO_T}found $CELIB_DIR" >&6
 		    doWince="300,ARM,ARM,Pocket PC 2002"
 		fi
 		eval `echo $doWince | awk -F "," '{ \
-		    if (length($1)) { printf "CEVERSION=%s\n", $1 }; \
-		    if (length($2)) { printf "TARGETCPU=%s\n", toupper($2) }; \
-		    if (length($3)) { printf "ARCH=%s\n", toupper($3) }; \
-		    if (length($4)) { printf "PLATFORM=%s\n", $4 }; \
+		    if (length($1)) { printf "CEVERSION=\"%s\"\n", $1; \
+		      if ($1 >= 400) { printf "PLATFORM=\"Pocket PC 2003\"\n" } }; \
+		    if (length($2)) { printf "TARGETCPU=\"%s\"\n", toupper($2) }; \
+		    if (length($3)) { printf "ARCH=\"%s\"\n", toupper($3) }; \
+		    if (length($4)) { printf "PLATFORM=\"%s\"\n", $4 }; \
 		    }'`
 		OSVERSION=WCE$CEVERSION;
 		if test "x${ARCH}" = "x" ; then
 	            ARCH=$TARGETCPU;  # could be ARM MIPS SH3 X86 X86EM ...
 		fi
-		if test "x${WCEROOT}" = "x" ; then
-		    WCEROOT="C:/Program Files/Microsoft eMbedded Tools"
+	    	if test "x${WCEROOT}" = "x" ; then
+			WCEROOT="C:/Program Files/Microsoft eMbedded C++ 4.0"
+		    if test ! -d "${WCEROOT}" ; then
+			WCEROOT="C:/Program Files/Microsoft eMbedded Tools"
+		    fi
 		fi
 		if test "x${SDKROOT}" = "x" ; then
-		    SDKROOT="C:/Windows CE Tools"
+		    SDKROOT="C:/Program Files/Windows CE Tools"
+		    if test ! -d "${SDKROOT}" ; then
+			SDKROOT="C:/Windows CE Tools"
+		    fi
 		fi
 		# In order to work in the tortured autoconf environment,
 		# we need to ensure that this path has no spaces
@@ -6854,6 +6871,9 @@ echo "$as_me: error: could not find PocketPC SDK or target compiler to enable Wi
 		    doWince="no"
 		else
 		    CEINCLUDE=`cygpath -w -s "${SDKROOT}/${OSVERSION}/${PLATFORM}/include" | sed -e 's!\\\!/!g'`
+		    if test -d "${CEINCLUDE}/${TARGETCPU}" ; then
+			CEINCLUDE="${CEINCLUDE}/${TARGETCPU}"
+		    fi
 		    CELIBPATH=`cygpath -w -s "${SDKROOT}/${OSVERSION}/${PLATFORM}/Lib/${TARGETCPU}" | sed -e 's!\\\!/!g'`
     		fi
 	    fi
@@ -6879,14 +6899,16 @@ echo "$as_me: error: could not find PocketPC SDK or target compiler to enable Wi
 		    CFLAGS_DEBUG="-nologo -Zi -Od -W3 ${runtime}d"
 		    CFLAGS_OPTIMIZE="-nologo -O2 -Gs -W2 ${runtime}"
 		elif test "$doWince" != "no" ; then
+		    CEBINROOT="${WCEROOT}/EVC/${OSVERSION}/bin"
 		    if test "${TARGETCPU}" = "X86"; then
-			CC="${WCEROOT}/EVC/${OSVERSION}/bin/cl.exe -I\"${CELIB_DIR}/inc\" -I\"${CEINCLUDE}\""
+			CC="${CEBINROOT}/cl.exe"
 		    else
-			CC="${WCEROOT}/EVC/${OSVERSION}/bin/cl${TARGETCPU}.exe -I\"${CELIB_DIR}/inc\" -I\"${CEINCLUDE}\""
+			CC="${CEBINROOT}/cl${ARCH}.exe"
 		    fi
+		    CC="${CC} -I\"${CELIB_DIR}/inc\" -I\"${CEINCLUDE}\""
 		    RC="${WCEROOT}/Common/EVC/bin/rc.exe"
-		    cpulower=`echo ${TARGETCPU} | awk '{print tolower($0)}'`
-		    defs="${TARGETCPU} _${TARGETCPU}_ ${cpulower} _${cpulower}_ POCKET_SIZE PALM_SIZE _MT _DLL _WINDOWS"
+		    arch=`echo ${ARCH} | awk '{print tolower($0)}'`
+		    defs="${ARCH} _${ARCH}_ ${arch} PALM_SIZE _MT _DLL _WINDOWS"
 		    for i in $defs ; do
 			cat >>confdefs.h <<_ACEOF
 #define $i 1
@@ -6903,9 +6925,11 @@ _ACEOF
 
 		    CFLAGS_DEBUG="-nologo -Zi -Od"
 		    CFLAGS_OPTIMIZE="-nologo -Ox"
-		    lflags="-MACHINE:${TARGETCPU} -LIBPATH:\"${CELIBPATH}\" -subsystem:windowsce,3.00"
-		    STLIB_LD="${WCEROOT}/EVC/${OSVERSION}/bin/lib.exe -nologo ${lflags}"
-		    LINKBIN="${WCEROOT}/EVC/${OSVERSION}/bin/link.exe ${lflags}"
+		    lversion=`echo ${CEVERSION} | sed -e 's/\(.\)\(..\)/\1\.\2/'`
+		    lflags="-MACHINE:${ARCH} -LIBPATH:\"${CELIBPATH}\" -subsystem:windowsce,${lversion}"
+		    STLIB_LD="${CEBINROOT}/lib.exe -nologo ${lflags}"
+		    LINKBIN="${CEBINROOT}/link.exe ${lflags}"
+
 		else
 		    RC="rc"
 		    STLIB_LD="lib -nologo"
@@ -7981,7 +8005,6 @@ rm -f conftest*
 	Rhapsody-*|Darwin-*)
 	    SHLIB_CFLAGS="-fno-common"
 	    SHLIB_LD="cc -dynamiclib \${LDFLAGS}"
-	    TCL_SHLIB_LD_EXTRAS="-compatibility_version ${TCL_MAJOR_VERSION} -current_version \${PACKAGE_VERSION} -install_name \${LIB_RUNTIME_DIR}/\${TCL_LIB_FILE} -prebind -seg1addr 0xa000000"
 	    SHLIB_LD_LIBS='${LIBS}'
 	    SHLIB_SUFFIX=".dylib"
 	    DL_OBJS="tclLoadDyld.o"
@@ -7989,8 +8012,7 @@ rm -f conftest*
 	    LDFLAGS="$LDFLAGS -prebind"
 	    LD_SEARCH_FLAGS=""
 	    LD_LIBRARY_PATH_VAR="DYLD_LIBRARY_PATH"
-	    CFLAGS_OPTIMIZE="-O3"
-	    CFLAGS="$CFLAGS -arch ppc -pipe"
+	    CFLAGS_OPTIMIZE="-Os"
 	    ;;
 	NEXTSTEP-*)
 	    SHLIB_CFLAGS=""
@@ -9919,6 +9941,7 @@ s,@TCL_INCLUDES@,$TCL_INCLUDES,;t t
 s,@TCL_THREADS@,$TCL_THREADS,;t t
 s,@SHARED_BUILD@,$SHARED_BUILD,;t t
 s,@AR@,$AR,;t t
+s,@CELIB_DIR@,$CELIB_DIR,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@DL_LIBS@,$DL_LIBS,;t t
 s,@CFLAGS_DEBUG@,$CFLAGS_DEBUG,;t t

@@ -1,3 +1,10 @@
+2002-04-22  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure: regen'ed
+	* configure.in (CLEANFILES): added pkgIndex.tcl
+
+	* README.cygwin: improved notes on using cygwin.
+
 2002-04-03  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in: improved use of DESTDIR in install targets.

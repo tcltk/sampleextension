@@ -103,23 +103,23 @@ esac
 AC_SUBST(CYGPATH)
 
 #--------------------------------------------------------------------
-# __CHANGE__
-# Choose which headers you need.  Extension authors should try very
-# hard to only rely on the Tcl public header files.  Internal headers
-# contain private data structures and are subject to change without
-# notice.
-# This MUST be called before SC_PATH_TCLCONFIG/SC_LOAD_TCLCONFIG
-#--------------------------------------------------------------------
-
-SC_PUBLIC_TCL_HEADERS
-#SC_PRIVATE_TCL_HEADERS
-
-#--------------------------------------------------------------------
 # Load the tclConfig.sh file
 #--------------------------------------------------------------------
 
 SC_PATH_TCLCONFIG
 SC_LOAD_TCLCONFIG
+
+#--------------------------------------------------------------------
+# __CHANGE__
+# Choose which headers you need.  Extension authors should try very
+# hard to only rely on the Tcl public header files.  Internal headers
+# contain private data structures and are subject to change without
+# notice.
+# This MUST be called after SC_PATH_TCLCONFIG/SC_LOAD_TCLCONFIG
+#--------------------------------------------------------------------
+
+SC_PUBLIC_TCL_HEADERS
+#SC_PRIVATE_TCL_HEADERS
 
 #--------------------------------------------------------------------
 # __CHANGE__

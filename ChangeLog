@@ -1,3 +1,12 @@
+2003-02-25  Mo DeJong  <mdejong@users.sourceforge.net>
+
+	* README: Add generic unix build instructions
+	and suggest the msys + mingw build process
+	described in tcl/win/README.
+	* README.cygwin: Remove Cygwin specific info since
+	this is now covered in the README file.
+	[Tc Patch 679416]
+
 2002-10-15  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure:

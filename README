@@ -21,9 +21,6 @@ Makefile.in	Makefile template.  The configure script uses this file to
 
 README		This file
 
-README.cygwin	Instructions on how to use the Cygwin tools on Windows to
-		build the sample extension.
-
 README.sha	A description of the extension itself.
 
 aclocal.m4	Generated file.  Do not edit.  Autoconf uses this as input
@@ -55,6 +52,27 @@ tclconfig/	This directory contains various template files that build
 
 	tcl.m4		Collection of Tcl autoconf macros.  Included by
 			aclocal.m4 to define SC_* macros.
+
+UNIX BUILD
+==========
+
+Building under most UNIX systems is easy, just run the configure script
+and then run make. For more information about the build process, see
+the tcl/unix/README file in the Tcl src dist. The following minimal
+example will install the extension in the /opt/tcl directory.
+
+	$ cd sampleextension
+	$ ./configure --prefix=/opt/tcl
+	$ make
+	$ make install
+
+WINDOWS BUILD
+=============
+
+See the tcl/win/README file included in the Tcl src dist for details
+about how to build the extension under Windows. We suggest using
+the Msys + Mingw build process since it is significantly easier
+than building with VC++ or Cygwin.
 
 INSTALLATION
 ============

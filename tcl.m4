@@ -263,10 +263,10 @@ AC_DEFUN(SC_LOAD_TCLCONFIG, [
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_LOAD_TKCONFIG, [
-    AC_MSG_CHECKING([for existence of $TCLCONFIG])
+    AC_MSG_CHECKING([for existence of $TK_BIN_DIR/tkConfig.sh])
 
     if test -f "$TK_BIN_DIR/tkConfig.sh" ; then
-        AC_MSG_RESULT([loading $TK_BIN_DIR/tkConfig.sh])
+        AC_MSG_RESULT([loading])
 	. $TK_BIN_DIR/tkConfig.sh
     else
         AC_MSG_RESULT([could not find $TK_BIN_DIR/tkConfig.sh])
@@ -390,14 +390,22 @@ AC_DEFUN(SC_ENABLE_THREADS, [
 	AC_DEFINE(TCL_THREADS)
 	AC_DEFINE(_REENTRANT)
 
-	AC_CHECK_LIB(pthread,pthread_mutex_init,tcl_ok=yes,tcl_ok=no)
-	if test "$tcl_ok" = "yes"; then
-	    # The space is needed
-	    THREADS_LIBS=" -lpthread"
-	else
-	    TCL_THREADS=0
-	    AC_MSG_WARN("Don t know how to find pthread lib on your system - you must disable thread support or edit the LIBS in the Makefile...")
-	fi
+	case "`uname -s`" in
+	    *win32* | *WIN32* | *CYGWIN_NT*)
+		    AC_MSG_RESULT(yes)
+		;;
+	    *)
+		AC_CHECK_LIB(pthread,pthread_mutex_init,tcl_ok=yes,tcl_ok=no)
+		if test "$tcl_ok" = "yes"; then
+		    # The space is needed
+		    THREADS_LIBS=" -lpthread"
+		    AC_MSG_RESULT(yes)
+		else
+		    TCL_THREADS=0
+		    AC_MSG_WARN("Don t know how to find pthread lib on your system - you must disable thread support or edit the LIBS in the Makefile...")
+		fi
+		;;
+	esac
     else
 	TCL_THREADS=0
 	AC_MSG_RESULT(no (default))
@@ -1819,6 +1827,9 @@ AC_DEFUN(SC_MAKE_LIB, [
 #			library.  This location is used first, then
 #			$prefix/$exec-prefix, then some defaults.
 #
+# Requires:
+#	CYGPATH		command used to generate native style paths
+#
 # Results:
 #
 #	Defines the following vars:
@@ -1861,13 +1872,14 @@ AC_DEFUN(SC_LIB_SPEC, [
 
 	    sc_lib_name_dir=`dirname $i`
 	    $1_LIB_NAME=`basename $i`
+	    $1_LIB_PATH_NAME=$i
 	    break
 	fi
     done
 
     case "`uname -s`" in
 	*win32* | *WIN32* | *CYGWIN_NT*)
-	    $1_LIB_SPEC=${$1_LIB_NAME}
+	    $1_LIB_SPEC=\"`${CYGPATH} ${$1_LIB_PATH_NAME}`\"
 	    ;;
 	*)
 	    # Strip off the leading "lib" and trailing ".a" or ".so"
@@ -2133,3 +2145,34 @@ AC_DEFUN(SC_PUBLIC_TK_HEADERS, [
 
     AC_SUBST(TK_INCLUDES)
 ])
+
+#------------------------------------------------------------------------
+# SC_SIMPLE_EXEEXT
+#	Select the executable extension based on the host type.  This
+#	is a lightweight replacement for AC_EXEEXT that doesn't require
+#	a compiler.
+#
+# Arguments
+#	none
+#
+# Results
+#	Subst's the following values:
+#		EXEEXT
+#------------------------------------------------------------------------
+
+AC_DEFUN(SC_SIMPLE_EXEEXT, [
+    AC_MSG_CHECKING(executable extension based on host type)
+
+    case "`uname -s`" in
+	*win32* | *WIN32* | *CYGWIN_NT*)
+	    EXEEXT=".exe"
+	;;
+	*)
+	    EXEEXT=""
+	;;
+    esac
+
+    AC_MSG_RESULT(${EXEEXT})
+    AC_SUBST(EXEEXT)
+])
+

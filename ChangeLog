@@ -1,3 +1,11 @@
+2003-12-09  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in: added stub lib support even though sample doesn't
+	yet create a stub library.
+
+	* configure, tclconfig/tcl.m4: updated OpenBSD support based on
+	[Patch #775246] (cassoff)
+
 2003-12-08  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* generic/sample.c: 

@@ -49,13 +49,13 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
 #--------------------------------------------------------------------
-# Find where ranlib is located.
+# Find ranlib
 #--------------------------------------------------------------------
 
 AC_PROG_RANLIB
 
 #--------------------------------------------------------------------
-# This macro macros perform additinal compiler tests.
+# This macro performs additional compiler tests.
 #--------------------------------------------------------------------
 
 AC_CYGWIN
@@ -158,7 +158,7 @@ esac
 SC_ENABLE_THREADS
 
 #--------------------------------------------------------------------
-# The statement below define a collection of symbols related to
+# The statement below defines a collection of symbols related to
 # building as a shared library instead of a static library.
 #--------------------------------------------------------------------
 

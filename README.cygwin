@@ -27,3 +27,4 @@ you will need to do.
 
 6.  If you are authoring a TEA extension, you will also want the GNU
     autoconf package.  This can be obtained from http://www.gnu.org
+    Autoconf version 2.13 or later is required.

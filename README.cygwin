@@ -1,5 +1,5 @@
-To use cygwin for building TEA extensions, there are a couple of things
-you will need to do.
+To use cygwin for building TEA extensions on Windows, there are a couple of
+things you will need to do.
 
 1.  Make sure you have a working Visual C++ (version 5.0 or later) compiler.
 

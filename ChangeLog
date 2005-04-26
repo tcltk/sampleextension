@@ -1,3 +1,10 @@
+2005-04-25  Daniel Steffen  <das@users.sourceforge.net>
+
+	* Makefile.in: split out TCLLIBPATH from TCLSH_ENV to allow
+	customization and overriding, add PKG_LIB_FILE dependency to
+	pkgIndex.tcl target.
+	* configure: autoconf-2.59 for tclconfig/tcl.m4 updates.
+
 2005-03-25  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in: add binaries dep to install-lib-binaries and

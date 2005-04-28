@@ -3,7 +3,9 @@
 	* Makefile.in: split out TCLLIBPATH from TCLSH_ENV to allow
 	customization and overriding, add PKG_LIB_FILE dependency to
 	pkgIndex.tcl target.
-	* configure: autoconf-2.59 for tclconfig/tcl.m4 updates.
+	* configure.in: added AC_DEFINE* descriptions to allow
+	use with autoheader.
+	* configure: autoconf-2.59.
 
 2005-03-25  Jeff Hobbs  <jeffh@ActiveState.com>
 

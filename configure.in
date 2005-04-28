@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in,v 1.39 2005/02/02 04:26:35 hobbs Exp $
+# RCS: @(#) $Id: configure.in,v 1.40 2005/04/28 13:20:09 das Exp $
 
 #-----------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
@@ -94,7 +94,7 @@ TEA_ADD_TCL_SOURCES([])
 #--------------------------------------------------------------------
 
 if test "${TEA_PLATFORM}" = "windows" ; then
-    AC_DEFINE(BUILD_sample)
+    AC_DEFINE(BUILD_sample, 1, [Build windows export dll])
     CLEANFILES="pkgIndex.tcl *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     #TEA_ADD_SOURCES([win/winFile.c])
     #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
@@ -156,8 +156,8 @@ TEA_ENABLE_SYMBOLS
 # link against the non-stubbed Tcl library.  Add Tk too if necessary.
 #--------------------------------------------------------------------
 
-AC_DEFINE(USE_TCL_STUBS)
-#AC_DEFINE(USE_TK_STUBS)
+AC_DEFINE(USE_TCL_STUBS, 1, [Use Tcl stubs])
+#AC_DEFINE(USE_TK_STUBS, 1, [Use Tk stubs])
 
 #--------------------------------------------------------------------
 # This macro generates a line to use when building a library.  It

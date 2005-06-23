@@ -1,3 +1,11 @@
+2005-06-23  Daniel Steffen  <das@users.sourceforge.net>
+
+	* Makefile.in: added commented out variable definitions for building
+	extensions using Tk, to document exactly what needs to be added for Tk.
+	Commented out obsolete makefile variables TCL_DEFS and TCL_LIBS.
+
+	* configure: autoconf-2.59 for TEA updates.
+
 2005-06-18  Daniel Steffen  <das@users.sourceforge.net>
 
 	* configure: autoconf-2.59 for TEA updates.

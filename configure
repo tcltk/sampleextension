@@ -1518,6 +1518,20 @@ echo "$as_me: error: ${with_tclconfig} directory doesn't contain tclConfig.sh" >
 		done
 	    fi
 
+	    # on Darwin, check in Framework installation locations
+	    if test "`uname -s`" = "Darwin" -a x"${ac_cv_c_tclconfig}" = x ; then
+		for i in `ls -d ~/Library/Frameworks 2>/dev/null` \
+			`ls -d /Library/Frameworks 2>/dev/null` \
+			`ls -d /Network/Library/Frameworks 2>/dev/null` \
+			`ls -d /System/Library/Frameworks 2>/dev/null` \
+			; do
+		    if test -f "$i/Tcl.framework/tclConfig.sh" ; then
+			ac_cv_c_tclconfig=`(cd $i/Tcl.framework; pwd)`
+			break
+		    fi
+		done
+	    fi
+
 	    # check in a few common install locations
 	    if test x"${ac_cv_c_tclconfig}" = x ; then
 		for i in `ls -d ${exec_prefix}/lib 2>/dev/null` \
@@ -6252,17 +6266,32 @@ echo "$as_me: error: ${with_tclinclude} directory does not contain tcl.h" >&2;}
    { (exit 1); exit 1; }; }
 	    fi
 	else
+            # If Tcl was built as a framework, attempt to use
+            # the framework's Headers directory
+            case ${TCL_DEFS} in
+                *TCL_FRAMEWORK*)
+                    list="`ls -d ${TCL_BIN_DIR}/Headers 2>/dev/null`"
+                    ;;
+                *)
+                    list=""
+                    ;;
+            esac
 	    # Check order: pkg --prefix location, Tcl's --prefix location,
 	    # directory of tclConfig.sh, and Tcl source directory.
 	    # Looking in the source dir is not ideal, but OK.
 
 	    eval "temp_includedir=${includedir}"
-	    list="`ls -d ${temp_includedir}      2>/dev/null` \
+	    list="$list \
+		`ls -d ${temp_includedir}        2>/dev/null` \
 		`ls -d ${TCL_PREFIX}/include     2>/dev/null` \
 		`ls -d ${TCL_BIN_DIR}/../include 2>/dev/null` \
 		`ls -d ${TCL_SRC_DIR}/generic    2>/dev/null`"
 	    if test "${TEA_PLATFORM}" != "windows" -o "$GCC" = "yes"; then
 		list="$list /usr/local/include /usr/include"
+		if test x"${TCL_INCLUDE_SPEC}" != x ; then
+		    d=`echo "${TCL_INCLUDE_SPEC}" | sed -e 's/^-I//'`
+		    list="$list `ls -d ${d} 2>/dev/null`"
+		fi
 	    fi
 	    for i in $list ; do
 		if test -f "$i/tcl.h" ; then

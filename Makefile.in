@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.56 2005/06/23 10:01:46 das Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.57 2005/07/25 02:46:23 mdejong Exp $
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -136,10 +136,21 @@ TCLSH_ENV	= TCL_LIBRARY=`@CYGPATH@ $(TCL_SRC_DIR)/library` \
 		  PATH="$(EXTRA_PATH):$(PATH)" \
 		  TCLLIBPATH="$(TCLLIBPATH)"
 #		  TK_LIBRARY=`@CYGPATH@ $(TK_SRC_DIR)/library`
-TCLSH_PROG	= @TCLSH_PROG@
-TCLSH		= $(TCLSH_ENV) $(TCLSH_PROG)
-#WISH_PROG	= @WISH_PROG@
-#WISH		= $(TCLSH_ENV) $(WISH_PROG)
+
+# SYSTEM_TCLSH is a version of Tcl that is already installed
+# on the system. It is used to regenerate a pkgIndex.tcl
+# if needed. Note that is never going to be the same as the
+# version of tclsh in the Tcl build dir.
+
+SYSTEM_TCLSH	= @TCLSH_PROG@
+
+BUILD_TCLSH_PROG	= @BUILD_TCLSH@
+BUILD_TCLSH	= $(TCLSH_ENV) $(BUILD_TCLSH_PROG)
+
+#BUILD_WISH_PROG	= @BUILD_WISH@
+#BUILD_WISH	= $(TCLSH_ENV) $(BUILD_WISH_PROG)
+
+
 SHARED_BUILD	= @SHARED_BUILD@
 
 INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@
@@ -233,13 +244,13 @@ install-doc: doc
 	done
 
 test: binaries libraries
-	$(TCLSH) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
+	$(BUILD_TCLSH) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
 
 shell: binaries libraries
-	@$(TCLSH) $(SCRIPT)
+	@$(BUILD_TCLSH) $(SCRIPT)
 
 gdb:
-	$(TCLSH_ENV) gdb $(TCLSH_PROG) $(SCRIPT)
+	$(TCLSH_ENV) gdb $(BUILD_TCLSH_PROG) $(SCRIPT)
 
 depend:
 
@@ -292,7 +303,7 @@ VPATH = $(srcdir):$(srcdir)/generic:$(srcdir)/unix:$(srcdir)/win
 #========================================================================
 
 pkgIndex.tcl: $(PKG_LIB_FILE)
-	( echo pkg_mkIndex . $(PKG_LIB_FILE) \; exit; ) | $(TCLSH)
+	( echo pkg_mkIndex . $(PKG_LIB_FILE) \; exit; ) | $(SYSTEM_TCLSH)
 
 pkgIndex.tcl-hand:
 	(echo 'package ifneeded $(PACKAGE_NAME) $(PACKAGE_VERSION) \

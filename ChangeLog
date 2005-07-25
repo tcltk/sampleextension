@@ -1,5 +1,19 @@
 2005-07-24  Mo DeJong  <mdejong@users.sourceforge.net>
 
+	* README: Add info about mingw and mention
+	pkgIndex.tcl.in.
+	* configure: Regen.
+	* configure.in: Emit a pkgIndex.tcl in the
+	build directory. This makes it possible to
+	build and install sampleextension without
+	having to run anything in a tclsh shell.
+	A build process that depends on running
+	the software being built will not work
+	when cross compiling.
+	* pkgIndex.tcl.in: Add template.
+
+2005-07-24  Mo DeJong  <mdejong@users.sourceforge.net>
+
 	* Makefile.in: Subst TCLSH_PROG from PATH
 	as SYSTEM_TCLSH and subst BUILD_TCLSH and
 	BUILD_WISH. Use SYSTEM_TCLSH for the

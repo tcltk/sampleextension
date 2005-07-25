@@ -33,6 +33,9 @@ configure	Generated file.  Do not edit.  This must be regenerated
 configure.in	Configure script template.  Autoconf uses this file as input
 		to produce the final configure script.
 
+pkgIndex.tcl.in Package index template.  The configure script will use
+		this file as input to create pkgIndex.tcl.
+
 sample.c	Core Secure Hash Algorithm code.
 
 sample.h	Header file for functions in the C files.
@@ -73,7 +76,8 @@ The recommended method to build extensions under windows is to use the
 Msys + Mingw build process. This provides a Unix-style build while
 generating native Windows binaries. Using the Msys + Mingw build tools
 means that you can use the same configure script as per the Unix build
-to create a Makefile.
+to create a Makefile. See the tcl/win/README file for the URL of
+the Msys + Mingw download.
 
 If you have VC++ then you may wish to use the files in the win
 subdirectory and build the extension using just VC++. These files have

@@ -9556,6 +9556,8 @@ _ACEOF
 
 
 #--------------------------------------------------------------------
+# Determine the name of the tclsh and wish executables in the
+# Tcl and Tk build directories and subst into the Makefile.
 # Find tclsh so that we can run pkg_mkIndex to generate the pkgIndex.tcl
 # file during the install process.  Don't run the TCLSH_PROG through
 # ${CYGPATH} because it's being used directly by make.
@@ -9624,7 +9626,7 @@ echo "${ECHO_T}No tclsh found on PATH" >&6
 # which require substituting th AC variables in.  Include these here.
 #--------------------------------------------------------------------
 
-          ac_config_files="$ac_config_files Makefile"
+                    ac_config_files="$ac_config_files Makefile pkgIndex.tcl"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -10176,6 +10178,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+  "pkgIndex.tcl" ) CONFIG_FILES="$CONFIG_FILES pkgIndex.tcl" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;

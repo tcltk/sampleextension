@@ -1,3 +1,15 @@
+2005-07-26  Mo DeJong  <mdejong@users.sourceforge.net>
+
+	* Makefile.in: Remove SYSTEM_TCLSH and revert
+	back to just using TCLSH_PROG and WISH_PROG.
+	Remove use of SYSTEM_TCLSH at build time since
+	this is no longer supported.
+	* configure: Regen.
+	* configure.in: Don't invoke TEA_BUILD_TCLSH or
+	TEA_BUILD_WISH since these were removed from
+	tcl.m4. This fixes up support for a build
+	or installed version of Tcl.
+
 2005-07-24  Mo DeJong  <mdejong@users.sourceforge.net>
 
 	* README: Add info about mingw and mention

@@ -1,3 +1,10 @@
+2005-09-13  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure, configure.in: using TEA 3.3 that has threads enabled
+	by default.
+
+	* Makefile.in: remove unnecessary private dir info
+
 2005-07-26  Mo DeJong  <mdejong@users.sourceforge.net>
 
 	* Makefile.in: Remove SYSTEM_TCLSH and revert

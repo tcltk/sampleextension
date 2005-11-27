@@ -1,3 +1,7 @@
+2005-11-27  Daniel Steffen  <das@users.sourceforge.net>
+
+	* configure: autoconf-2.59 for TEA updates.
+
 2005-09-13  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure, configure.in: using TEA 3.3 that has threads enabled

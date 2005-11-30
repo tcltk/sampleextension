@@ -1,3 +1,10 @@
+2005-11-29  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure, configure.in: update to TEA 3.4 (darwin-64, Win-64
+	build improvements). [Bug 1369597]
+
+	* pkgIndex.tcl.in: specify $PACKAGE_NAME to load
+
 2005-11-27  Daniel Steffen  <das@users.sourceforge.net>
 
 	* configure: autoconf-2.59 for TEA updates.

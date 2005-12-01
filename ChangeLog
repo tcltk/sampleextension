@@ -1,3 +1,7 @@
+2005-12-01  Daniel Steffen  <das@users.sourceforge.net>
+
+	* configure: autoconf-2.59 for TEA updates.
+
 2005-11-29  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure, configure.in: update to TEA 3.4 (darwin-64, Win-64

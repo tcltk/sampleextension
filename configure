@@ -1323,7 +1323,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
     # TEA extensions pass this us the version of TEA they think they
     # are compatible with.
-    TEA_VERSION="3.3"
+    TEA_VERSION="3.4"
 
     echo "$as_me:$LINENO: checking for correct TEA configuration" >&5
 echo $ECHO_N "checking for correct TEA configuration... $ECHO_C" >&6

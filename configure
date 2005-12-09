@@ -6276,16 +6276,21 @@ echo "$as_me: error: ${with_tclinclude} directory does not contain tcl.h" >&2;}
                     list=""
                     ;;
             esac
+
+	    # Look in the source dir only if Tcl is not installed,
+	    # and in that situation, look there before installed locations.
+	    if test -f "$TCL_BIN_DIR/Makefile" ; then
+		list="$list `ls -d ${TCL_SRC_DIR}/generic 2>/dev/null`"
+	    fi
+
 	    # Check order: pkg --prefix location, Tcl's --prefix location,
-	    # directory of tclConfig.sh, and Tcl source directory.
-	    # Looking in the source dir is not ideal, but OK.
+	    # relative to directory of tclConfig.sh.
 
 	    eval "temp_includedir=${includedir}"
 	    list="$list \
 		`ls -d ${temp_includedir}        2>/dev/null` \
 		`ls -d ${TCL_PREFIX}/include     2>/dev/null` \
-		`ls -d ${TCL_BIN_DIR}/../include 2>/dev/null` \
-		`ls -d ${TCL_SRC_DIR}/generic    2>/dev/null`"
+		`ls -d ${TCL_BIN_DIR}/../include 2>/dev/null`"
 	    if test "${TEA_PLATFORM}" != "windows" -o "$GCC" = "yes"; then
 		list="$list /usr/local/include /usr/include"
 		if test x"${TCL_INCLUDE_SPEC}" != x ; then

@@ -77,7 +77,7 @@ Sha1_Cmd(
     int doinit = 1;
     int dofinal = 1;
     Tcl_Obj *descriptorObj = NULL;
-    unsigned int totalRead = 0;
+    int totalRead = 0;
     int i, j, n, mask, bits, offset;
 
     /*

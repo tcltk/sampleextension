@@ -1,3 +1,10 @@
+2006-01-10  Daniel Steffen  <das@users.sourceforge.net>
+
+	* generic/sample.c:
+	* generic/tclsample.c: fix gcc4 warnings.
+
+	* configure: autoconf-2.59 for TEA updates.
+
 2005-12-01  Daniel Steffen  <das@users.sourceforge.net>
 
 	* configure: autoconf-2.59 for TEA updates.

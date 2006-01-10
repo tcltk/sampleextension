@@ -59,7 +59,8 @@
  * added by Dave Dykstra, 4/16/97
  */
 
-#define Blk0(i) (block->l[i] = (*(p = (unsigned char *) (&block->l[i])) << 24) \
+#define Blk0(i) (p = (unsigned char *) (&block->l[i]), \
+		block->l[i] = (*p << 24) \
 		+ (*(p+1) << 16) + (*(p+2) << 8) + *(p+3))
 #endif
 #endif

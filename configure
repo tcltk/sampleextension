@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES PKG_HEADERS PKG_INCLUDES PKG_LIBS PKG_CFLAGS TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR CELIB_DIR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING LDFLAGS_DEBUG LDFLAGS_OPTIMIZE STLIB_LD SHLIB_LD SHLIB_LD_LIBS SHLIB_CFLAGS LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB TCLSH_PROG LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CYGPATH EXEEXT PKG_LIB_FILE PKG_STUB_LIB_FILE PKG_STUB_SOURCES PKG_STUB_OBJECTS PKG_TCL_SOURCES PKG_HEADERS PKG_INCLUDES PKG_LIBS PKG_CFLAGS TCL_VERSION TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIB_FLAG TCL_LIB_SPEC TCL_STUB_LIB_FILE TCL_STUB_LIB_FLAG TCL_STUB_LIB_SPEC TCL_LIBS TCL_DEFS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_SHLIB_LD_LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT CPP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA SET_MAKE RANLIB ac_ct_RANLIB EGREP MATH_LIBS PKG_SOURCES PKG_OBJECTS CLEANFILES TCL_INCLUDES TCL_THREADS SHARED_BUILD AR CELIB_DIR LIBOBJS DL_LIBS CFLAGS_DEBUG CFLAGS_OPTIMIZE CFLAGS_WARNING STLIB_LD SHLIB_LD SHLIB_LD_LIBS SHLIB_CFLAGS LD_LIBRARY_PATH_VAR TCL_DBGX CFLAGS_DEFAULT LDFLAGS_DEFAULT MAKE_LIB MAKE_SHARED_LIB MAKE_STATIC_LIB MAKE_STUB_LIB RANLIB_STUB TCLSH_PROG LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -6933,7 +6933,9 @@ if test "${tcl_cv_sys_version+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
-	if test -f /usr/lib/NextStep/software_version; then
+	if test "${TEA_PLATFORM}" = "windows" ; then
+	    tcl_cv_sys_version=windows
+	elif test -f /usr/lib/NextStep/software_version; then
 	    tcl_cv_sys_version=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
 	else
 	    tcl_cv_sys_version=`uname -s`-`uname -r`
@@ -7099,11 +7101,6 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-    if test "${AR}" = "" ; then
-	{ { echo "$as_me:$LINENO: error: Required archive tool 'ar' not found on PATH." >&5
-echo "$as_me: error: Required archive tool 'ar' not found on PATH." >&2;}
-   { (exit 1); exit 1; }; }
-    fi
     STLIB_LD='${AR} cr'
     LD_LIBRARY_PATH_VAR="LD_LIBRARY_PATH"
     case $system in
@@ -7667,15 +7664,12 @@ fi
 	    # Use updated header definitions where possible
 
 cat >>confdefs.h <<\_ACEOF
-#define _XOPEN_SOURCE 1
-_ACEOF
-
-
-cat >>confdefs.h <<\_ACEOF
 #define _XOPEN_SOURCE_EXTENDED 1
 _ACEOF
 
-	    LIBS="$LIBS -lxnet"               # Use the XOPEN network library
+	    # Needed by Tcl, but not most extensions
+	    #AC_DEFINE(_XOPEN_SOURCE, 1, [Do we want to use the XOPEN network library?])
+	    #LIBS="$LIBS -lxnet"               # Use the XOPEN network library
 
 	    SHLIB_SUFFIX=".sl"
 	    echo "$as_me:$LINENO: checking for shl_load in -ldld" >&5
@@ -7974,7 +7968,7 @@ echo "$as_me: WARNING: 64bit mode not supported by gcc" >&2;}
 	    SHLIB_LD_LIBS='${LIBS}'
 	    SHLIB_SUFFIX=".so"
 
-	   SHLIB_LD="${CC} -shared"
+	    SHLIB_LD="${CC} -shared"
 	    DL_OBJS=""
 	    DL_LIBS="-ldl"
 	    LDFLAGS="$LDFLAGS -Wl,--export-dynamic"
@@ -8700,9 +8694,6 @@ fi;
     if test "$UNSHARED_LIB_SUFFIX" = "" ; then
 	UNSHARED_LIB_SUFFIX='${PACKAGE_VERSION}.a'
     fi
-
-
-
 
 
 
@@ -9494,20 +9485,20 @@ else
 fi;
     DBGX=""
     if test "$tcl_ok" = "no"; then
-	CFLAGS_DEFAULT='$(CFLAGS_OPTIMIZE)'
-	LDFLAGS_DEFAULT='$(LDFLAGS_OPTIMIZE)'
+	CFLAGS_DEFAULT="${CFLAGS_OPTIMIZE}"
+	LDFLAGS_DEFAULT="${LDFLAGS_OPTIMIZE}"
 	echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
     else
-	CFLAGS_DEFAULT='$(CFLAGS_DEBUG)'
-	LDFLAGS_DEFAULT='$(LDFLAGS_DEBUG)'
+	CFLAGS_DEFAULT="${CFLAGS_DEBUG}"
+	LDFLAGS_DEFAULT="${LDFLAGS_DEBUG}"
 	if test "$tcl_ok" = "yes"; then
 	    echo "$as_me:$LINENO: result: yes (standard debugging)" >&5
 echo "${ECHO_T}yes (standard debugging)" >&6
 	fi
     fi
     if test "${TEA_PLATFORM}" != "windows" ; then
-	LDFLAGS_DEFAULT='$(LDFLAGS)'
+	LDFLAGS_DEFAULT="${LDFLAGS}"
     fi
 
 
@@ -10361,8 +10352,6 @@ s,@DL_LIBS@,$DL_LIBS,;t t
 s,@CFLAGS_DEBUG@,$CFLAGS_DEBUG,;t t
 s,@CFLAGS_OPTIMIZE@,$CFLAGS_OPTIMIZE,;t t
 s,@CFLAGS_WARNING@,$CFLAGS_WARNING,;t t
-s,@LDFLAGS_DEBUG@,$LDFLAGS_DEBUG,;t t
-s,@LDFLAGS_OPTIMIZE@,$LDFLAGS_OPTIMIZE,;t t
 s,@STLIB_LD@,$STLIB_LD,;t t
 s,@SHLIB_LD@,$SHLIB_LD,;t t
 s,@SHLIB_LD_LIBS@,$SHLIB_LD_LIBS,;t t

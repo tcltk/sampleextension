@@ -8284,6 +8284,12 @@ echo "${ECHO_T}$tcl_cv_ld_search_paths_first" >&6
 	    CC_SEARCH_FLAGS=""
 	    LD_SEARCH_FLAGS=""
 	    LD_LIBRARY_PATH_VAR="DYLD_LIBRARY_PATH"
+
+	    # TEA specific: for Tk extensions, remove -arch ppc64 from CFLAGS
+	    # for fat builds, as neither TkAqua nor TkX11 can be built for 64bit
+	    # at present (no 64bit GUI libraries).
+	    test $do64bit_ok = no && test -n "${TK_BIN_DIR}" && \
+	        CFLAGS="`echo "$CFLAGS" | sed -e 's/-arch ppc64/-arch ppc/g'`"
 	    ;;
 	NEXTSTEP-*)
 	    SHLIB_CFLAGS=""

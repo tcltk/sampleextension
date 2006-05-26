@@ -6961,7 +6961,7 @@ echo "$as_me: WARNING: can't find uname command" >&2;}
 		# results, and the version is kept in special file).
 
 		if test -r /etc/.relid -a "X`uname -n`" = "X`uname -s`" ; then
-		    tcl_cv_sys_version=MP-RAS-`awk '{print }' /etc/.relid`
+		    tcl_cv_sys_version=MP-RAS-`awk '{print $3}' /etc/.relid`
 		fi
 		if test "`uname -s`" = "AIX" ; then
 		    tcl_cv_sys_version=AIX-`uname -v`.`uname -r`
@@ -8028,7 +8028,7 @@ echo "$as_me: WARNING: 64bit mode not supported by gcc" >&2;}
 	    # NetBSD/SPARC needs -fPIC, -fpic will not do.
 	    SHLIB_CFLAGS="-fPIC"
 	    SHLIB_LD="ld -Bshareable -x"
-	    SHLIB_LD_LIBS=""
+	    SHLIB_LD_LIBS='${LIBS}'
 	    SHLIB_SUFFIX=".so"
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS=""
@@ -9597,6 +9597,9 @@ _ACEOF
 	fi
 	# Some packages build their own stubs libraries
 	eval eval "PKG_STUB_LIB_FILE=${PACKAGE_NAME}stub${UNSHARED_LIB_SUFFIX}"
+	if test "$GCC" = "yes"; then
+	    PKG_STUB_LIB_FILE=lib${PKG_STUB_LIB_FILE}
+	fi
 	# These aren't needed on Windows (either MSVC or gcc)
 	RANLIB=:
 	RANLIB_STUB=:

@@ -18,13 +18,17 @@
 # Copyright (c) 2003 Pat Thoyts
 #
 #-------------------------------------------------------------------------
-# RCS: @(#)$Id: makefile.vc,v 1.4 2004/07/26 08:22:05 patthoyts Exp $
+# RCS: @(#)$Id: makefile.vc,v 1.5 2006/09/24 21:51:49 patthoyts Exp $
 #-------------------------------------------------------------------------
 
-!if !defined(MSDEVDIR) && !defined(MSVCDIR) && !defined(VCToolkitInstallDir)
+# Check to see we are configured to build with MSVC (MSDEVDIR or MSVCDIR)
+# or with the MS Platform SDK (MSSDK). Visual Studio .NET 2003 and 2005 define
+# VCINSTALLDIR instead.
+!if !defined(MSDEVDIR) && !defined(MSVCDIR) && !defined(MSSDK) && !defined(VCINSTALLDIR)
 MSG = ^
-You will need to run vcvars32.bat from Developer Studio, first, to setup^
-the environment.  Jump to this line to read the new instructions.
+You need to run vcvars32.bat from Developer Studio or setenv.bat from the^
+Platform SDK first to setup the environment.  Jump to this line to read^
+the build instructions.
 !error $(MSG)
 !endif
 
@@ -201,26 +205,22 @@ COMPATDIR	= $(ROOT)\compat
 !if !$(DEBUG)
 !if $(OPTIMIZING)
 ### This cranks the optimization level to maximize speed
-cdebug	= -O2 -Op -Gs
+cdebug	= -O2 $(OPTIMIZATIONS)
 !else
 cdebug	=
 !endif
 !else if "$(MACHINE)" == "IA64"
 ### Warnings are too many, can't support warnings into errors.
-cdebug	= -Z7 -Od -GZ
+cdebug	= -Z7 -Od $(DEBUGFLAGS)
 !else
-cdebug	= -Z7 -WX -Od -GZ
+cdebug	= -Z7 -WX $(DEBUGFLAGS)
 !endif
 
 ### Declarations common to all compiler options
-cflags = -nologo -c -W3 -YX -Fp$(TMP_DIR)^\
+cflags = -nologo -c $(COMPILERFLAGS) -Fp$(TMP_DIR)^\
 
-!if $(PENT_0F_ERRATA)
-cflags = $(cflags) -QI0f
-!endif
-
-!if $(ITAN_B_ERRATA)
-cflags = $(cflags) -QIA64_Bx
+!if $(VCVER) > 7
+cflags  =$(cflags) -D_CRT_SECURE_NO_DEPRECATE
 !endif
 
 !if $(MSVCRT)
@@ -238,10 +238,10 @@ crt = -MT
 !endif
 
 INCLUDES	= $(TCL_INCLUDES) -I"$(WINDIR)" -I"$(GENERICDIR)"
-BASE_CLFAGS	= $(cflags) $(cdebug) $(crt) $(INCLUDES)
+BASE_CFLAGS	= $(cflags) $(cdebug) $(crt) $(INCLUDES)
 CON_CFLAGS	= $(cflags) $(cdebug) $(crt) -DCONSOLE
 TCL_CFLAGS	= -DUSE_TCL_STUBS -DPACKAGE_VERSION="\"$(DOTVERSION)\"" \
-                  $(BASE_CLFAGS) $(OPTDEFINES)
+                  $(BASE_CFLAGS) $(OPTDEFINES)
 
 #---------------------------------------------------------------------
 # Link flags
@@ -249,6 +249,9 @@ TCL_CFLAGS	= -DUSE_TCL_STUBS -DPACKAGE_VERSION="\"$(DOTVERSION)\"" \
 
 !if $(DEBUG)
 ldebug	= -debug:full -debugtype:cv
+!if $(MSVCRT)
+ldebug = $(ldebug) -nodefaultlib:msvcrt
+!endif
 !else
 ldebug	= -release -opt:ref -opt:icf,3
 !endif
@@ -323,10 +326,17 @@ setup:
 	@if not exist $(TMP_DIR)\nul mkdir $(TMP_DIR)
 
 $(PRJLIB): $(DLLOBJS)
+!if $(STATIC_BUILD)
+	$(lib32) -nologo -out:$@ @<<
+$**
+<<
+!else
 	$(link32) $(dlllflags) -out:$@ $(baselibs) @<<
 $**
 <<
+	$(_VC_MANIFEST_EMBED_DLL)
 	-@del $*.exp
+!endif
 
 $(PRJSTUBLIB): $(PRJSTUBOBJS)
 	$(lib32) -nologo -out:$@ $(PRJSTUBOBJS)

@@ -1,3 +1,9 @@
+2006-09-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* win/nmakehlp.c:  Updated for building extensions with msvc8,
+	* win/makefile.vc: support for varying compiler options for
+	* win/rules.vc:    msvc6,7,8.
+
 2006-01-23  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure.in, configure: update to TEA 3.5

@@ -15,10 +15,10 @@
 # Copyright (c) 1998-2000 Ajuba Solutions.
 # Copyright (c) 2001 ActiveState Corporation.
 # Copyright (c) 2001-2002 David Gravereaux.
-# Copyright (c) 2003 Pat Thoyts
+# Copyright (c) 2003-2006 Pat Thoyts
 #
 #-------------------------------------------------------------------------
-# RCS: @(#)$Id: makefile.vc,v 1.5 2006/09/24 21:51:49 patthoyts Exp $
+# RCS: @(#)$Id: makefile.vc,v 1.6 2006/10/08 16:28:28 patthoyts Exp $
 #-------------------------------------------------------------------------
 
 # Check to see we are configured to build with MSVC (MSDEVDIR or MSVCDIR)
@@ -76,7 +76,7 @@ the build instructions.
 #		staticpkg = Effects the static option only to switch
 #			   tclshXX.exe to have the dde and reg extension linked
 #			   inside it.
-#		threads =  Turns on full multithreading support.
+#		nothreads = Turns off multithreading support (not recommended)
 #		thrdalloc = Use the thread allocator (shared global free pool).
 #		symbols =  Adds symbols for step debugging.
 #		profile =  Adds profiling hooks.  Map file is assumed.
@@ -92,11 +92,12 @@ the build instructions.
 #		memdbg   = Enables the debugging memory allocator.
 #		compdbg  = Enables byte compilation logging.
 #
-#	MACHINE=(IX86|IA64|ALPHA)
+#	MACHINE=(IX86|IA64|ALPHA|AMD64)
 #		Set the machine type used for the compiler, linker, and
 #		resource compiler.  This hook is needed to tell the tools
 #		when alternate platforms are requested.  IX86 is the default
-#		when not specified.
+#		when not specified. If the CPU environment variable has been
+#		set (ie: recent Platform SDK) then MACHINE is set from CPU.
 #
 #	TMP_DIR=<path>
 #	OUT_DIR=<path>
@@ -205,7 +206,7 @@ COMPATDIR	= $(ROOT)\compat
 !if !$(DEBUG)
 !if $(OPTIMIZING)
 ### This cranks the optimization level to maximize speed
-cdebug	= -O2 $(OPTIMIZATIONS)
+cdebug	= $(OPTIMIZATIONS)
 !else
 cdebug	=
 !endif
@@ -257,7 +258,7 @@ ldebug	= -release -opt:ref -opt:icf,3
 !endif
 
 ### Declarations common to all linker options
-lflags	= -nologo -machine:$(MACHINE) $(ldebug)
+lflags	= -nologo -machine:$(MACHINE) $(LINKERFLAGS) $(ldebug)
 
 !if $(PROFILE)
 lflags	= $(lflags) -profile
@@ -279,6 +280,12 @@ dlllflags = $(lflags) -dll
 conlflags = $(lflags) -subsystem:console
 guilflags = $(lflags) -subsystem:windows
 baselibs   = $(TCLSTUBLIB)
+
+# Avoid 'unresolved external symbol __security_cookie' errors.
+# c.f. http://support.microsoft.com/?id=894573
+!if "$(MACHINE)" == "IA64" || "$(MACHINE)" == "AMD64"
+baselibs   = $(baselibs) bufferoverflowU.lib
+!endif
 
 #---------------------------------------------------------------------
 # TclTest flags
@@ -362,6 +369,9 @@ $<
 
 {$(WINDIR)}.rc{$(TMP_DIR)}.res:
 	$(rc32) -fo $@ -r -i "$(GENERICDIR)" -D__WIN32__ \
+		-DCOMMAVERSION=$(DOTVERSION:.=,),0 \
+		-DDOTVERSION=\"$(DOTVERSION)\" \
+		-DVERSION=\"$(VERSION)$(SUFX)\" \
 !if $(DEBUG)
 	-d DEBUG \
 !endif

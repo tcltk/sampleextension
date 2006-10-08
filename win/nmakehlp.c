@@ -10,21 +10,27 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
  * ----------------------------------------------------------------------------
- * RCS: @(#) $Id: nmakehlp.c,v 1.3 2006/09/24 21:51:49 patthoyts Exp $
+ * RCS: @(#) $Id: nmakehlp.c,v 1.4 2006/10/08 16:28:28 patthoyts Exp $
  * ----------------------------------------------------------------------------
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
 #include <windows.h>
+#include <shlwapi.h>
 #pragma comment (lib, "user32.lib")
 #pragma comment (lib, "kernel32.lib")
+#pragma comment (lib, "shlwapi.lib")
 #include <stdio.h>
+#if defined(_M_IA64) || defined(_M_AMD64)
+#pragma comment(lib, "bufferoverflowU")
+#endif
 
 /* protos */
 
 int		CheckForCompilerFeature(const char *option);
 int		CheckForLinkerFeature(const char *option);
 int		IsIn(const char *string, const char *substring);
+int		GrepForDefine(const char *file, const char *string);
 int		GetVersionFromHeader(const char *tclh, const char *tkh);
 DWORD WINAPI	ReadFromPipe(LPVOID args);
 
@@ -68,28 +74,34 @@ main (int argc, char *argv[])
 	switch (*(argv[1]+1)) {
 	case 'c':
 	    if (argc != 3) {
-		chars = wsprintf(msg, "usage: %s -c <compiler option>\n"
+		chars = wnsprintf(msg, sizeof(msg)-1,
+		        "usage: %s -c <compiler option>\n"
 			"Tests for whether cl.exe supports an option\n"
 			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars, &dwWritten, NULL);
+		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+			&dwWritten, NULL);
 		return 2;
 	    }
 	    return CheckForCompilerFeature(argv[2]);
 	case 'l':
 	    if (argc != 3) {
-		chars = wsprintf(msg, "usage: %s -l <linker option>\n"
+		chars = wnsprintf(msg, sizeof(msg) - 1,
+	       		"usage: %s -l <linker option>\n"
 			"Tests for whether link.exe supports an option\n"
 			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars, &dwWritten, NULL);
+		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+			&dwWritten, NULL);
 		return 2;
 	    }
 	    return CheckForLinkerFeature(argv[2]);
 	case 'f':
 	    if (argc == 2) {
-		chars = wsprintf(msg, "usage: %s -f <string> <substring>\n"
-		    "Find a substring within another\n"
-		    "exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars, &dwWritten, NULL);
+		chars = wnsprintf(msg, sizeof(msg) - 1,
+			"usage: %s -f <string> <substring>\n"
+			"Find a substring within another\n"
+			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
+		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+			&dwWritten, NULL);
 		return 2;
 	    } else if (argc == 3) {
 		/*
@@ -102,16 +114,19 @@ main (int argc, char *argv[])
 	    }
 	case 'v':
 	    if (argc != 4) {
-		chars = wsprintf(msg, "usage: %s -v <tcl.h> <tk.h>\n"
+		chars = wnsprintf(msg, sizeof(msg) - 1,
+		    "usage: %s -v <tcl.h> <tk.h>\n"
 		    "Search for versions from the tcl and tk headers.",
 		    argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars, &dwWritten, NULL);
+		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+		    &dwWritten, NULL);
 		return 0;
 	    }
 	    return GetVersionFromHeader(argv[2], argv[3]);
 	}
     }
-    chars = wsprintf(msg, "usage: %s -c|-l|-f ...\n"
+    chars = wnsprintf(msg, sizeof(msg) - 1,
+	    "usage: %s -c|-l|-f ...\n"
 	    "This is a little helper app to equalize shell differences between WinNT and\n"
 	    "Win9x and get nmake.exe to accomplish its job.\n",
 	    argv[0]);
@@ -173,7 +188,7 @@ CheckForCompilerFeature(
     n = GetEnvironmentVariable("CC", cmdline, 255);
     cmdline[n] = 0;
     if (n == 0)
-	strcpy(cmdline, "cl.exe");
+	lstrcpy(cmdline, "cl.exe");
 
     strncat(cmdline, " -nologo -c -TC -Zs -X ", 255);
 
@@ -181,13 +196,13 @@ CheckForCompilerFeature(
      * Append our option for testing
      */
 
-    strcat(cmdline, option);
+    lstrcat(cmdline, option);
 
     /*
      * Filename to compile, which exists, but is nothing and empty.
      */
 
-    strcat(cmdline, " .\\nul");
+    lstrcat(cmdline, " .\\nul");
 
     ok = CreateProcess(
 	    NULL,	    /* Module name. */
@@ -203,13 +218,13 @@ CheckForCompilerFeature(
 
     if (!ok) {
 	DWORD err = GetLastError();
-	int chars = wsprintf(msg,
+	int chars = wnsprintf(msg, sizeof(msg) - 1,
 		"Tried to launch: \"%s\", but got error [%u]: ", cmdline, err);
 
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS|
 		FORMAT_MESSAGE_MAX_WIDTH_MASK, 0L, err, 0, (LPVOID)&msg[chars],
 		(300-chars), 0);
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, strlen(msg), &err,NULL);
+	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, lstrlen(msg), &err,NULL);
 	return 2;
     }
 
@@ -248,13 +263,13 @@ CheckForCompilerFeature(
 #ifdef _DEBUG
     {
 	DWORD err = 0;
-	strcat(cmdline, "\n");
+	lstrcat(cmdline, "\n");
 	WriteFile(GetStdHandle(STD_ERROR_HANDLE), cmdline, 
-	    strlen(cmdline), &err, NULL);
+	    lstrlen(cmdline), &err, NULL);
 	WriteFile(GetStdHandle(STD_ERROR_HANDLE), Out.buffer, 
-	    strlen(Out.buffer), &err,NULL);
+	    lstrlen(Out.buffer), &err,NULL);
 	WriteFile(GetStdHandle(STD_ERROR_HANDLE), Err.buffer,
-	    strlen(Err.buffer), &err,NULL);
+	    lstrlen(Err.buffer), &err,NULL);
     }
 #endif
 
@@ -262,7 +277,7 @@ CheckForCompilerFeature(
      * Look for the commandline warning code in both streams.
      *  - in MSVC 6 & 7 we get D4002, in MSVC 8 we get D9002.
      */
-    
+
     return !(strstr(Out.buffer, "D4002") != NULL
              || strstr(Err.buffer, "D4002") != NULL
              || strstr(Out.buffer, "D9002") != NULL
@@ -320,13 +335,13 @@ CheckForLinkerFeature(
      * Base command line.
      */
 
-    strcpy(cmdline, "link.exe -nologo ");
+    lstrcpy(cmdline, "link.exe -nologo ");
 
     /*
      * Append our option for testing.
      */
 
-    strcat(cmdline, option);
+    lstrcat(cmdline, option);
 
     ok = CreateProcess(
 	    NULL,	    /* Module name. */
@@ -342,13 +357,13 @@ CheckForLinkerFeature(
 
     if (!ok) {
 	DWORD err = GetLastError();
-	int chars = wsprintf(msg,
+	int chars = wnsprintf(msg, sizeof(msg) - 1,
 		"Tried to launch: \"%s\", but got error [%u]: ", cmdline, err);
 
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS|
 		FORMAT_MESSAGE_MAX_WIDTH_MASK, 0L, err, 0, (LPVOID)&msg[chars],
 		(300-chars), 0);
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, strlen(msg), &err,NULL);
+	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, lstrlen(msg), &err,NULL);
 	return 2;
     }
 
@@ -388,8 +403,10 @@ CheckForLinkerFeature(
      * Look for the commandline warning code in the stderr stream.
      */
 
-    return !(strstr(Out.buffer, "LNK1117") != NULL ||
-	    strstr(Err.buffer, "LNK1117") != NULL);
+    return !(IsIn(Out.buffer, "LNK1117") ||
+	     IsIn(Err.buffer, "LNK1117") ||
+	     IsIn(Out.buffer, "LNK4044") ||
+	     IsIn(Err.buffer, "LNK4044"));
 }
 
 #if 1
@@ -405,7 +422,7 @@ ReadFromPipe(
   again:
     if (lastBuf - pi->buffer + CHUNK > STATICBUFFERSIZE) {
 	CloseHandle(pi->pipe);
-	return -1;
+	return (DWORD)-1;
     }
     ok = ReadFile(pi->pipe, lastBuf, CHUNK, &dwRead, 0L);
     if (!ok || dwRead == 0) {

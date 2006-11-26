@@ -1,3 +1,9 @@
+2006-11-26  Daniel Steffen  <das@users.sourceforge.net>
+
+	* Makefile.in: add datarootdir for autoconf-2.60.
+
+	* configure: autoconf-2.59 for TEA updates.
+
 2006-09-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* win/nmakehlp.c:  Updated for building extensions with msvc8,

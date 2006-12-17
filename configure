@@ -7955,7 +7955,8 @@ echo "$as_me: WARNING: 64bit mode not supported by gcc" >&2;}
 	    # get rid of the warnings.
 	    #CFLAGS_OPTIMIZE="${CFLAGS_OPTIMIZE} -D__NO_STRING_INLINES -D__NO_MATH_INLINES"
 
-	    SHLIB_LD='${CC} -shared ${CFLAGS} ${LDFLAGS}'
+	    # TEA specific: use LDFLAGS_DEFAULT instead of LDFLAGS here:
+	    SHLIB_LD='${CC} -shared ${CFLAGS} ${LDFLAGS_DEFAULT}'
 	    DL_OBJS="tclLoadDl.o"
 	    DL_LIBS="-ldl"
 	    LDFLAGS="$LDFLAGS -Wl,--export-dynamic"

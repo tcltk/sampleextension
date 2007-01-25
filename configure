@@ -7069,7 +7069,6 @@ fi
     TCL_TRIM_DOTS='`echo ${PACKAGE_VERSION} | tr -d .`'
     ECHO_VERSION='`echo ${PACKAGE_VERSION}`'
     TCL_LIB_VERSIONS_OK=ok
-    CFLAGS="${CPPFLAGS} ${CFLAGS}"
     CFLAGS_DEBUG=-g
     CFLAGS_OPTIMIZE=-O
     if test "$GCC" = "yes" ; then
@@ -8229,8 +8228,11 @@ echo "${ECHO_T}$tcl_cv_ld_elf" >&6
 	    # preprocessing tests and compiling tests, add any -isysroot and
 	    # -mmacosx-version-min flags present in CFLAGS to CPPFLAGS:
 	    CPPFLAGS="${CPPFLAGS} `echo " ${CFLAGS}" | \
-		awk 'BEGIN {FS=" +-";ORS=" "}; {for (i=1;i<=NF;i++) \
+		awk 'BEGIN {FS=" +-";ORS=" "}; {for (i=2;i<=NF;i++) \
 		if ($i~/^(isysroot|mmacosx-version-min)/) print "-"$i}'`"
+	    CFLAGS="`echo " ${CFLAGS}" | \
+		awk 'BEGIN {FS=" +-";ORS=" "}; {for (i=2;i<=NF;i++) \
+		if (!($i~/^(isysroot|mmacosx-version-min)/)) print "-"$i}'`"
 	    if test $do64bit = yes; then
 		case `arch` in
 		    ppc)
@@ -8852,6 +8854,8 @@ echo "${ECHO_T}$tcl_cv_ld_Bexport" >&6
 	{ echo "$as_me:$LINENO: WARNING: 64bit support being disabled -- don't know magic for this platform" >&5
 echo "$as_me: WARNING: 64bit support being disabled -- don't know magic for this platform" >&2;}
     fi
+
+    SC_COMMANDS_PRE(CFLAGS="${CFLAGS} ${CPPFLAGS}"; CPPFLAGS="")
 
     # Step 4: disable dynamic loading if requested via a command-line switch.
 

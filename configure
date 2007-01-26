@@ -8225,8 +8225,8 @@ echo "${ECHO_T}$tcl_cv_ld_elf" >&6
 	    CFLAGS_OPTIMIZE="-Os"
 	    SHLIB_CFLAGS="-fno-common"
 	    # To avoid discrepancies between what headers configure sees during
-	    # preprocessing tests and compiling tests, add any -isysroot and
-	    # -mmacosx-version-min flags present in CFLAGS to CPPFLAGS:
+	    # preprocessing tests and compiling tests, move any -isysroot and
+	    # -mmacosx-version-min flags from CFLAGS to CPPFLAGS:
 	    CPPFLAGS="${CPPFLAGS} `echo " ${CFLAGS}" | \
 		awk 'BEGIN {FS=" +-";ORS=" "}; {for (i=2;i<=NF;i++) \
 		if ($i~/^(isysroot|mmacosx-version-min)/) print "-"$i}'`"
@@ -8855,7 +8855,7 @@ echo "${ECHO_T}$tcl_cv_ld_Bexport" >&6
 echo "$as_me: WARNING: 64bit support being disabled -- don't know magic for this platform" >&2;}
     fi
 
-    SC_COMMANDS_PRE(CFLAGS="${CFLAGS} ${CPPFLAGS}"; CPPFLAGS="")
+
 
     # Step 4: disable dynamic loading if requested via a command-line switch.
 
@@ -10015,6 +10015,7 @@ LIBOBJS=$ac_libobjs
 LTLIBOBJS=$ac_ltlibobjs
 
 
+CFLAGS="${CFLAGS} ${CPPFLAGS}"; CPPFLAGS=""
 
 : ${CONFIG_STATUS=./config.status}
 ac_clean_files_save=$ac_clean_files

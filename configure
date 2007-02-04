@@ -3362,9 +3362,12 @@ done
     if test -z "$no_pipe" -a -n "$GCC"; then
 	echo "$as_me:$LINENO: checking if the compiler understands -pipe" >&5
 echo $ECHO_N "checking if the compiler understands -pipe... $ECHO_C" >&6
-	OLDCC="$CC"
-	CC="$CC -pipe"
-	cat >conftest.$ac_ext <<_ACEOF
+if test "${tcl_cv_cc_pipe+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+
+	    hold_cflags=$CFLAGS; CFLAGS="$CFLAGS -pipe"
+	    cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -3401,17 +3404,21 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
+  tcl_cv_cc_pipe=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-CC="$OLDCC"
-	    echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
+tcl_cv_cc_pipe=no
 fi
 rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+	    CFLAGS=$hold_cflags
+fi
+echo "$as_me:$LINENO: result: $tcl_cv_cc_pipe" >&5
+echo "${ECHO_T}$tcl_cv_cc_pipe" >&6
+	if test $tcl_cv_cc_pipe = yes; then
+	    CFLAGS="$CFLAGS -pipe"
+	fi
     fi
 
     #--------------------------------------------------------------------

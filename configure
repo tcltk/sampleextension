@@ -1325,7 +1325,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
     # TEA extensions pass this us the version of TEA they think they
     # are compatible with.
-    TEA_VERSION="3.5"
+    TEA_VERSION="3.6"
 
     echo "$as_me:$LINENO: checking for correct TEA configuration" >&5
 echo $ECHO_N "checking for correct TEA configuration... $ECHO_C" >&6
@@ -1336,15 +1336,15 @@ echo "$as_me: error:
 The PACKAGE_NAME variable must be defined by your TEA configure.in" >&2;}
    { (exit 1); exit 1; }; }
     fi
-    if test x"3.5" = x ; then
+    if test x"3.6" = x ; then
 	{ { echo "$as_me:$LINENO: error:
 TEA version not specified." >&5
 echo "$as_me: error:
 TEA version not specified." >&2;}
    { (exit 1); exit 1; }; }
-    elif test "3.5" != "${TEA_VERSION}" ; then
-	echo "$as_me:$LINENO: result: warning: requested TEA version \"3.5\", have \"${TEA_VERSION}\"" >&5
-echo "${ECHO_T}warning: requested TEA version \"3.5\", have \"${TEA_VERSION}\"" >&6
+    elif test "3.6" != "${TEA_VERSION}" ; then
+	echo "$as_me:$LINENO: result: warning: requested TEA version \"3.6\", have \"${TEA_VERSION}\"" >&5
+echo "${ECHO_T}warning: requested TEA version \"3.6\", have \"${TEA_VERSION}\"" >&6
     else
 	echo "$as_me:$LINENO: result: ok (TEA ${TEA_VERSION})" >&5
 echo "${ECHO_T}ok (TEA ${TEA_VERSION})" >&6
@@ -6251,17 +6251,21 @@ echo "$as_me: error: could not find tcl source file '${srcdir}/$i'" >&2;}
 # TEA_ADD_* any platform specific compiler/build info here.
 #--------------------------------------------------------------------
 
+# Add pkgIndex.tcl if it is generated in the Makefile instead of ./configure
+# and change Makefile.in to move it from CONFIG_CLEAN_FILES to BINARIES var.
+#CLEANFILES="pkgIndex.tcl"
 if test "${TEA_PLATFORM}" = "windows" ; then
 
 cat >>confdefs.h <<\_ACEOF
 #define BUILD_sample 1
 _ACEOF
 
-    CLEANFILES="pkgIndex.tcl *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
+    CLEANFILES="$CLEANFILES *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     #TEA_ADD_SOURCES([win/winFile.c])
     #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
 else
-    CLEANFILES="pkgIndex.tcl"
+    # Ensure no empty else clauses
+    :
     #TEA_ADD_SOURCES([unix/unixFile.c])
     #TEA_ADD_LIBS([-lsuperfly])
 fi
@@ -7692,7 +7696,11 @@ _ACEOF
 	    #AC_DEFINE(_XOPEN_SOURCE, 1, [Do we want to use the XOPEN network library?])
 	    #LIBS="$LIBS -lxnet"               # Use the XOPEN network library
 
-	    SHLIB_SUFFIX=".sl"
+	    if test "`uname -m`" = "ia64" ; then
+		SHLIB_SUFFIX=".so"
+	    else
+		SHLIB_SUFFIX=".sl"
+	    fi
 	    echo "$as_me:$LINENO: checking for shl_load in -ldld" >&5
 echo $ECHO_N "checking for shl_load in -ldld... $ECHO_C" >&6
 if test "${ac_cv_lib_dld_shl_load+set}" = set; then

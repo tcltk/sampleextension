@@ -11,10 +11,10 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
 # Copyright (c) 2001-2002 David Gravereaux.
-# Copyright (c) 2003-2006 Patrick Thoyts
+# Copyright (c) 2003-2005 Patrick Thoyts
 #
 #------------------------------------------------------------------------------
-# RCS: @(#) $Id: rules.vc,v 1.5 2006/10/08 16:28:28 patthoyts Exp $
+# RCS: @(#) $Id: rules.vc,v 1.6 2007/05/03 22:01:57 patthoyts Exp $
 #------------------------------------------------------------------------------
 
 !ifndef _RULES_VC
@@ -34,11 +34,7 @@ _INSTALLDIR	= $(INSTALLDIR:/=\)
 !endif
 
 !ifndef MACHINE
-!if "$(CPU)" == ""
 MACHINE		= IX86
-!else
-MACHINE         = $(CPU)
-!endif
 !endif
 
 !ifndef CFG_ENCODING
@@ -53,17 +49,22 @@ CFG_ENCODING	= \"cp1252\"
 
 !if "$(OS)" == "Windows_NT"
 RMDIR	= rmdir /S /Q
+ERRNULL  = 2>NUL
 !if ![ver | find "4.0" > nul]
-CPY	= echo y | xcopy /i
+CPY	= echo y | xcopy /i >NUL
+COPY	= copy >NUL
 !else
 CPY	= xcopy /i /y >NUL
+COPY	= copy /y >NUL
 !endif
-!else
-CPY	= xcopy /i
+!else # "$(OS)" != "Windows_NT"
+CPY	= xcopy /i >_JUNK.OUT # On Win98 NUL does not work here.
+COPY	= copy >_JUNK.OUT # On Win98 NUL does not work here.
 RMDIR	= deltree /Y
+NULL    = \NUL # Used in testing directory existence
+ERRNULL = >NUL # Win9x shell cannot redirect stderr
 !endif
 MKDIR   = mkdir
-COPY    = copy /y >NUL
 
 !message ===============================================================================
 
@@ -90,7 +91,7 @@ OPTIMIZING	= 1
 OPTIMIZING	= 0
 !endif
 
-OPTIMIZATIONS   =
+OPTIMIZATIONS  =
 
 !if [nmakehlp -c -Ot]
 OPTIMIZATIONS  = $(OPTIMIZATIONS) -Ot
@@ -130,15 +131,18 @@ DEBUGFLAGS     = $(DEBUGFLAGS) -GZ
 
 COMPILERFLAGS  =-W3
 
+# In v13 -GL and -YX are incompatible.
 !if [nmakehlp -c -YX]
-COMPILERFLAGS  = $(COMPILERFLAGS) -YX
+!if ![nmakehlp -c -GL]
+OPTIMIZATIONS  = $(OPTIMIZATIONS) -YX
+!endif
 !endif
 
 !if "$(MACHINE)" == "IX86"
 ### test for pentium errata
 !if [nmakehlp -c -QI0f]
 !message *** Compiler has 'Pentium 0x0f fix'
-COMPILERFLAGS  = $(COMPILERFLAGS) -QI0f
+COMPILERFLAGS  = $(COMPILERFLAGSS) -QI0f
 !else
 !message *** Compiler doesn't have 'Pentium 0x0f fix'
 !endif
@@ -180,16 +184,19 @@ LINKERFLAGS     =-ltcg
 
 _VC_MANIFEST_EMBED_EXE=
 _VC_MANIFEST_EMBED_DLL=
-!if ![cl /Zs /Tc NUL 2>&1 | find "Version 12" > NUL]
-VCVER=6
-!elseif ![cl /Zs /Tc NUL 2>&1 | find "Version 13" > NUL]
-VCVER=7
-!elseif ![cl /Zs /Tc NUL 2>&1 | find "Version 14" > NUL]
+VCVER=0
+!if ![echo VCVERSION=_MSC_VER > vercl.x] \
+    && ![cl -nologo -TC -P vercl.x $(ERRNULL)]
+!include vercl.i
+!if $(VCVERSION) >= 1400
 VCVER=8
 _VC_MANIFEST_EMBED_EXE=if exist $@.manifest mt -nologo -manifest $@.manifest -outputresource:$@;1
 _VC_MANIFEST_EMBED_DLL=if exist $@.manifest mt -nologo -manifest $@.manifest -outputresource:$@;2
-!else
-VCVER=0
+!elseif $(VCVERSION) >= 1300
+VCVER=7
+!elseif $(VCVERSION) >= 1200
+VCVER=6
+!endif
 !endif
 
 #----------------------------------------------------------
@@ -299,11 +306,8 @@ SUFX	    = sgx
 
 !if $(DEBUG)
 BUILDDIRTOP = Debug
-DBGX	    = g
 !else
 BUILDDIRTOP = Release
-DBGX	    =
-SUFX	    = $(SUFX:g=)
 !endif
 
 !if "$(MACHINE)" != "IX86"
@@ -311,6 +315,10 @@ BUILDDIRTOP =$(BUILDDIRTOP)_$(MACHINE)
 !endif
 !if $(VCVER) > 6
 BUILDDIRTOP =$(BUILDDIRTOP)_VC$(VCVER)
+!endif
+
+!if !$(DEBUG) || $(DEBUG) && $(UNCHECKED)
+SUFX	    = $(SUFX:g=)
 !endif
 
 TMP_DIRFULL = .\$(BUILDDIRTOP)\$(PROJECT)_ThreadedDynamicStaticX
@@ -371,6 +379,7 @@ TCL_COMPILE_DEBUG   = 0
 !endif
 !endif
 
+
 #----------------------------------------------------------
 # Decode the checks requested.
 #----------------------------------------------------------
@@ -411,9 +420,15 @@ OPTDEFINES	= $(OPTDEFINES) -DTCL_THREADS=1
 !if $(USE_THREAD_ALLOC)
 OPTDEFINES	= $(OPTDEFINES) -DUSE_THREAD_ALLOC=1
 !endif
+!if $(USE_THREAD_STORAGE)
+OPTDEFINES	= $(OPTDEFINES) -DUSE_THREAD_STORAGE=1
+!endif
 !endif
 !if $(STATIC_BUILD)
 OPTDEFINES	= $(OPTDEFINES) -DSTATIC_BUILD
+!endif
+!if $(TCL_NO_DEPRECATED)
+OPTDEFINES	= $(OPTDEFINES) -DTCL_NO_DEPRECATED
 !endif
 
 !if $(DEBUG)
@@ -424,7 +439,7 @@ OPTDEFINES	= $(OPTDEFINES) -DTCL_CFG_OPTIMIZED
 !if $(PROFILE)
 OPTDEFINES	= $(OPTDEFINES) -DTCL_CFG_PROFILED
 !endif
-!if "$(MACHINE)" == "IA64" || "$(MACHINE)" == "AMD64"
+!if "$(MACHINE)" == "IA64"
 OPTDEFINES	= $(OPTDEFINES) -DTCL_CFG_DO64BIT
 !endif
 
@@ -466,21 +481,30 @@ Failed to find tcl.h.  The TCLDIR macro does not appear correct.
 !endif
 !endif
 
-!if [nmakehlp -v "$(_TCL_H)" ""] == 0
-!include version.vc
-!else
-TCL_DOTVERSION  = 8.5
-TCL_VERSION	= $(TCL_DOTVERSION:.=)
+!if [echo REM = This file is generated from rules.vc > version.vc]
 !endif
+!if exist("$(_TCL_H)")
+!if [echo TCL_DOTVERSION = \>> version.vc] \
+   && [nmakehlp -V "$(_TCL_H)" TCL_VERSION >> version.vc]
+!endif
+!endif
+!include version.vc
+TCL_VERSION	= $(TCL_DOTVERSION:.=)
 
 !if $(TCLINSTALL)
 TCLSH		= "$(_TCLDIR)\bin\tclsh$(TCL_VERSION)$(SUFX).exe"
+!if !exist($(TCLSH)) && $(TCL_THREADS)
+TCLSH           = "$(_TCLDIR)\bin\tclsh$(TCL_VERSION)t$(SUFX).exe"
+!endif
 TCLSTUBLIB	= "$(_TCLDIR)\lib\tclstub$(TCL_VERSION).lib"
 TCLIMPLIB	= "$(_TCLDIR)\lib\tcl$(TCL_VERSION)$(SUFX).lib"
 TCL_LIBRARY	= $(_TCLDIR)\lib
 TCL_INCLUDES    = -I"$(_TCLDIR)\include"
 !else
 TCLSH		= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tclsh$(TCL_VERSION)$(SUFX).exe"
+!if !exist($(TCLSH)) && $(TCL_THREADS)
+TCLSH		= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tclsh$(TCL_VERSION)t$(SUFX).exe"
+!endif
 TCLSTUBLIB	= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tclstub$(TCL_VERSION).lib"
 TCLIMPLIB	= "$(_TCLDIR)\win\$(BUILDDIRTOP)\tcl$(TCL_VERSION)$(SUFX).lib"
 TCL_LIBRARY	= $(_TCLDIR)\library
@@ -490,7 +514,7 @@ TCL_INCLUDES	= -I"$(_TCLDIR)\generic" -I"$(_TCLDIR)\win"
 !endif
 
 #----------------------------------------------------------
-# Get Tk info for building extensions.
+# Optionally check for Tk info for building extensions.
 #----------------------------------------------------------
 
 !if "$(PROJECT)" != "tcl" && "$(PROJECT)" != "tk"
@@ -506,10 +530,6 @@ TKINSTALL      = 1
 _TKDIR         = $(_TCLDIR)
 _TK_H          = $(_TKDIR)\include\tk.h
 TKDIR          = $(_TKDIR)
-!else
-MSG =^
-Failed to find tk.h. Set the TKDIR macro.
-!error $(MSG)
 !endif
 !else
 _TKDIR = $(TKDIR:/=\)
@@ -526,12 +546,15 @@ Failed to find tk.h. The TKDIR macro does not appear correct.
 !endif
 !endif
 
-!if [nmakehlp -v "$(_TCL_H)" "$(_TK_H)"] == 0
-!include version.vc
-!else
-TK_DOTVERSION	= 8.5
-TK_VERSION	= $(TK_DOTVERSION:.=)
+!if defined(TKDIR)
+TK_DOTVERSION = 8.4
+!if exist("$(_TK_H)")
+!if [echo TK_DOTVERSION = \>> version.vc] \
+   && [nmakehlp -V "$(_TK_H)" TK_VERSION >> version.vc]
 !endif
+!endif
+!include version.vc
+TK_VERSION = $(TK_DOTVERSION:.=)
 
 !if $(TKINSTALL)
 WISH		= "$(_TKDIR)\bin\wish$(TK_VERSION)$(SUFX).exe"
@@ -546,8 +569,7 @@ TK_INCLUDES     = -I"$(_TKDIR)\generic" -I"$(_TKDIR)\win" -I"$(_TKDIR)\xlib"
 !endif
 
 !endif
-
-
+!endif
 
 #----------------------------------------------------------
 # Display stats being used.
@@ -557,7 +579,7 @@ TK_INCLUDES     = -I"$(_TKDIR)\generic" -I"$(_TKDIR)\win" -I"$(_TKDIR)\xlib"
 !message *** Output directory will be '$(OUT_DIR)'
 !message *** Suffix for binaries will be '$(SUFX)'
 !message *** Optional defines are '$(OPTDEFINES)'
-!message *** Compiler version $(VCVER), machine is $(MACHINE)
+!message *** Compiler version $(VCVER). Target machine is $(MACHINE)
 !message *** Compiler options '$(COMPILERFLAGS) $(OPTIMIZATIONS) $(DEBUGFLAGS)'
 !message *** Link options '$(LINKERFLAGS)'
 

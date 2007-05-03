@@ -1,29 +1,36 @@
-/* ----------------------------------------------------------------------------
+/*
+ * ----------------------------------------------------------------------------
  * nmakehlp.c --
  *
  *	This is used to fix limitations within nmake and the environment.
  *
  * Copyright (c) 2002 by David Gravereaux.
- * Copyright (c) 2003 by Patrick Thoyts
+ * Copyright (c) 2006 by Pat Thoyts
  *
- * See the file "license.terms" for information on usage and redistribution
- * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ * See the file "license.terms" for information on usage and redistribution of
+ * this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
  * ----------------------------------------------------------------------------
- * RCS: @(#) $Id: nmakehlp.c,v 1.4 2006/10/08 16:28:28 patthoyts Exp $
+ * RCS: @(#) $Id: nmakehlp.c,v 1.5 2007/05/03 22:01:56 patthoyts Exp $
  * ----------------------------------------------------------------------------
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
 #include <windows.h>
-#include <shlwapi.h>
 #pragma comment (lib, "user32.lib")
 #pragma comment (lib, "kernel32.lib")
-#pragma comment (lib, "shlwapi.lib")
 #include <stdio.h>
+#include <math.h>
 #if defined(_M_IA64) || defined(_M_AMD64)
 #pragma comment(lib, "bufferoverflowU")
 #endif
+
+/* ISO hack for dumb VC++ */
+#ifdef _MSC_VER
+#define   snprintf	_snprintf
+#endif
+
+
 
 /* protos */
 
@@ -31,7 +38,7 @@ int		CheckForCompilerFeature(const char *option);
 int		CheckForLinkerFeature(const char *option);
 int		IsIn(const char *string, const char *substring);
 int		GrepForDefine(const char *file, const char *string);
-int		GetVersionFromHeader(const char *tclh, const char *tkh);
+const char *    GetVersionFromFile(const char *filename, const char *match);
 DWORD WINAPI	ReadFromPipe(LPVOID args);
 
 /* globals */
@@ -51,7 +58,9 @@ pipeinfo Err = {INVALID_HANDLE_VALUE, '\0'};
  */
 
 int
-main (int argc, char *argv[])
+main(
+    int argc,
+    char *argv[])
 {
     char msg[300];
     DWORD dwWritten;
@@ -74,7 +83,7 @@ main (int argc, char *argv[])
 	switch (*(argv[1]+1)) {
 	case 'c':
 	    if (argc != 3) {
-		chars = wnsprintf(msg, sizeof(msg)-1,
+		chars = snprintf(msg, sizeof(msg) - 1,
 		        "usage: %s -c <compiler option>\n"
 			"Tests for whether cl.exe supports an option\n"
 			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
@@ -85,7 +94,7 @@ main (int argc, char *argv[])
 	    return CheckForCompilerFeature(argv[2]);
 	case 'l':
 	    if (argc != 3) {
-		chars = wnsprintf(msg, sizeof(msg) - 1,
+		chars = snprintf(msg, sizeof(msg) - 1,
 	       		"usage: %s -l <linker option>\n"
 			"Tests for whether link.exe supports an option\n"
 			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
@@ -96,7 +105,7 @@ main (int argc, char *argv[])
 	    return CheckForLinkerFeature(argv[2]);
 	case 'f':
 	    if (argc == 2) {
-		chars = wnsprintf(msg, sizeof(msg) - 1,
+		chars = snprintf(msg, sizeof(msg) - 1,
 			"usage: %s -f <string> <substring>\n"
 			"Find a substring within another\n"
 			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
@@ -112,21 +121,35 @@ main (int argc, char *argv[])
 	    } else {
 		return IsIn(argv[2], argv[3]);
 	    }
-	case 'v':
+	case 'g':
+	    if (argc == 2) {
+		chars = snprintf(msg, sizeof(msg) - 1,
+			"usage: %s -g <file> <string>\n"
+			"grep for a #define\n"
+			"exitcodes: integer of the found string (no decimals)\n",
+			argv[0]);
+		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+			&dwWritten, NULL);
+		return 2;
+	    }
+	    return GrepForDefine(argv[2], argv[3]);
+	case 'V':
 	    if (argc != 4) {
-		chars = wnsprintf(msg, sizeof(msg) - 1,
-		    "usage: %s -v <tcl.h> <tk.h>\n"
-		    "Search for versions from the tcl and tk headers.",
+		chars = snprintf(msg, sizeof(msg) - 1,
+		    "usage: %s -V filename matchstring\n"
+		    "Extract a version from a file:\n"
+		    "eg: pkgIndex.tcl \"package ifneeded http\"",
 		    argv[0]);
 		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
 		    &dwWritten, NULL);
 		return 0;
 	    }
-	    return GetVersionFromHeader(argv[2], argv[3]);
+	    printf("%s\n", GetVersionFromFile(argv[2], argv[3]));
+	    return 0;
 	}
     }
-    chars = wnsprintf(msg, sizeof(msg) - 1,
-	    "usage: %s -c|-l|-f ...\n"
+    chars = snprintf(msg, sizeof(msg) - 1,
+	    "usage: %s -c|-l|-f|-g|-V ...\n"
 	    "This is a little helper app to equalize shell differences between WinNT and\n"
 	    "Win9x and get nmake.exe to accomplish its job.\n",
 	    argv[0]);
@@ -141,11 +164,11 @@ CheckForCompilerFeature(
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     SECURITY_ATTRIBUTES sa;
-    DWORD threadID, n;
+    DWORD threadID;
     char msg[300];
     BOOL ok;
     HANDLE hProcess, h, pipeThreads[2];
-    char cmdline[256];
+    char cmdline[100];
 
     hProcess = GetCurrentProcess();
 
@@ -182,15 +205,10 @@ CheckForCompilerFeature(
 	    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
 
     /*
-     * Base command line (use nmake environment)
+     * Base command line.
      */
 
-    n = GetEnvironmentVariable("CC", cmdline, 255);
-    cmdline[n] = 0;
-    if (n == 0)
-	lstrcpy(cmdline, "cl.exe");
-
-    strncat(cmdline, " -nologo -c -TC -Zs -X ", 255);
+    lstrcpy(cmdline, "cl.exe -nologo -c -TC -Zs -X -Fp.\\_junk.pch ");
 
     /*
      * Append our option for testing
@@ -218,13 +236,13 @@ CheckForCompilerFeature(
 
     if (!ok) {
 	DWORD err = GetLastError();
-	int chars = wnsprintf(msg, sizeof(msg) - 1,
+	int chars = snprintf(msg, sizeof(msg) - 1,
 		"Tried to launch: \"%s\", but got error [%u]: ", cmdline, err);
 
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS|
 		FORMAT_MESSAGE_MAX_WIDTH_MASK, 0L, err, 0, (LPVOID)&msg[chars],
 		(300-chars), 0);
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, lstrlen(msg), &err,NULL);
+	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg,lstrlen(msg), &err,NULL);
 	return 2;
     }
 
@@ -256,22 +274,9 @@ CheckForCompilerFeature(
      * Wait for our pipe to get done reading, should it be a little slow.
      */
 
-    WaitForMultipleObjects(2, pipeThreads, TRUE, INFINITE);
+    WaitForMultipleObjects(2, pipeThreads, TRUE, 500);
     CloseHandle(pipeThreads[0]);
     CloseHandle(pipeThreads[1]);
-
-#ifdef _DEBUG
-    {
-	DWORD err = 0;
-	lstrcat(cmdline, "\n");
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), cmdline, 
-	    lstrlen(cmdline), &err, NULL);
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), Out.buffer, 
-	    lstrlen(Out.buffer), &err,NULL);
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), Err.buffer,
-	    lstrlen(Err.buffer), &err,NULL);
-    }
-#endif
 
     /*
      * Look for the commandline warning code in both streams.
@@ -357,13 +362,13 @@ CheckForLinkerFeature(
 
     if (!ok) {
 	DWORD err = GetLastError();
-	int chars = wnsprintf(msg, sizeof(msg) - 1,
+	int chars = snprintf(msg, sizeof(msg) - 1,
 		"Tried to launch: \"%s\", but got error [%u]: ", cmdline, err);
 
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS|
 		FORMAT_MESSAGE_MAX_WIDTH_MASK, 0L, err, 0, (LPVOID)&msg[chars],
 		(300-chars), 0);
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, lstrlen(msg), &err,NULL);
+	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg,lstrlen(msg), &err,NULL);
 	return 2;
     }
 
@@ -403,13 +408,12 @@ CheckForLinkerFeature(
      * Look for the commandline warning code in the stderr stream.
      */
 
-    return !(IsIn(Out.buffer, "LNK1117") ||
-	     IsIn(Err.buffer, "LNK1117") ||
-	     IsIn(Out.buffer, "LNK4044") ||
-	     IsIn(Err.buffer, "LNK4044"));
+    return !(strstr(Out.buffer, "LNK1117") != NULL ||
+	    strstr(Err.buffer, "LNK1117") != NULL ||
+	    strstr(Out.buffer, "LNK4044") != NULL ||
+	    strstr(Err.buffer, "LNK4044") != NULL);
 }
 
-#if 1
 DWORD WINAPI
 ReadFromPipe(
     LPVOID args)
@@ -434,75 +438,133 @@ ReadFromPipe(
 
     return 0;  /* makes the compiler happy */
 }
-#else
-DWORD WINAPI
-ReadFromPipe (LPVOID args)
-{
-    pipeinfo *pi = (pipeinfo *) args;
-    char *lastBuf = pi->buffer;
-    DWORD dwRead;
-    BOOL ok;
-
-again:
-    ok = ReadFile(pi->pipe, lastBuf, 25, &dwRead, 0L);
-    if (!ok || dwRead == 0) {
-        CloseHandle(pi->pipe);
-        return 0;
-    }
-    lastBuf += dwRead;
-    goto again;
-
-    return 0;  /* makes the compiler happy */
-}
-#endif
 
 int
-IsIn (const char *string, const char *substring)
+IsIn(
+    const char *string,
+    const char *substring)
 {
     return (strstr(string, substring) != NULL);
 }
 
-static double
-ReadVersionFromHeader(const char *file, const char *macro)
+/*
+ * Find a specified #define by name.
+ *
+ * If the line is '#define TCL_VERSION "8.5"', it returns 85 as the result.
+ */
+
+int
+GrepForDefine(
+    const char *file,
+    const char *string)
 {
-    double d = 0.0;
-    CHAR szBuffer[100];
-    LPSTR p;
-    DWORD cbBuffer = 100;
-    FILE *fp = fopen(file, "r");
+    char s1[51], s2[51], s3[51];
+    FILE *f = fopen(file, "rt");
+
+    if (f == NULL) {
+	return 0;
+    }
+
+    do {
+	int r = fscanf(f, "%50s", s1);
+
+	if (r == 1 && !strcmp(s1, "#define")) {
+	    /*
+	     * Get next two words.
+	     */
+
+	    r = fscanf(f, "%50s %50s", s2, s3);
+	    if (r != 2) {
+		continue;
+	    }
+
+	    /*
+	     * Is the first word what we're looking for?
+	     */
+
+	    if (!strcmp(s2, string)) {
+		double d1;
+
+		fclose(f);
+
+		/*
+		 * Add 1 past first double quote char. "8.5"
+		 */
+
+		d1 = atof(s3 + 1);		  /*    8.5  */
+		while (floor(d1) != d1) {
+		    d1 *= 10.0;
+		}
+		return ((int) d1);		  /*    85   */
+	    }
+	}
+    } while (!feof(f));
+
+    fclose(f);
+    return 0;
+}
+
+/*
+ * GetVersionFromFile --
+ * 	Looks for a match string in a file and then returns the version
+ * 	following the match where a version is anything acceptable to
+ * 	package provide or package ifneeded.
+ */
+
+const char *
+GetVersionFromFile(
+    const char *filename,
+    const char *match)
+{
+    size_t cbBuffer = 100;
+    static char szBuffer[100];
+    char *szResult = NULL;
+    FILE *fp = fopen(filename, "rt");
+
     if (fp != NULL) {
+	/*
+	 * Read data until we see our match string.
+	 */
+
 	while (fgets(szBuffer, cbBuffer, fp) != NULL) {
-	    if ((p = strstr(szBuffer, macro)) != NULL) {
-		while (*p && !isdigit(*p)) ++p;
-		d = strtod(p, NULL);
+	    LPSTR p, q;
+
+	    p = strstr(szBuffer, match);
+	    if (p != NULL) {
+		/*
+		 * Skip to first digit.
+		 */
+
+		while (*p && !isdigit(*p)) {
+		    ++p;
+		}
+
+		/*
+		 * Find ending whitespace.
+		 */
+
+		q = p;
+		while (*q && (isalnum(*q) || *q == '.')) {
+		    ++q;
+		}
+
+		memcpy(szBuffer, p, q - p);
+		szBuffer[q-p] = 0;
+		szResult = szBuffer;
 		break;
 	    }
 	}
 	fclose(fp);
     }
-    return d;
+    return szResult;
 }
-
-int
-GetVersionFromHeader(const char *tclh, const char *tkh)
-{
-    double dTcl = 0.0, dTk = 0.0;
-    
-    if (tclh != NULL)
-	dTcl = ReadVersionFromHeader(tclh, "TCL_VERSION");
-    if (tkh != NULL)
-	dTk = ReadVersionFromHeader(tkh, "TK_VERSION");
 
-    if (dTcl > 0 || dTk > 0) {
-	FILE *ofp = fopen("version.vc", "w");
-	if (dTcl > 0)
-	    fprintf(ofp, "TCL_DOTVERSION\t= %0.1f\nTCL_VERSION\t= %u\n",
-		    dTcl, (int)(dTcl * 10.0));
-	if (dTk > 0)
-	    fprintf(ofp, "TK_DOTVERSION\t= %0.1f\nTK_VERSION\t= %u\n",
-		    dTk, (int)(dTk * 10.0));
-	fclose(ofp);
-	return 0;
-    }
-    return 1;
-}
+/*
+ * Local variables:
+ *   mode: c
+ *   c-basic-offset: 4
+ *   fill-column: 78
+ *   indent-tabs-mode: t
+ *   tab-width: 8
+ * End:
+ */

@@ -18,13 +18,13 @@
 # Copyright (c) 2003-2006 Pat Thoyts
 #
 #-------------------------------------------------------------------------
-# RCS: @(#)$Id: makefile.vc,v 1.6 2006/10/08 16:28:28 patthoyts Exp $
+# RCS: @(#)$Id: makefile.vc,v 1.7 2007/05/03 22:01:56 patthoyts Exp $
 #-------------------------------------------------------------------------
 
 # Check to see we are configured to build with MSVC (MSDEVDIR or MSVCDIR)
 # or with the MS Platform SDK (MSSDK). Visual Studio .NET 2003 and 2005 define
-# VCINSTALLDIR instead.
-!if !defined(MSDEVDIR) && !defined(MSVCDIR) && !defined(MSSDK) && !defined(VCINSTALLDIR)
+# VCINSTALLDIR instead. The MSVC Toolkit release defines yet another.
+!if !defined(MSDEVDIR) && !defined(MSVCDIR) && !defined(MSSDK) && !defined(VCINSTALLDIR) && !defined(VCToolkitInstallDir)
 MSG = ^
 You need to run vcvars32.bat from Developer Studio or setenv.bat from the^
 Platform SDK first to setup the environment.  Jump to this line to read^
@@ -159,6 +159,7 @@ Please `cd` to its location first.
 #-------------------------------------------------------------------------
 
 PROJECT = sample
+
 !include "rules.vc"
 
 DOTVERSION      = 0.5
@@ -167,7 +168,10 @@ STUBPREFIX      = $(PROJECT)stub
 
 DLLOBJS = \
 	$(TMP_DIR)\tclsample.obj \
-	$(TMP_DIR)\sample.obj
+	$(TMP_DIR)\sample.obj \
+!if !$(STATIC_BUILD)
+	$(TMP_DIR)\sample.res
+!endif
 
 #-------------------------------------------------------------------------
 # Target names and paths ( shouldn't need changing )
@@ -212,36 +216,49 @@ cdebug	=
 !endif
 !else if "$(MACHINE)" == "IA64"
 ### Warnings are too many, can't support warnings into errors.
-cdebug	= -Z7 -Od $(DEBUGFLAGS)
+cdebug	= -Zi -Od $(DEBUGFLAGS)
 !else
-cdebug	= -Z7 -WX $(DEBUGFLAGS)
+cdebug	= -Zi -WX $(DEBUGFLAGS)
 !endif
 
 ### Declarations common to all compiler options
-cflags = -nologo -c $(COMPILERFLAGS) -Fp$(TMP_DIR)^\
+cwarn = -D _CRT_SECURE_NO_DEPRECATE -D _CRT_NONSTDC_NO_DEPRECATE
+cflags = -nologo -c $(COMPILERFLAGS) $(cwarn) -Fp$(TMP_DIR)^\
 
-!if $(VCVER) > 7
-cflags  =$(cflags) -D_CRT_SECURE_NO_DEPRECATE
+# Warning level
+!if $(FULLWARNINGS)
+cflags = $(cflags) -W4
+!else
+cflags = $(cflags) -W3
 !endif
 
 !if $(MSVCRT)
-!if $(DEBUG)
+!if $(DEBUG) && !$(UNCHECKED)
 crt = -MDd
 !else
 crt = -MD
 !endif
 !else
-!if $(DEBUG)
+!if $(DEBUG) && !$(UNCHECKED)
 crt = -MTd
 !else
 crt = -MT
 !endif
 !endif
 
+!if !$(STATIC_BUILD)
+cflags = $(cflags) -DUSE_TCL_STUBS
+!if defined(TKSTUBLIB)
+cflags = $(cflags) -DUSE_TK_STUBS
+!endif
+!endif
+
 INCLUDES	= $(TCL_INCLUDES) -I"$(WINDIR)" -I"$(GENERICDIR)"
 BASE_CFLAGS	= $(cflags) $(cdebug) $(crt) $(INCLUDES)
 CON_CFLAGS	= $(cflags) $(cdebug) $(crt) -DCONSOLE
-TCL_CFLAGS	= -DUSE_TCL_STUBS -DPACKAGE_VERSION="\"$(DOTVERSION)\"" \
+TCL_CFLAGS	= -DPACKAGE_NAME="\"$(PROJECT)\"" \
+                  -DPACKAGE_VERSION="\"$(DOTVERSION)\"" \
+		  -DBUILD_$(PROJECT) \
                   $(BASE_CFLAGS) $(OPTDEFINES)
 
 #---------------------------------------------------------------------
@@ -259,6 +276,10 @@ ldebug	= -release -opt:ref -opt:icf,3
 
 ### Declarations common to all linker options
 lflags	= -nologo -machine:$(MACHINE) $(LINKERFLAGS) $(ldebug)
+
+!if $(FULLWARNINGS)
+lflags = $(lflags) -warn:3
+!endif
 
 !if $(PROFILE)
 lflags	= $(lflags) -profile
@@ -279,7 +300,12 @@ lflags	= $(lflags) -ws:aggressive
 dlllflags = $(lflags) -dll
 conlflags = $(lflags) -subsystem:console
 guilflags = $(lflags) -subsystem:windows
-baselibs   = $(TCLSTUBLIB)
+!if !$(STATIC_BUILD)
+baselibs  = $(TCLSTUBLIB)
+!if defined(TKSTUBLIB)
+baselibs  = $(baselibs) $(TKSTUBLIB)
+!endif
+!endif
 
 # Avoid 'unresolved external symbol __security_cookie' errors.
 # c.f. http://support.microsoft.com/?id=894573
@@ -431,6 +457,9 @@ install-docs:
 clean:
 	@if exist $(TMP_DIR)\nul $(RMDIR) $(TMP_DIR)
 	@if exist $(WINDIR)\version.vc del $(WINDIR)\version.vc
+	@if exist $(WINDIR)\vercl.i del $(WINDIR)\vercl.i
+	@if exist $(WINDIR)\vercl.x del $(WINDIR)\vercl.x
+	@if exist $(WINDIR)\_junk.pch del $(WINDIR)\_junk.pch
 
 realclean: clean
 	@if exist $(OUT_DIR)\nul $(RMDIR) $(OUT_DIR)

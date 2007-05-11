@@ -18,7 +18,7 @@
 # Copyright (c) 2003-2006 Pat Thoyts
 #
 #-------------------------------------------------------------------------
-# RCS: @(#)$Id: makefile.vc,v 1.7 2007/05/03 22:01:56 patthoyts Exp $
+# RCS: @(#)$Id: makefile.vc,v 1.8 2007/05/11 09:47:56 patthoyts Exp $
 #-------------------------------------------------------------------------
 
 # Check to see we are configured to build with MSVC (MSDEVDIR or MSVCDIR)
@@ -412,6 +412,18 @@ $<
 .SUFFIXES:
 .SUFFIXES:.c .rc
 
+#-------------------------------------------------------------------------
+# Explicit dependency rules
+#
+#-------------------------------------------------------------------------
+
+$(OUT_DIR)\pkgIndex.tcl: $(ROOT)\pkgIndex.tcl.in
+	nmakehlp -s << $** > $@
+@PACKAGE_VERSION@    $(DOTVERSION)
+@PACKAGE_NAME@       $(PROJECT)
+@PKG_LIB_FILE@       $(PRJLIBNAME)
+<<
+
 #---------------------------------------------------------------------
 # Installation. (EDIT)
 #
@@ -431,20 +443,11 @@ install-binaries:
 #	@if exist $(LIBDIR) $(CPY) $(LIBDIR)\*.tcl "$(SCRIPT_INSTALL_DIR)"
 #	@echo cd "$(SCRIPT_INSTALL_DIR:\=/)" ; pkg_mkIndex . | $(TCLSH)
 
-### Manual creation of pkgIndex
-### Normally the ifneeded command would be:
-###   package ifneeded $(PROJECT) $(DOTVERSION) \
-###      [list load [file join $$dir $(PROJECT)$(VERSION).$(EXT)]]
-### but this project has been named oddly. It has Sample_Init but provides
-### the Tclsha1 package.
-install-libraries:
+install-libraries: $(OUT_DIR)\pkgIndex.tcl
         @echo Installing libraries to '$(SCRIPT_INSTALL_DIR)'
         @if exist $(LIBDIR) $(CPY) $(LIBDIR)\*.tcl "$(SCRIPT_INSTALL_DIR)"
         @echo Installing package index in '$(SCRIPT_INSTALL_DIR)'
-        @type << >"$(SCRIPT_INSTALL_DIR)\pkgIndex.tcl"
-# Hand-crafted pkgIndex.tcl
-package ifneeded Tclsha1 $(DOTVERSION) [list load [file join $$dir $(PROJECT)$(VERSION).$(EXT)] Sample]
-<<
+	@$(CPY) $(OUT_DIR)\pkgIndex.tcl $(SCRIPT_INSTALL_DIR)
 
 install-docs:
 	@echo Installing documentation files to '$(DOC_INSTALL_DIR)'

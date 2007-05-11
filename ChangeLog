@@ -1,3 +1,12 @@
+2007-05-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* win/nmakehlp.c:  Added support for simple substitution of an 
+	* win/makefile.vc: input file. This permits us to make use of
+	pkgIndex.tcl.in style files without resorting to use of the tclsh
+	we are building against -- when compiling for a foreign target (eg
+	AMD64 from a ix86 host) we may not be able to run the
+	tclsh. nmakehlp however must always be a native executable.
+
 2007-05-03  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* win/makefile.vc: Round of updating to synch up with the Tcl

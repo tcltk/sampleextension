@@ -1600,7 +1600,7 @@ echo $ECHO_N "checking for existence of ${TCL_BIN_DIR}/tclConfig.sh... $ECHO_C" 
     if test -f "${TCL_BIN_DIR}/tclConfig.sh" ; then
         echo "$as_me:$LINENO: result: loading" >&5
 echo "${ECHO_T}loading" >&6
-	. ${TCL_BIN_DIR}/tclConfig.sh
+	. "${TCL_BIN_DIR}/tclConfig.sh"
     else
         echo "$as_me:$LINENO: result: could not find ${TCL_BIN_DIR}/tclConfig.sh" >&5
 echo "${ECHO_T}could not find ${TCL_BIN_DIR}/tclConfig.sh" >&6
@@ -1616,7 +1616,7 @@ echo "${ECHO_T}could not find ${TCL_BIN_DIR}/tclConfig.sh" >&6
     # of TCL_BUILD_LIB_SPEC. An extension should make use of TCL_LIB_SPEC
     # instead of TCL_BUILD_LIB_SPEC since it will work with both an
     # installed and uninstalled version of Tcl.
-    if test -f ${TCL_BIN_DIR}/Makefile ; then
+    if test -f "${TCL_BIN_DIR}/Makefile" ; then
         TCL_LIB_SPEC=${TCL_BUILD_LIB_SPEC}
         TCL_STUB_LIB_SPEC=${TCL_BUILD_STUB_LIB_SPEC}
         TCL_STUB_LIB_PATH=${TCL_BUILD_STUB_LIB_PATH}
@@ -1626,7 +1626,7 @@ echo "${ECHO_T}could not find ${TCL_BIN_DIR}/tclConfig.sh" >&6
 	# against Tcl.framework installed in an arbitary location.
 	case ${TCL_DEFS} in
 	    *TCL_FRAMEWORK*)
-		if test -f ${TCL_BIN_DIR}/${TCL_LIB_FILE}; then
+		if test -f "${TCL_BIN_DIR}/${TCL_LIB_FILE}"; then
 		    for i in "`cd ${TCL_BIN_DIR}; pwd`" \
 			     "`cd ${TCL_BIN_DIR}/../..; pwd`"; do
 			if test "`basename "$i"`" = "${TCL_LIB_FILE}.framework"; then
@@ -1635,7 +1635,7 @@ echo "${ECHO_T}could not find ${TCL_BIN_DIR}/tclConfig.sh" >&6
 			fi
 		    done
 		fi
-		if test -f ${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}; then
+		if test -f "${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}"; then
 		    TCL_STUB_LIB_SPEC="-L${TCL_BIN_DIR} ${TCL_STUB_LIB_FLAG}"
 		    TCL_STUB_LIB_PATH="${TCL_BIN_DIR}/${TCL_STUB_LIB_FILE}"
 		fi
@@ -8524,10 +8524,10 @@ echo "${ECHO_T}$tcl_cv_ld_search_paths_first" >&6
 	    LD_LIBRARY_PATH_VAR="DYLD_LIBRARY_PATH"
 
 	    # TEA specific: for Tk extensions, remove 64-bit arch flags from
-	    # CFLAGS for combined 32-bit and 64-bit fat builds as neither TkAqua
-	    # nor TkX11 can be built for 64-bit at present.
-	    test "$fat_32_64" = yes && test -n "${TK_BIN_DIR}" && \
-		CFLAGS="`echo "$CFLAGS " | sed -e 's/-arch ppc64 / /g' -e 's/-arch x86_64 / /g'`"
+	    # CFLAGS et al. for combined 32 & 64 bit fat builds as neither
+	    # TkAqua nor TkX11 can be built for 64-bit at present.
+	    test "$fat_32_64" = yes && test -n "${TK_BIN_DIR}" && for v in CFLAGS CPPFLAGS LDFLAGS; do
+		eval $v'="`echo "$'$v' "|sed -e "s/-arch ppc64 / /g" -e "s/-arch x86_64 / /g"`"'; done
 	    ;;
 	NEXTSTEP-*)
 	    SHLIB_CFLAGS=""

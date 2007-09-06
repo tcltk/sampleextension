@@ -14,7 +14,7 @@
 # Copyright (c) 2003-2005 Patrick Thoyts
 #
 #------------------------------------------------------------------------------
-# RCS: @(#) $Id: rules.vc,v 1.6 2007/05/03 22:01:57 patthoyts Exp $
+# RCS: @(#) $Id: rules.vc,v 1.7 2007/09/06 21:12:38 patthoyts Exp $
 #------------------------------------------------------------------------------
 
 !ifndef _RULES_VC
@@ -34,7 +34,11 @@ _INSTALLDIR	= $(INSTALLDIR:/=\)
 !endif
 
 !ifndef MACHINE
-MACHINE		= IX86
+!if "$(CPU)" == "" || "$(CPU)" == "i386"
+MACHINE         = IX86
+!else
+MACHINE         = $(CPU)
+!endif
 !endif
 
 !ifndef CFG_ENCODING
@@ -517,6 +521,7 @@ TCL_INCLUDES	= -I"$(_TCLDIR)\generic" -I"$(_TCLDIR)\win"
 # Optionally check for Tk info for building extensions.
 #----------------------------------------------------------
 
+!ifdef PROJECT_REQUIRES_TK
 !if "$(PROJECT)" != "tcl" && "$(PROJECT)" != "tk"
 
 !if !defined(TKDIR)
@@ -568,6 +573,7 @@ TKIMPLIB	= "$(_TKDIR)\win\$(BUILDDIRTOP)\tk$(TCL_VERSION)$(SUFX).lib"
 TK_INCLUDES     = -I"$(_TKDIR)\generic" -I"$(_TKDIR)\win" -I"$(_TKDIR)\xlib"
 !endif
 
+!endif
 !endif
 !endif
 

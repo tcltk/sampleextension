@@ -1,5 +1,7 @@
 2007-10-23  Jeff Hobbs  <jeffh@ActiveState.com>
 
+	*** Tagged tea-3-branch to start TEA 4 development on HEAD ***
+
 	* Makefile.in: separate PKG_ENV parts from TCLSH/WISH_ENV parts to
 	better allow 8.4 and 8.5 core variant testing.
 

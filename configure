@@ -9133,14 +9133,27 @@ else
 
 		    if test "$GCC" = yes; then
 
-			{ echo "$as_me:$LINENO: WARNING: 64bit mode not supported with GCC on $system" >&5
-echo "$as_me: WARNING: 64bit mode not supported with GCC on $system" >&2;}
+			case $system in
+			    SunOS-5.1[1-9]*|SunOS-5.[2-9][0-9]*)
+				do64bit_ok=yes
+				CFLAGS="$CFLAGS -m64"
+				LDFLAGS="$LDFLAGS -m64";;
+			    *)
+				{ echo "$as_me:$LINENO: WARNING: 64bit mode not supported with GCC on $system" >&5
+echo "$as_me: WARNING: 64bit mode not supported with GCC on $system" >&2;};;
+			esac
 
 else
 
 			do64bit_ok=yes
-			CFLAGS="$CFLAGS -xarch=amd64"
-			LDFLAGS="$LDFLAGS -xarch=amd64"
+			case $system in
+			    SunOS-5.1[1-9]*|SunOS-5.[2-9][0-9]*)
+				CFLAGS="$CFLAGS -m64"
+				LDFLAGS="$LDFLAGS -m64";;
+			    *)
+				CFLAGS="$CFLAGS -xarch=amd64"
+				LDFLAGS="$LDFLAGS -xarch=amd64";;
+			esac
 
 fi
 
@@ -9170,15 +9183,29 @@ fi
 		LD_SEARCH_FLAGS=${CC_SEARCH_FLAGS}
 		if test "$do64bit_ok" = yes; then
 
-		    # We need to specify -static-libgcc or we need to
-		    # add the path to the sparv9 libgcc.
-		    # JH: static-libgcc is necessary for core Tcl, but may
-		    # not be necessary for extensions.
-		    SHLIB_LD="$SHLIB_LD -m64 -mcpu=v9 -static-libgcc"
-		    # for finding sparcv9 libgcc, get the regular libgcc
-		    # path, remove so name and append 'sparcv9'
-		    #v9gcclibdir="`gcc -print-file-name=libgcc_s.so` | ..."
-		    #CC_SEARCH_FLAGS="${CC_SEARCH_FLAGS},-R,$v9gcclibdir"
+		    if test "$arch" = "sparcv9 sparc"; then
+
+			# We need to specify -static-libgcc or we need to
+			# add the path to the sparv9 libgcc.
+			# JH: static-libgcc is necessary for core Tcl, but may
+			# not be necessary for extensions.
+			SHLIB_LD="$SHLIB_LD -m64 -mcpu=v9 -static-libgcc"
+			# for finding sparcv9 libgcc, get the regular libgcc
+			# path, remove so name and append 'sparcv9'
+			#v9gcclibdir="`gcc -print-file-name=libgcc_s.so` | ..."
+			#CC_SEARCH_FLAGS="${CC_SEARCH_FLAGS},-R,$v9gcclibdir"
+
+else
+  if test "$arch" = "amd64 i386"; then
+
+			# JH: static-libgcc is necessary for core Tcl, but may
+			# not be necessary for extensions.
+			SHLIB_LD="$SHLIB_LD -m64 -static-libgcc"
+
+fi
+
+fi
+
 
 fi
 

@@ -1,3 +1,9 @@
+2008-06-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* win/makefile.vc: Updated win build files. Added new option to
+	* win/rules.vc:    nmakehlp to qualify a path name for use in setting
+	* win/nmakehlp.c:  up paths for test.
+
 2007-10-23  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	*** Tagged tea-3-branch to start TEA 4 development on HEAD ***

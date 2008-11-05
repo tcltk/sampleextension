@@ -1,3 +1,7 @@
+2008-11-04  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure, configure.in: TEA 3.7 update
+
 2007-10-23  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	*** Tagged tea-3-branch to start TEA 4 development on HEAD ***

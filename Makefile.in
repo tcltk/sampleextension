@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.64 2007/10/23 22:08:06 hobbs Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.65 2008/12/20 00:21:42 das Exp $
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -89,6 +89,7 @@ top_builddir	= .
 
 INSTALL		= @INSTALL@
 INSTALL_PROGRAM	= @INSTALL_PROGRAM@
+INSTALL_LIBRARY	= @INSTALL_PROGRAM@
 INSTALL_DATA	= @INSTALL_DATA@
 INSTALL_SCRIPT	= @INSTALL_SCRIPT@
 
@@ -362,8 +363,8 @@ install-lib-binaries: binaries
 	@mkdir -p $(DESTDIR)$(pkglibdir)
 	@list='$(lib_BINARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    echo " $(INSTALL_PROGRAM) $$p $(DESTDIR)$(pkglibdir)/$$p"; \
-	    $(INSTALL_PROGRAM) $$p $(DESTDIR)$(pkglibdir)/$$p; \
+	    echo " $(INSTALL_LIBRARY) $$p $(DESTDIR)$(pkglibdir)/$$p"; \
+	    $(INSTALL_LIBRARY) $$p $(DESTDIR)$(pkglibdir)/$$p; \
 	    stub=`echo $$p|sed -e "s/.*\(stub\).*/\1/"`; \
 	    if test "x$$stub" = "xstub"; then \
 		echo " $(RANLIB_STUB) $(DESTDIR)$(pkglibdir)/$$p"; \

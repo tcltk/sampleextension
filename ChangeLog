@@ -1,3 +1,8 @@
+2009-03-11  Joe English  <jenglish@users.sourceforge.net>
+
+	* pkgIndex.tcl.in: use @PACKAGE_NAME@ instead of "Tclsha1"
+	[Bug 1960628].
+
 2008-12-20  Daniel Steffen  <das@users.sourceforge.net>
 
 	* Makefile.in: use INSTALL_LIBRARY instead of INSTALL_PROGRAM to

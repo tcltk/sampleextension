@@ -1,3 +1,7 @@
+2009-03-18  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* Makefile.in: Removed offending 'rm -f' line [Bug 2429444].
+
 2009-03-11  Joe English  <jenglish@users.sourceforge.net>
 
 	* pkgIndex.tcl.in: use @PACKAGE_NAME@ instead of "Tclsha1"

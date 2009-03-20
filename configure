@@ -1634,7 +1634,7 @@ echo "${ECHO_T}could not find ${TCL_BIN_DIR}/tclConfig.sh" >&6
     elif test "`uname -s`" = "Darwin"; then
 	# If Tcl was built as a framework, attempt to use the libraries
 	# from the framework at the given location so that linking works
-	# against Tcl.framework installed in an arbitary location.
+	# against Tcl.framework installed in an arbitrary location.
 	case ${TCL_DEFS} in
 	    *TCL_FRAMEWORK*)
 		if test -f "${TCL_BIN_DIR}/${TCL_LIB_FILE}"; then
@@ -6321,6 +6321,7 @@ echo "$as_me: error: ${with_tclinclude} directory does not contain tcl.h" >&2;}
    { (exit 1); exit 1; }; }
 	    fi
 	else
+	    list=""
 	    if test "`uname -s`" = "Darwin"; then
 		# If Tcl was built as a framework, attempt to use
 		# the framework's Headers directory
@@ -7239,6 +7240,10 @@ fi
 
     STLIB_LD='${AR} cr'
     LD_LIBRARY_PATH_VAR="LD_LIBRARY_PATH"
+    if test "x$SHLIB_VERSION" = x; then
+  SHLIB_VERSION="1.0"
+fi
+
     case $system in
 	# TEA specific:
 	windows)
@@ -7947,7 +7952,7 @@ else
 		# Users may want PA-RISC 1.1/2.0 portable code - needs HP cc
 		#CFLAGS="$CFLAGS +DAportable"
 		SHLIB_CFLAGS="+z"
-		SHLIB_LD="${CC} -Wl,-b"
+		SHLIB_LD="ld -b"
 
 fi
 
@@ -8368,7 +8373,7 @@ echo "${ECHO_T}$tcl_cv_ld_elf" >&6
 
 else
 
-		SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}.so.1.0'
+		SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}.so.${SHLIB_VERSION}'
 
 fi
 
@@ -8391,7 +8396,7 @@ fi
 fi
 
 	    LD_SEARCH_FLAGS=${CC_SEARCH_FLAGS}
-	    SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}.so.1.0'
+	    SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}.so.${SHLIB_VERSION}'
 	    echo "$as_me:$LINENO: checking for ELF" >&5
 echo $ECHO_N "checking for ELF... $ECHO_C" >&6
 if test "${tcl_cv_ld_elf+set}" = set; then
@@ -9038,7 +9043,7 @@ fi
 	    # requires an extra version number at the end of .so file names.
 	    # So, the library has to have a name like libtcl75.so.1.0
 
-	    SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}.so.1.0'
+	    SHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}.so.${SHLIB_VERSION}'
 	    UNSHARED_LIB_SUFFIX='${TCL_TRIM_DOTS}.a'
 	    TCL_LIB_VERSIONS_OK=nodots
 	    ;;

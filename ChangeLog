@@ -1,3 +1,7 @@
+2009-03-26  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure: Regenerated to use latest TEA tcl.m4.
+
 2009-03-20  Andreas Kupries <andreask@activestate.com>
 
 	* configure: Regenerated to get my latest updates to tcl.m4 (See

@@ -1,3 +1,7 @@
+2010-01-19  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure: Regenerated to use latest TEA tcl.m4.
+
 2009-04-27  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* tcl.m4 (TEA_CONFIG_CFLAGS): harden the check to add _r to CC on

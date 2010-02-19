@@ -1,3 +1,9 @@
+2010-02-19  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* tcl.m4: Correct compiler/linker flags
+	for threaded builds on OpenBSD.
+	* configure: Regenerated to use latest TEA tcl.m4.
+
 2010-01-19  Jan Nijtmans <nijtmans@users.sf.net>
 
 	* configure: Regenerated to use latest TEA tcl.m4.

@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in,v 1.48 2008/11/05 00:13:00 hobbs Exp $
+# RCS: @(#) $Id: configure.in,v 1.49 2010/04/23 12:10:45 nijtmans Exp $
 
 #-----------------------------------------------------------------------
 # Sample configure.in for Tcl Extensions.  The only places you should
@@ -83,9 +83,6 @@ TEA_ADD_TCL_SOURCES([])
 # __CHANGE__
 # A few miscellaneous platform-specific items:
 #
-# Define a special symbol for Windows (BUILD_sample in this case) so
-# that we create the export library with the dll.
-#
 # Windows creates a few extra files that need to be cleaned up.
 # You can add more files to clean if your extension creates any extra
 # files.
@@ -97,7 +94,6 @@ TEA_ADD_TCL_SOURCES([])
 # and change Makefile.in to move it from CONFIG_CLEAN_FILES to BINARIES var.
 #CLEANFILES="pkgIndex.tcl"
 if test "${TEA_PLATFORM}" = "windows" ; then
-    AC_DEFINE(BUILD_sample, 1, [Build windows export dll])
     CLEANFILES="$CLEANFILES *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     #TEA_ADD_SOURCES([win/winFile.c])
     #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])

@@ -69,7 +69,7 @@ From the msgcat extension:
    # See the file "license.terms" for information on usage and redistribution
    # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
    #
-   # RCS: @(#) $Id: packages.txt,v 1.2 2010/04/23 11:51:53 nijtmans Exp $
+   # RCS: @(#) $Id: packages.txt,v 1.3 2010/04/23 12:10:45 nijtmans Exp $
 
    package require Tcl 8.2
    # When the version number changes, be sure to update the pkgIndex.tcl file,
@@ -265,8 +265,7 @@ that needs to be exported - all others should be defined as [emph static] to
 reduce the chance of naming conflicts):
 [example {
    /*
-    * Windows needs to know which symbols to export.  Unix does not.
-    * BUILD_exampleA should be undefined for Unix.
+    * Windows needs to know which symbols to export.
     */
 
    #ifdef BUILD_sample

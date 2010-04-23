@@ -6285,9 +6285,6 @@ echo "$as_me: error: could not find tcl source file '${srcdir}/$i'" >&2;}
 # __CHANGE__
 # A few miscellaneous platform-specific items:
 #
-# Define a special symbol for Windows (BUILD_sample in this case) so
-# that we create the export library with the dll.
-#
 # Windows creates a few extra files that need to be cleaned up.
 # You can add more files to clean if your extension creates any extra
 # files.
@@ -6299,11 +6296,6 @@ echo "$as_me: error: could not find tcl source file '${srcdir}/$i'" >&2;}
 # and change Makefile.in to move it from CONFIG_CLEAN_FILES to BINARIES var.
 #CLEANFILES="pkgIndex.tcl"
 if test "${TEA_PLATFORM}" = "windows" ; then
-
-cat >>confdefs.h <<\_ACEOF
-#define BUILD_sample 1
-_ACEOF
-
     CLEANFILES="$CLEANFILES *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     #TEA_ADD_SOURCES([win/winFile.c])
     #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])

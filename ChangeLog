@@ -2,6 +2,7 @@
 
 	* configure: Regenerated to use latest TEA tcl.m4.
 	* [Bug 2782806] sample package's test cases fail
+	* Always define BUILD_sample, even on UNIX.
 
 2010-02-19  Stuart Cassoff  <stwo@users.sourceforge.net>
 

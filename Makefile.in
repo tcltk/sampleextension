@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.66 2009/03/18 18:39:42 stwo Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.67 2010/04/23 12:10:45 nijtmans Exp $
 
 #========================================================================
 # Add additional lines to handle any additional AC_SUBST cases that
@@ -147,7 +147,7 @@ SHARED_BUILD	= @SHARED_BUILD@
 INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@
 #INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ @TK_INCLUDES@ @TK_XINCLUDES@
 
-PKG_CFLAGS	= @PKG_CFLAGS@
+PKG_CFLAGS	= @PKG_CFLAGS@ -DBUILD_sample
 
 # TCL_DEFS is not strictly need here, but if you remove it, then you
 # must make sure that configure.in checks for the necessary components

@@ -18,8 +18,7 @@
 #include <tcl.h>
 
 /*
- * Windows needs to know which symbols to export.  Unix does not.
- * BUILD_sample should be undefined for Unix.
+ * Windows needs to know which symbols to export.
  */
 
 #ifdef BUILD_sample

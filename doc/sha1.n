@@ -1,9 +1,13 @@
+.so man.macros
 .TH sha1 n 4.1 "Tcl-Extensions"
 .HS sha1 tcl
 .BS
+'\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
 sha1 \- manipulate sha1 message digests
 .SH SYNOPSIS
+\fBpackage require sample ?0.5?\fR
+.sp
 \fBsha1\fI ?-log2base log2base? -string string\fR
 .br
 or
@@ -17,7 +21,9 @@ or
 \fBsha1\fI -update descriptor ?-maxbytes n? ?-copychan chanID? -chan chanID\fR
 .br
 \fBsha1\fI ?-log2base log2base? -final descriptor\fR
+.BE
 .SH DESCRIPTION
+.PP
 SHA1 is NIST's Secure Hashing Algorithm (also known as Secure Hashing
 Standard) with the minor modification that they proposed on 7/11/94.
 .PP

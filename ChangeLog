@@ -1,3 +1,7 @@
+2010-04-29  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* doc/sha1.n [Enh 2788534] add package require to doc
+
 2010-04-23  Jan Nijtmans <nijtmans@users.sf.net>
 
 	* configure: Regenerated to use latest TEA tcl.m4.

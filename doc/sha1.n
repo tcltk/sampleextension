@@ -1,3 +1,4 @@
+'\"
 .so man.macros
 .TH sha1 n 4.1 "Tcl-Extensions"
 .HS sha1 tcl
@@ -6,21 +7,21 @@
 .SH NAME
 sha1 \- manipulate sha1 message digests
 .SH SYNOPSIS
-\fBpackage require sample ?0.5?\fR
+\fBpackage require sample\fR ?\fB0.5\fR?
 .sp
-\fBsha1\fI ?-log2base log2base? -string string\fR
+\fBsha1\fR ?\fB\-log2base \fIlog2base\fR? \fB\-string \fIstring\fR
 .br
 or
 .br
-\fBsha1\fI ?-log2base log2base? ?-copychan chanID? -chan chanID\fR
+\fBsha1\fR ?\fB\-log2base \fIlog2base\fR? ?\fB\-copychan \fIcopyChanID\fR? \fB\-chan \fIchanID\fR
 .br
 or
 .br
-\fBsha1\fI -init\fR (returns descriptor)
+\fBsha1 \-init\fR (returns descriptor)
 .br
-\fBsha1\fI -update descriptor ?-maxbytes n? ?-copychan chanID? -chan chanID\fR
+\fBsha1 \-update \fIdescriptor\fR ?\fB\-maxbytes \fIn\fR? ?\fB\-copychan \fIchanID\fR? \fB\-chan \fIchanID\fR
 .br
-\fBsha1\fI ?-log2base log2base? -final descriptor\fR
+\fBsha1\fR ?\fB\-log2base \fIlog2base\fR? \fB\-final \fIdescriptor\fR
 .BE
 .SH DESCRIPTION
 .PP
@@ -30,30 +31,35 @@ Standard) with the minor modification that they proposed on 7/11/94.
 Switches can be in any order.
 .PP
 Returns a sha1 digest in base 2 ** log2base ascii representation.
-log2base defaults to 4, i.e. hex representation.
+log2base defaults to 4, i.e., hex representation.
 .PP
 .nf
-       log2base   length   chars 
-         1          160      01            (binary)
+       \fBlog2base   length    chars\fR
+         1          160      01            \fI(binary)\fR
          2           80      0..3
-         3           54      0...7         (octal)
-         4           40      0..9a..f      (hex)
+         3           54      0...7         \fI(octal)\fR
+         4           40      0..9a..f      \fI(hex)\fR
          5           32      0..9a..v      
          6           27      0..9a..zA..Z_, 
-.fo
+.fi
 .PP
-(The characters in the digest string have been chosen to be usable in 
-filenames so that the sha1 command can be used, for example, 
-to digest URLs into shorter strings for filenames in a cache.)
+(The characters in the digest string have been chosen to be usable in
+filenames so that the sha1 command can be used, for example, to digest URLs
+into shorter strings for filenames in a cache.)
 .PP
-In the -string version, returns sha1 digest alone of string.
+In the \fB\-string\fR version, returns sha1 digest alone of \fIstring\fR.
 .PP
-In the -chan version, returns list of 2 items: length of data
-in chanID followed by sha1 digest of all data in chanID.  ChanID is
-identifier returned from "open" for example.  If -copychan is supplied,
-will also copy all data from chanID to copychanID.
+In the \fB\-chan\fR version, returns list of 2 items: length of data in
+\fIchanID\fR followed by sha1 digest of all data in \fIchanID\fR.
+\fIChanID\fR is identifier returned from "\fBopen\fR" for example.  If
+\fB\-copychan\fR is supplied, will also copy all data from \fIchanID\fR to
+\fIcopychanID\fR.
 .PP
-In the third form, -init returns a descriptor, -update can be called
-any number of times with that descriptor and returns the number of
-bytes read, and -final returns the result in the same form as the
-standalone -chan.
+In the third form, \fB\-init\fR returns a descriptor, \fB\-update\fR can be
+called any number of times with that descriptor and returns the number of
+bytes read, and \fB\-final\fR returns the result in the same form as the
+standalone \fB\-chan\fR.
+'\" Local Variables:
+'\" mode: nroff
+'\" fill-column: 78
+'\" End:

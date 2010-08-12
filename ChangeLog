@@ -1,3 +1,8 @@
+2010-08-11  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure, configure.in: TEA 3.8 update, just include tcl.m4,
+	modify TEA_INIT version and run autoconf 2.59
+
 2010-04-30  Donal K. Fellows  <dkf@defiant.rcs.manchester.ac.uk>
 
 	* doc/sha1.n: [Bug 2994714]: Updated documentation formatting to more

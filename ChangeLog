@@ -1,3 +1,8 @@
+2010-08-11  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure, configure.in: TEA 3.8 update, just include tcl.m4,
+	modify TEA_INIT version and run autoconf 2.59
+
 2008-12-20  Daniel Steffen  <das@users.sourceforge.net>
 
 	* Makefile.in: use INSTALL_LIBRARY instead of INSTALL_PROGRAM to

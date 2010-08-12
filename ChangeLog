@@ -1,3 +1,8 @@
+2010-08-12  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure: update TEA 3.8
+	* Makefile.in (VPATH): add macosx.
+
 2010-08-11  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure, configure.in: TEA 3.8 update, just include tcl.m4,

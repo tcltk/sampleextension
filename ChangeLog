@@ -1,3 +1,7 @@
+2010-08-16  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* configure, configure.in: update TEA 3.9
+
 2010-08-12  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure: update TEA 3.8

@@ -1,3 +1,12 @@
+2010-12-14  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* Makefile.in:		Catch up somewhat with
+	* pkgIndex.tcl.in:	sampleextension HEAD.
+	* generic/tclsample.c:
+	* win/rules.vc:
+	* win/nmakehelp.vc:
+	* win/makefile.vc:
+
 2010-08-16  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* configure, configure.in: update TEA 3.9

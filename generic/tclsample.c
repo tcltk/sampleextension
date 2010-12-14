@@ -355,7 +355,7 @@ Sample_Init(Tcl_Interp *interp)
     if (Tcl_PkgRequire(interp, "Tcl", "8.1", 0) == NULL) {
 	return TCL_ERROR;
     }
-    if (Tcl_PkgProvide(interp, "Tclsha1", PACKAGE_VERSION) != TCL_OK) {
+    if (Tcl_PkgProvide(interp, PACKAGE_NAME, PACKAGE_VERSION) != TCL_OK) {
 	return TCL_ERROR;
     }
     Tcl_CreateObjCommand(interp, "sha1", (Tcl_ObjCmdProc *) Sha1_Cmd,

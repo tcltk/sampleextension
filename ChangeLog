@@ -1,5 +1,9 @@
 2010-12-14  Stuart Cassoff  <stwo@users.sourceforge.net>
 
+	* Makefile.in: 	Make .SUFFIXES work for more (BSD) make programs.
+
+2010-12-14  Stuart Cassoff  <stwo@users.sourceforge.net>
+
 	* Makefile.in:		Catch up somewhat with
 	* pkgIndex.tcl.in:	sampleextension HEAD.
 	* generic/tclsample.c:

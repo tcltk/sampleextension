@@ -1,3 +1,10 @@
+2010-12-14  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure: Regenerated to use latest TEA tcl.m4.
+	This adds cross-compile support to UNIX and Win, and
+	support for building 64-bit executables with mingw-w64
+	build tools.
+
 2010-09-14  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* Makefile.in (valgrind): add valgrind sample targets

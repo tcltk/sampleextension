@@ -1,3 +1,7 @@
+2010-12-14  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* Makefile.in: 	Make .SUFFIXES work for more (BSD) make programs.
+
 2010-12-14  Jan Nijtmans <nijtmans@users.sf.net>
 
 	* configure: Regenerated to use latest TEA tcl.m4.

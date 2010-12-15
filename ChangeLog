@@ -1,3 +1,9 @@
+2010-12-15  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* configure.in:	Upgrade to newer install-sh and use it.
+	* Makefile.in:
+	* configure:	Regenerated to use latest TEA tcl.m4.
+
 2010-12-14  Stuart Cassoff  <stwo@users.sourceforge.net>
 
 	* configure:	Regenerated to use latest TEA tcl.m4.

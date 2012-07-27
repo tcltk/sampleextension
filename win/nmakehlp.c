@@ -11,8 +11,6 @@
  * this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
  * ----------------------------------------------------------------------------
- * RCS: @(#) $Id: nmakehlp.c,v 1.7 2008/06/18 11:01:42 patthoyts Exp $
- * ----------------------------------------------------------------------------
  */
 
 #define _CRT_SECURE_NO_DEPRECATE

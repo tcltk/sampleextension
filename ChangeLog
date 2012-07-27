@@ -1,3 +1,8 @@
+2012-02-27  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure:	Regenerated to use latest TEA tcl.m4.
+	* <all>:        Purge RCS keywords.
+
 2010-12-15  Stuart Cassoff  <stwo@users.sourceforge.net>
 
 	* configure.in:	Upgrade to newer install-sh and use it.

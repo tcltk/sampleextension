@@ -68,8 +68,6 @@ From the msgcat extension:
    #
    # See the file "license.terms" for information on usage and redistribution
    # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-   #
-   # RCS: @(#) $Id: packages.txt,v 1.1 2004/05/24 12:27:28 arjenmarkus Exp $
 
    package require Tcl 8.2
    # When the version number changes, be sure to update the pkgIndex.tcl file,
@@ -91,14 +89,14 @@ Note the variable "$dir" in the second statement: this variable is set
 by the package mechanism when it is looking for the required package.
 
 [para]
-From the example extension (SHA1):
+From the example extension (Sample):
 [example {
 /*
  *----------------------------------------------------------------------
  *
- * Examplea_Init --
+ * Sample_Init --
  *
- *      Initialize the new package.  The string "Examplea" in the
+ *      Initialize the new package.  The string "Sample" in the
  *      function name must match the PACKAGE declaration at the top of
  *      configure.in.
  *
@@ -106,14 +104,14 @@ From the example extension (SHA1):
  *      A standard Tcl result
  *
  * Side effects:
- *      The Tclsha1 package is created.
+ *      The Sample package is created.
  *      One new command "sha1" is added to the Tcl interpreter.
  *
  *----------------------------------------------------------------------
  */
 
 int
-Examplea_Init(Tcl_Interp *interp)
+Sample_Init(Tcl_Interp *interp)
 {
     if (Tcl_InitStubs(interp, "8.0", 0) == NULL) {
         return TCL_ERROR;
@@ -125,7 +123,7 @@ Examplea_Init(Tcl_Interp *interp)
             }
         }
     }
-    if (Tcl_PkgProvide(interp, "Tclsha1", VERSION) != TCL_OK) {
+    if (Tcl_PkgProvide(interp, "sample", VERSION) != TCL_OK) {
         return TCL_ERROR;
     }
     Tcl_CreateCommand(interp, "sha1", Sha1,
@@ -139,11 +137,11 @@ file is provided for automatically. Instead of simply sourcing a
 Tcl script, it will load the shared object or DLL that was built from
 the C sources, roughly like:
 [example {
-   package ifneeded Tclsha1 1.0 [list load [file join $dir libTclsha1.so]]
+   package ifneeded sample 1.0 [list load [file join $dir libsample.so]]
 }]
 or:
 [example {
-   package ifneeded Tclsha1 1.0 [list load [file join $dir Tclsha1.dll]]
+   package ifneeded sample 1.0 [list load [file join $dir sample.dll]]
 }]
 The TEA will create the pkgIndex.tcl file automatically via the
 pkg_mkIndex command.
@@ -189,20 +187,20 @@ combination of the minor version and the patchlevel. From the file
    # other systems.
    #--------------------------------------------------------------------
 
-   PACKAGE=exampleA
+   PACKAGE=sample
 
    MAJOR_VERSION=0
-   MINOR_VERSION=2
+   MINOR_VERSION=5
    PATCHLEVEL=
 
    VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
    NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
 }]
 
-So, the above would result in a macro VERSION with the value 0.2
+So, the above would result in a macro VERSION with the value 0.5
 [para]
 The version number is also used to construct a distinguishing name for
-the library, like: libexampleA.0.2.so or exampleA02.dll.
+the library, like: libsample0.5.so or sample05.dll.
 This way there is much less chance of a conflict between versions.
 
 
@@ -240,11 +238,11 @@ page for the load command, but here are a few examples:
    foo.dll         foo             Foo_Init
    FOO.DLL         fOO             Foo_Init
    libFOO.so       fOO             Foo_Init
-   libfoo.1.2.so   fOo             Foo_Init
+   libfoo1.2.so    fOo             Foo_Init
 }]
 So, in the index file you might see:
 [example {
-   package ifneeded fOo 1.2 [list load [file join $dir libfoo.1.2.so]]
+   package ifneeded fOo 1.2 [list load [file join $dir libfoo1.2.so]]
 }]
 A second issue is that for the extension to useful in a [emph safe]
 interpreter, you need to define an initialisation routine with a name
@@ -259,20 +257,19 @@ instruction the initialisation routine can not be loaded and therefore
 loading the extension fails.
 
 [para]
-The sample extension contains this fragment of code (exampleA.h) to take
+The sample extension contains this fragment of code (sample.h) to take
 care of this (in general, the initialisation routine is the only one
 that needs to be exported - all others should be defined as [emph static] to
 reduce the chance of naming conflicts):
 [example {
    /*
-    * Windows needs to know which symbols to export.  Unix does not.
-    * BUILD_exampleA should be undefined for Unix.
+    * Windows needs to know which symbols to export.
     */
 
-   #ifdef BUILD_exampleA
+   #ifdef BUILD_sample
    #undef TCL_STORAGE_CLASS
    #define TCL_STORAGE_CLASS DLLEXPORT
-   #endif /* BUILD_exampleA */
+   #endif /* BUILD_sample */
 
    ...
 
@@ -280,5 +277,5 @@ reduce the chance of naming conflicts):
     * Only the _Init function is exported.
     */
 
-   EXTERN int      Examplea_Init _ANSI_ARGS_((Tcl_Interp * interp));
+   EXTERN int      Sample_Init _ANSI_ARGS_((Tcl_Interp * interp));
 }]

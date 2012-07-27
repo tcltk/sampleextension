@@ -1,3 +1,8 @@
+2012-02-27  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure:	Regenerated to use latest TEA tcl.m4.
+	* <all>:        Purge RCS keywords.
+
 2010-12-15  Stuart Cassoff  <stwo@users.sourceforge.net>
 
 	* configure.in:	Upgrade to newer install-sh and use it.
@@ -11,19 +16,23 @@
 
 2010-12-14  Stuart Cassoff  <stwo@users.sourceforge.net>
 
-	* Makefile.in: 	Make .SUFFIXES work for more (BSD) make programs.
+	* Makefile.in: Make .SUFFIXES work for more (BSD) make programs.
 
-2010-12-14  Stuart Cassoff  <stwo@users.sourceforge.net>
+2010-12-14  Jan Nijtmans <nijtmans@users.sf.net>
 
-	* Makefile.in:		Catch up somewhat with
-	* pkgIndex.tcl.in:	sampleextension HEAD.
-	* generic/tclsample.c:
-	* win/rules.vc:
-	* win/nmakehelp.vc:
-	* win/makefile.vc:
+	* configure: Regenerated to use latest TEA tcl.m4.
+	This adds cross-compile support to UNIX and Win, and
+	support for building 64-bit executables with mingw-w64
+	build tools.
+
+2010-09-14  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* Makefile.in (valgrind): add valgrind sample targets
 
 2010-08-16  Jeff Hobbs  <jeffh@ActiveState.com>
 
+	* Makefile.in (PKG_CFLAGS): remove -DBUILD_sample as that is
+	auto-defined in TEA 3.9
 	* configure, configure.in: update TEA 3.9
 
 2010-08-12  Jeff Hobbs  <jeffh@ActiveState.com>
@@ -36,15 +45,68 @@
 	* configure, configure.in: TEA 3.8 update, just include tcl.m4,
 	modify TEA_INIT version and run autoconf 2.59
 
+2010-04-30  Donal K. Fellows  <dkf@defiant.rcs.manchester.ac.uk>
+
+	* doc/sha1.n: [Bug 2994714]: Updated documentation formatting to more
+	closely follow Tcl's best practice guidelines in many aspects.
+
+2010-04-29  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* doc/sha1.n [Enh 2788534]: add package require to doc
+
+2010-04-23  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure: Regenerated to use latest TEA tcl.m4.
+	* [Bug 2782806]: sample package's test cases fail
+	Always define BUILD_sample, even on UNIX.
+
+2010-02-19  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* tcl.m4: Correct compiler/linker flags for threaded builds on OpenBSD.
+	* configure: Regenerated to use latest TEA tcl.m4.
+
+2010-01-19  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure: Regenerated to use latest TEA tcl.m4.
+
+2009-04-27  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* tcl.m4 (TEA_CONFIG_CFLAGS): harden the check to add _r to CC on AIX
+	with threads.
+
+2009-03-26  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure: Regenerated to use latest TEA tcl.m4.
+
+2009-03-20  Andreas Kupries <andreask@activestate.com>
+
+	* configure: Regenerated to get my latest updates to tcl.m4 (See
+	tclconfig/ChangeLog).
+
+	NOTE: This pulled in an unexpected set of changes regarding
+	SHLIB_VERSION and SHARED_LIB_SUFFIX, indicating that configure was not
+	regenerated since some older change to tcl.m4.
+
+2009-03-18  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* Makefile.in: [Bug 2429444]: Removed offending 'rm -f' line.
+
+2009-03-11  Joe English  <jenglish@users.sourceforge.net>
+
+	* pkgIndex.tcl.in: [Bug 1960628]: use @PACKAGE_NAME@ instead of
+	"Tclsha1".
+
 2008-12-20  Daniel Steffen  <das@users.sourceforge.net>
 
 	* Makefile.in: use INSTALL_LIBRARY instead of INSTALL_PROGRAM to
-	install libraries, avoids breakage from tcl's install-strip when
-	built as a bundled package.
+	install libraries, avoids breakage from tcl's install-strip when built
+	as a bundled package.
 
-2008-11-04  Jeff Hobbs  <jeffh@ActiveState.com>
+2008-06-18  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* configure, configure.in: TEA 3.7 update
+	* win/makefile.vc: Updated win build files. Added new option to
+	* win/rules.vc:    nmakehlp to qualify a path name for use in setting
+	* win/nmakehlp.c:  up paths for test.
 
 2007-10-23  Jeff Hobbs  <jeffh@ActiveState.com>
 

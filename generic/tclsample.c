@@ -336,7 +336,7 @@ wrongArgs:
  *	A standard Tcl result
  *
  * Side effects:
- *	The Tclsha1 package is created.
+ *	The Sample package is created.
  *	One new command "sha1" is added to the Tcl interpreter.
  *
  *----------------------------------------------------------------------

@@ -1,0 +1,6 @@
+# remember to change configure.in as well when these change
+# (then re-autoconf)
+
+PACKAGE_MAJOR	= 0
+PACKAGE_MINOR	= 5
+PACKAGE_VERSION	= "0.5"

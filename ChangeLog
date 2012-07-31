@@ -1,3 +1,9 @@
+2012-08-01  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* win/makefile.vc: Sync with latest Tcl 8.6 updates
+	* win/rules.vc:
+	* win/pkg.vc:
+
 2012-02-27  Jan Nijtmans <nijtmans@users.sf.net>
 
 	* configure:	Regenerated to use latest TEA tcl.m4.

@@ -188,7 +188,7 @@ Sha1_Cmd(
 	if ((sscanf(Tcl_GetString(descriptorObj), "sha1%d",
 		&contextnum) != 1) || (contextnum >= numcontexts) ||
 		(ctxtotalRead[contextnum] < 0)) {
-	    Tcl_AppendResult(interp, "invalid sha1 descriptor \"", 
+	    Tcl_AppendResult(interp, "invalid sha1 descriptor \"",
 		    Tcl_GetString(descriptorObj), "\"", (char *) NULL);
 	    return TCL_ERROR;
 	}
@@ -302,7 +302,7 @@ wrongArgs:
     Tcl_AppendResult (interp, "wrong # args: should be either:\n",
 	    "  ",
 	    Tcl_GetString(objv[0]),
-	    " ?-log2base log2base? -string string\n", 
+	    " ?-log2base log2base? -string string\n",
 	    " or\n",
 	    "  ",
 	    Tcl_GetString(objv[0]),

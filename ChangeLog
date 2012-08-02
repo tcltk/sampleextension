@@ -1,4 +1,14 @@
-2010-12-15  Stuart Cassoff  <stwo@users.sourceforge.net>
+2010-08-02  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* README.sha:		Zap trailing whitespace.
+	* doc/sha1.n:		No functional change.
+	* generic/sample.c:
+	* generic/tclsample.c:
+	* license.terms:
+	* win/makefile.vc:
+	* ChangeLog:		Fix wrong date in previous ChangeLog entry.
+
+2010-08-01  Stuart Cassoff  <stwo@users.sourceforge.net>
 
 	* Makefile.in:	Tidy: Whitespace, formatting, spelling.
 	* configure.in:	No functional change.
@@ -128,7 +138,7 @@
 
 2007-05-11  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
-	* win/nmakehlp.c:  Added support for simple substitution of an 
+	* win/nmakehlp.c:  Added support for simple substitution of an
 	* win/makefile.vc: input file. This permits us to make use of
 	pkgIndex.tcl.in style files without resorting to use of the tclsh
 	we are building against -- when compiling for a foreign target (eg
@@ -342,7 +352,7 @@
 
 2003-12-08  Jeff Hobbs  <jeffh@ActiveState.com>
 
-	* generic/sample.c: 
+	* generic/sample.c:
 	* generic/sample.h: updated for 64-bit correctness
 
 2003-12-05  Jeff Hobbs  <jeffh@ActiveState.com>
@@ -453,7 +463,7 @@
 
 	* README.cygwin: updated notes about using mingw gcc as a compiler.
 
-	* configure: 
+	* configure:
 	* configure.in: updated to new TEA base that: prefixes all macros
 	with TEA_* instead of SC_*; adds TEA_PREFIX, which defaults the
 	prefix and exec_prefix values to what Tcl used; adds
@@ -557,8 +567,8 @@
 
 	* configure.in: bumped package to 0.3, cleaned up macro usage.
 
-	* README: 
-	* README.cygwin: 
+	* README:
+	* README.cygwin:
 	* aclocal.m4:
 	* configure (new):
 	* install-sh, mkinstalldirs, tcl.m4 (removed): complete revamp to

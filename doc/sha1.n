@@ -39,8 +39,8 @@ log2base defaults to 4, i.e., hex representation.
          2           80      0..3
          3           54      0...7         \fI(octal)\fR
          4           40      0..9a..f      \fI(hex)\fR
-         5           32      0..9a..v      
-         6           27      0..9a..zA..Z_, 
+         5           32      0..9a..v
+         6           27      0..9a..zA..Z_,
 .fi
 .PP
 (The characters in the digest string have been chosen to be usable in

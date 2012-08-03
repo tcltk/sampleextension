@@ -1,3 +1,10 @@
+2010-08-03  Stuart Cassoff  <stwo@users.sourceforge.net>
+
+	* ChangeLog:		Zap trailing whitespace.
+	* README.sha:		No functional change.
+	* win/nmakehlp.c:
+	* Makefile.in:		DON'T use gnu tar; use normal tar.
+
 2010-08-02  Stuart Cassoff  <stwo@users.sourceforge.net>
 
 	* README.sha:		Zap trailing whitespace.
@@ -403,7 +410,7 @@
 2003-10-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* tea.pdf:         Set to binary so it downloads properly under Win32
-	
+
 	* win/rules.vc:    Fixed nmakehlp to find the correct Tcl or Tk
 	* win/nmakehlp.c:  version from the tcl.h header file. This will
 	* win/makefile.vc  then pick up the right libraries.
@@ -411,7 +418,7 @@
 2003-07-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* README:           Added notes for the win/ build files.
-	
+
 	* win/Makefile.vc:  Patch #762878 applied to provide a sample VC++
 	* win/rules.vc:     build system. This is NOT TEA but is a useful
 	* win/nmakehlp.c:   alternative for win32 developers.

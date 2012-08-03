@@ -24,7 +24,7 @@ Usage:
 	or
 
       sha1 ?-log2base log2base? ?-copychan chanID? -chan chanID
-	
+
 	or
 
       sha1 -init (returns descriptor)

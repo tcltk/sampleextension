@@ -223,7 +223,7 @@ PROFILE		= 0
 PGO		= 0
 MSVCRT		= 0
 LOIMPACT	= 0
-UNCHECKED       = 0
+UNCHECKED	= 0
 !else
 !if [nmakehlp -f $(OPTS) "static"]
 !message *** Doing static
@@ -241,7 +241,7 @@ MSVCRT		= 0
 !message *** Compile explicitly for non-threaded tcl
 TCL_THREADS	= 0
 !else
-TCL_THREADS     = 1
+TCL_THREADS	= 1
 !endif
 !if [nmakehlp -f $(OPTS) "symbols"]
 !message *** Doing symbols
@@ -507,14 +507,14 @@ Failed to find tcl.h.  The TCLDIR macro does not appear correct.
 !endif
 !endif
 
-!if [echo REM = This file is generated from rules.vc > version.vc]
+!if [echo REM = This file is generated from rules.vc > versions.vc]
 !endif
 !if exist("$(_TCL_H)")
-!if [echo TCL_DOTVERSION = \>> version.vc] \
-   && [nmakehlp -V "$(_TCL_H)" TCL_VERSION >> version.vc]
+!if [echo TCL_DOTVERSION = \>> versions.vc] \
+   && [nmakehlp -V "$(_TCL_H)" TCL_VERSION >> versions.vc]
 !endif
 !endif
-!include version.vc
+!include versions.vc
 TCL_VERSION	= $(TCL_DOTVERSION:.=)
 
 !if $(TCLINSTALL)
@@ -580,11 +580,11 @@ Failed to find tk.h. The TKDIR macro does not appear correct.
 !if defined(TKDIR)
 TK_DOTVERSION = 8.4
 !if exist("$(_TK_H)")
-!if [echo TK_DOTVERSION = \>> version.vc] \
-   && [nmakehlp -V "$(_TK_H)" TK_VERSION >> version.vc]
+!if [echo TK_DOTVERSION = \>> versions.vc] \
+   && [nmakehlp -V "$(_TK_H)" TK_VERSION >> versions.vc]
 !endif
 !endif
-!include version.vc
+!include versions.vc
 TK_VERSION = $(TK_DOTVERSION:.=)
 
 !if $(TKINSTALL)
@@ -615,10 +615,10 @@ TK_LIBRARY	= $(_TKDIR)\library
 #----------------------------------------------------------
 # Setup the fully qualified OUT_DIR path as OUT_DIR_PATH
 #----------------------------------------------------------
-!if [echo OUT_DIR_PATH = \>> version.vc] \
-    && [nmakehlp -Q "$(OUT_DIR)" >> version.vc]
+!if [echo OUT_DIR_PATH = \>> versions.vc] \
+    && [nmakehlp -Q "$(OUT_DIR)" >> versions.vc]
 !endif
-!include version.vc
+!include versions.vc
 
 
 #----------------------------------------------------------

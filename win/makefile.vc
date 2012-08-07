@@ -67,7 +67,7 @@ the build instructions.
 #
 #		loimpact = Adds a flag for how NT treats the heap to keep memory
 #			   in use, low.  This is said to impact alloc performance.
-#		msvcrt  =  Affects the static option only to switch it from
+#		msvcrt   = Affects the static option only to switch it from
 #			   using libcmt(d) as the C runtime [by default] to
 #			   msvcrt(d). This is useful for static embedding
 #			   support.
@@ -78,18 +78,18 @@ the build instructions.
 #		profile  = Adds profiling hooks.  Map file is assumed.
 #		symbols  = Debug build. Links to the debug C runtime, disables
 #			   optimizations and creates pdb symbols files.
-#		unchecked = Allows a symbols build to not use the debug
+#		unchecked= Allows a symbols build to not use the debug
 #			   enabled runtime (msvcrt.dll not msvcrtd.dll
 #			   or libcmt.lib not libcmtd.lib).
 #
-#	STATS=memdbg,compdbg,none
+#	STATS=compdbg,memdbg,none
 #		Sets optional memory and bytecode compiler debugging code added
 #		to the core.  The default is for none.  Any combination of the
 #		above may be used (comma separated).  'none' will over-ride
 #		everything to nothing.
 #
-#		memdbg   = Enables the debugging memory allocator.
 #		compdbg  = Enables byte compilation logging.
+#		memdbg   = Enables the debugging memory allocator.
 #
 #	CHECKS=64bit,fullwarn,nodep,none
 #		Sets special macros for checking compatability.
@@ -97,8 +97,8 @@ the build instructions.
 #		64bit    = Enable 64bit portability warnings (if available)
 #		fullwarn = Builds with full compiler and link warnings enabled.
 #			    Very verbose.
-#		nodep	 = Turns off compatability macros to ensure Tk isn't
-#			    being built with deprecated functions.
+#		nodep	 = Turns off compatability macros to ensure the extension
+#			    isn't being built with deprecated functions.
 #
 #	MACHINE=(ALPHA|AMD64|IA64|IX86)
 #		Set the machine type used for the compiler, linker, and
@@ -464,6 +464,7 @@ install-docs:
 clean:
 	@if exist $(TMP_DIR)\nul $(RMDIR) $(TMP_DIR)
 	@if exist $(WINDIR)\version.vc del $(WINDIR)\version.vc
+	@if exist $(WINDIR)\versions.vc del $(WINDIR)\versions.vc
 	@if exist $(WINDIR)\vercl.i del $(WINDIR)\vercl.i
 	@if exist $(WINDIR)\vercl.x del $(WINDIR)\vercl.x
 	@if exist $(WINDIR)\_junk.pch del $(WINDIR)\_junk.pch

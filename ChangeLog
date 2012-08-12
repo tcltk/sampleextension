@@ -1,3 +1,10 @@
+2012-08-12  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure:	Regenerated to use latest TEA tcl.m4.
+	* win/rules.vc: Remove some unused code, always set
+	USE_THREAD_ALLOC in combination with TCL_THREADS
+	
+
 2010-08-03  Stuart Cassoff  <stwo@users.sourceforge.net>
 
 	* ChangeLog:		Zap trailing whitespace.

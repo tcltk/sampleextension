@@ -324,11 +324,11 @@ BUILDDIRTOP =$(BUILDDIRTOP)_$(MACHINE)
 BUILDDIRTOP =$(BUILDDIRTOP)_VC$(VCVER)
 !endif
 
-!if !$(DEBUG) || $(DEBUG) && $(UNCHECKED)
+!if !$(DEBUG) || $(UNCHECKED)
 SUFX	    = $(SUFX:g=)
 !endif
 
-TMP_DIRFULL = .\$(BUILDDIRTOP)\$(PROJECT)_ThreadedDynamicStaticX
+TMP_DIRFULL = .\$(BUILDDIRTOP)\$(PROJECT)_DynamicStaticX
 
 !if !$(STATIC_BUILD)
 TMP_DIRFULL = $(TMP_DIRFULL:Static=)
@@ -345,11 +345,6 @@ EXT	    = lib
 TMP_DIRFULL = $(TMP_DIRFULL:X=)
 SUFX	    = $(SUFX:x=)
 !endif
-!endif
-
-!if !$(TCL_THREADS)
-TMP_DIRFULL = $(TMP_DIRFULL:Threaded=)
-SUFX	    = $(SUFX:t=)
 !endif
 
 !ifndef TMP_DIR
@@ -447,7 +442,7 @@ OPTDEFINES	= $(OPTDEFINES) -DTCL_MEM_DEBUG
 OPTDEFINES	= $(OPTDEFINES) -DTCL_COMPILE_DEBUG -DTCL_COMPILE_STATS
 !endif
 !if $(TCL_THREADS)
-OPTDEFINES	= $(OPTDEFINES) -DTCL_THREADS=1
+OPTDEFINES	= $(OPTDEFINES) -DTCL_THREADS=1 -DUSE_THREAD_ALLOC=1
 !endif
 !if $(STATIC_BUILD)
 OPTDEFINES	= $(OPTDEFINES) -DSTATIC_BUILD
@@ -595,7 +590,6 @@ WISH		= "$(_TKDIR)\bin\wish$(TK_VERSION)t$(SUFX).exe"
 TKSTUBLIB	= "$(_TKDIR)\lib\tkstub$(TK_VERSION).lib"
 TKIMPLIB	= "$(_TKDIR)\lib\tk$(TK_VERSION)$(SUFX).lib"
 TK_INCLUDES     = -I"$(_TKDIR)\include"
-TK_LIBRARY	= $(_TKDIR)\lib
 !else
 WISH		= "$(_TKDIR)\win\$(BUILDDIRTOP)\wish$(TCL_VERSION)$(SUFX).exe"
 !if !exist($(WISH)) && $(TCL_THREADS)
@@ -604,7 +598,6 @@ WISH		= "$(_TKDIR)\win\$(BUILDDIRTOP)\wish$(TCL_VERSION)t$(SUFX).exe"
 TKSTUBLIB	= "$(_TKDIR)\win\$(BUILDDIRTOP)\tkstub$(TCL_VERSION).lib"
 TKIMPLIB	= "$(_TKDIR)\win\$(BUILDDIRTOP)\tk$(TCL_VERSION)$(SUFX).lib"
 TK_INCLUDES     = -I"$(_TKDIR)\generic" -I"$(_TKDIR)\win" -I"$(_TKDIR)\xlib"
-TK_LIBRARY	= $(_TKDIR)\library
 !endif
 
 !endif

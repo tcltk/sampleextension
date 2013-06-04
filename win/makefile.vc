@@ -167,10 +167,19 @@ PROJECT = sample
 #PROJECT_REQUIRES_TK=1
 !include "rules.vc"
 
-!include "pkg.vc"
+# nmakehelp -V <file> <tag> will search the file for tag, skips until a
+#	number and returns all character until a character not in [0-9.ab]
+#	is read.
 
-DOTVERSION      = $(PACKAGE_VERSION:"=) #"
-VERSION         = $(PACKAGE_MAJOR)$(PACKAGE_MINOR)
+!if [echo REM = This file is generated from Makefile.vc > versions.vc]
+!endif
+# get project version from row "AC_INIT([project], [????])"
+!if [echo DOTVERSION = \>> versions.vc] \
+   && [nmakehlp -V ..\configure.in sample >> versions.vc]
+!endif
+!include "versions.vc"
+
+VERSION         = $(DOTVERSION:.=)
 STUBPREFIX      = $(PROJECT)stub
 
 DLLOBJS = \
@@ -186,8 +195,8 @@ PRJHEADERS =
 # Target names and paths ( shouldn't need changing )
 #-------------------------------------------------------------------------
 
-BINROOT		= .
-ROOT            = ..
+BINROOT		= $(MAKEDIR)
+ROOT            = $(MAKEDIR)\..
 
 PRJIMPLIB	= $(OUT_DIR)\$(PROJECT)$(VERSION)$(SUFX).lib
 PRJLIBNAME	= $(PROJECT)$(VERSION)$(SUFX).$(EXT)
@@ -232,7 +241,7 @@ cdebug	= -Zi -WX $(DEBUGFLAGS)
 
 ### Declarations common to all compiler options
 cwarn = $(WARNINGS) -D _CRT_SECURE_NO_DEPRECATE -D _CRT_NONSTDC_NO_DEPRECATE
-cflags = -nologo -c $(COMPILERFLAGS) -DBUILD_$(PROJECT) $(cwarn) -Fp$(TMP_DIR)^\
+cflags = -nologo -c $(COMPILERFLAGS) $(cwarn) -Fp$(TMP_DIR)^\
 
 !if $(MSVCRT)
 !if $(DEBUG) && !$(UNCHECKED)

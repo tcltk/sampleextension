@@ -1,3 +1,9 @@
+2013-07-02  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure:          Regenerated to use latest TEA tcl.m4.
+	* Makefile.in:        Use $(INSTALL_DATA_DIR) in stead of mkdir.
+	* .fossil-settings/*: Versioned settings for fossil.
+
 2012-08-17  Jan Nijtmans  <nijtmans@users.sf.net>
 
 	* win/nmakehlp.c: Add "-V<num>" option, in order to be able

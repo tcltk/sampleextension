@@ -1,3 +1,8 @@
+2013-07-04  Jan Nijtmans <nijtmans@users.sf.net>
+
+	* configure:          Regenerated to use latest TEA tcl.m4.
+	* Makefile.in:        Make test-suite runnable from installed directory. 
+
 2013-07-02  Jan Nijtmans <nijtmans@users.sf.net>
 
 	* configure:          Regenerated to use latest TEA tcl.m4.

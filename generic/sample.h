@@ -17,15 +17,6 @@
 
 #include <tcl.h>
 
-/*
- * Windows needs to know which symbols to export.
- */
-
-#ifdef BUILD_sample
-#undef TCL_STORAGE_CLASS
-#define TCL_STORAGE_CLASS DLLEXPORT
-#endif /* BUILD_sample */
-
 #ifdef HAVE_INTTYPES_H
 #   include <inttypes.h>
 typedef uint32_t sha_uint32_t;
@@ -35,6 +26,14 @@ typedef unsigned long sha_uint32_t;
 #   else
 typedef unsigned int sha_uint32_t;
 #   endif
+#endif
+
+/*
+ * For C++ compilers, use extern "C"
+ */
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef struct {
@@ -51,6 +50,14 @@ void SHA1Final	(SHA1_CTX* context, unsigned char digest[20]);
  * Only the _Init function is exported.
  */
 
-EXTERN int	Sample_Init(Tcl_Interp * interp);
+extern DLLEXPORT int	Sample_Init(Tcl_Interp * interp);
+
+/*
+ * end block for C++
+ */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _SAMPLE */

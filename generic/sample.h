@@ -42,9 +42,9 @@ typedef struct {
     unsigned char buffer[64];
 } SHA1_CTX;
 
-void SHA1Init	(SHA1_CTX* context);
-void SHA1Update	(SHA1_CTX* context, unsigned char* data, unsigned int len);
-void SHA1Final	(SHA1_CTX* context, unsigned char digest[20]);
+MODULE_SCOPE void SHA1Init(SHA1_CTX* context);
+MODULE_SCOPE void SHA1Update(SHA1_CTX* context, unsigned char* data, unsigned int len);
+MODULE_SCOPE void SHA1Final(SHA1_CTX* context, unsigned char digest[20]);
 
 /*
  * Only the _Init function is exported.

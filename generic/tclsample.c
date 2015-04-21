@@ -330,7 +330,7 @@ wrongArgs:
  *
  *	Initialize the new package.  The string "Sample" in the
  *	function name must match the PACKAGE declaration at the top of
- *	configure.in.
+ *	configure.ac.
  *
  * Results:
  *	A standard Tcl result

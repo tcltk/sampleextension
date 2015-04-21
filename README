@@ -28,9 +28,9 @@ aclocal.m4	Generated file.  Do not edit.  Autoconf uses this as input
 		below.
 
 configure	Generated file.  Do not edit.  This must be regenerated
-		anytime configure.in or tclconfig/tcl.m4 changes.
+		anytime configure.ac or tclconfig/tcl.m4 changes.
 
-configure.in	Configure script template.  Autoconf uses this file as input
+configure.ac	Configure script template.  Autoconf uses this file as input
 		to produce the final configure script.
 
 pkgIndex.tcl.in Package index template.  The configure script will use
@@ -83,7 +83,7 @@ If you have VC++ then you may wish to use the files in the win
 subdirectory and build the extension using just VC++. These files have
 been designed to be as generic as possible but will require some
 additional maintenance by the project developer to synchronise with
-the TEA configure.in and Makefile.in files. Instructions for using the
+the TEA configure.ac and Makefile.in files. Instructions for using the
 VC++ makefile are written in the first part of the Makefile.vc
 file.
 

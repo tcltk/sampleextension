@@ -98,7 +98,7 @@ From the example extension (Sample):
  *
  *      Initialize the new package.  The string "Sample" in the
  *      function name must match the PACKAGE declaration at the top of
- *      configure.in.
+ *      configure.ac.
  *
  * Results:
  *      A standard Tcl result
@@ -177,7 +177,7 @@ For this reason, the TEA defines a C macro, VERSION, that holds the
 version string (you can see how it is used in the code for the sample
 extension). This string is built up of the major version and a
 combination of the minor version and the patchlevel. From the file
-"configure.in" (see Chapter 6) we have:
+"configure.ac" (see Chapter 6) we have:
 [example {
    #--------------------------------------------------------------------
    # __CHANGE__

@@ -175,7 +175,7 @@ PROJECT = sample
 !endif
 # get project version from row "AC_INIT([project], [????])"
 !if [echo DOTVERSION = \>> versions.vc] \
-   && [nmakehlp -V ..\configure.in sample >> versions.vc]
+   && [nmakehlp -V ..\configure.ac sample >> versions.vc]
 !endif
 !include "versions.vc"
 

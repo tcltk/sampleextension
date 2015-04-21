@@ -14,7 +14,7 @@ Nevertheless, you will have to do something:
 [list_begin bullet]
 
 [bullet]
-Prepare at least two template files, configure.in and Makefile.in,
+Prepare at least two template files, configure.ac and Makefile.in,
 that contain information about what sources your extension is made of,
 under what name your extension will be known and so on.
 
@@ -66,8 +66,8 @@ Autoconf tool, you will be able to create new macros. This is actually
 one of the great advantages of Autoconf.)
 
 [para]
-While Autoconf takes a template file "configure.ac" or "configure.in",
-TEA provides you with a template for this template. All you need to do is:
+While Autoconf takes a template file "configure.ac", TEA provides you
+with a template for this template. All you need to do is:
 
 [list_begin bullet]
 
@@ -120,7 +120,7 @@ The first is a variable in the make file that is used to set the flags
 for a debug version of your extension. The configure script
 replaces the string "@CFLAGS_DEBUG@" by whatever is appropriate for that
 platform, often "-g -c". This is accomplished by a command
-AC_SUBST([lb]CFLAGS_DEBUG[rb]) somewhere in the configure.in file (or
+AC_SUBST([lb]CFLAGS_DEBUG[rb]) somewhere in the configure.ac file (or
 the macros it uses).
 
 
@@ -279,7 +279,7 @@ created by the configure script.
 
 [list_end]
 
-You can use a number of other macros in your configure.in file:
+You can use a number of other macros in your configure.ac file:
 
 [list_begin bullet]
 
@@ -438,7 +438,7 @@ Define a file INSTALL.in which has a line "@MY_EXTENSION_TEXT@"
 in it.
 
 [bullet]
-Define a variable MY_EXTENSION_TEXT in the configure.in file:
+Define a variable MY_EXTENSION_TEXT in the configure.ac file:
 [example {
      AC_DEFINE([MY_EXTENSION_TEXT])
      MY_EXTENSION_TEXT="Whatever text you want inserted"

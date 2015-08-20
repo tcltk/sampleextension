@@ -224,6 +224,7 @@ PGO		= 0
 MSVCRT		= 0
 LOIMPACT	= 0
 UNCHECKED	= 0
+UCRT		= 0
 !else
 !if [nmakehlp -f $(OPTS) "static"]
 !message *** Doing static
@@ -283,7 +284,11 @@ UNCHECKED = 1
 UNCHECKED = 0
 !endif
 !endif
-
+!if [nmakehlp -f $(OPTS) "ucrt"] && $(VCVERSION) >= 1900
+!message *** Doing UCRT
+UCRT = 1
+!else
+UCRT = 0
 
 !if !$(STATIC_BUILD)
 # Make sure we don't build overly fat DLLs.
@@ -291,7 +296,6 @@ MSVCRT		= 1
 # We shouldn't statically put the extensions inside the shell when dynamic.
 TCL_USE_STATIC_PACKAGES = 0
 !endif
-
 
 #----------------------------------------------------------
 # Figure-out how to name our intermediate and output directories.

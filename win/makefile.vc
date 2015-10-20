@@ -358,13 +358,7 @@ test: setup $(PROJECT)
 !else
 	@set PATH=$(_TCLDIR)\win\$(BUILDDIRTOP);$(PATH)
 !endif
-!if "$(OS)" == "Windows_NT"  || "$(MSVCDIR)" == "IDE"
 	$(DEBUGGER) $(TCLSH) "$(ROOT)/tests/all.tcl" $(TESTFLAGS)
-!else
-        @echo Please wait while the tests are collected...
-        $(DEBUGGER) $(TCLSH) "$(ROOT)/tests/all.tcl" $(TESTFLAGS) > tests.log
-	type tests.log | more
-!endif
 
 shell: setup $(PROJECT)
 	@set VLERQ_LIBRARY=$(LIBDIR:\=/)

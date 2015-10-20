@@ -36,7 +36,6 @@ _INSTALLDIR	= $(INSTALLDIR:/=\)
 # "delete all" method.
 #----------------------------------------------------------
 
-!if "$(OS)" == "Windows_NT"
 RMDIR	= rmdir /S /Q
 ERRNULL  = 2>NUL
 !if ![ver | find "4.0" > nul]
@@ -45,13 +44,6 @@ COPY	= copy >NUL
 !else
 CPY	= xcopy /i /y >NUL
 COPY	= copy /y >NUL
-!endif
-!else # "$(OS)" != "Windows_NT"
-CPY	= xcopy /i >_JUNK.OUT # On Win98 NUL does not work here.
-COPY	= copy >_JUNK.OUT # On Win98 NUL does not work here.
-RMDIR	= deltree /Y
-NULL    = \NUL # Used in testing directory existence
-ERRNULL = >NUL # Win9x shell cannot redirect stderr
 !endif
 MKDIR   = mkdir
 

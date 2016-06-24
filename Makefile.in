@@ -33,9 +33,6 @@
 # $(srcdir) or in the generic, win or unix subdirectory.
 #========================================================================
 
-PKG_SOURCES	= @PKG_SOURCES@
-PKG_OBJECTS	= @PKG_OBJECTS@
-
 PKG_STUB_SOURCES = @PKG_STUB_SOURCES@
 PKG_STUB_OBJECTS = @PKG_STUB_OBJECTS@
 
@@ -57,7 +54,9 @@ PKG_HEADERS	= @PKG_HEADERS@
 # configuration options) composed of the named objects.
 #========================================================================
 
-PKG_LIB_FILE	= @PKG_LIB_FILE@
+include sample.mk
+
+PKG_LIB_FILE	= @SAMPLE_SHLIB@
 PKG_STUB_LIB_FILE = @PKG_STUB_LIB_FILE@
 
 lib_BINARIES	= $(PKG_LIB_FILE)
@@ -268,11 +267,6 @@ depend:
 # library.  In most cases these object files will correspond to the
 # source files above.
 #========================================================================
-
-$(PKG_LIB_FILE): $(PKG_OBJECTS)
-	-rm -f $(PKG_LIB_FILE)
-	${MAKE_LIB}
-	$(RANLIB) $(PKG_LIB_FILE)
 
 $(PKG_STUB_LIB_FILE): $(PKG_STUB_OBJECTS)
 	-rm -f $(PKG_STUB_LIB_FILE)

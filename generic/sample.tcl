@@ -1,27 +1,32 @@
-/*
- * tclsample.c --
- *
- *	This file implements a Tcl interface to the secure hashing
- *	algorithm functions in sha1.c
- *
- * Copyright (c) 1999 Scriptics Corporation.
- * Copyright (c) 2003 ActiveState Corporation.
- *
- * See the file "license.terms" for information on usage and redistribution
- * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
- *
- */
+###
+# tclsample.c --
+#
+#	This file implements a Tcl interface to the secure hashing
+#	algorithm functions in sha1.c
+#
+# Copyright (c) 1999 Scriptics Corporation.
+# Copyright (c) 2003 ActiveState Corporation.
+# Copyright (c) 2015 Sean Woods
+#
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+###
 
-/*
- * Modified from tclmd5.c by Dave Dykstra, dwd@bell-labs.com, 4/22/97
- */
+##
+# Modified from tclmd5.c by Dave Dykstra, dwd@bell-labs.com, 4/22/97
+##
 
-#include <tcl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "sample.h"
+my include {<tcl.h>}
+my include {<stdio.h>}
+my include {<stdlib.h>}
+my include {<string.h>}
+my include {"sample.h"}
 
+##
+# Code in the "Header" section is added to the top of the
+# resulting C file, prior to defining functions
+##
+my code header {
 #define TCL_READ_CHUNK_SIZE 4096
 
 static unsigned char itoa64f[] =
@@ -35,34 +40,25 @@ static int Sha1_Cmd(ClientData clientData, Tcl_Interp *interp,
 		int onjc, Tcl_Obj *const objv[]);
 
 #define DIGESTSIZE 20
-
-/*
- *----------------------------------------------------------------------
- *
- * Sha1 --
- *
- *	 Implements the new Tcl "sha1" command.
- *
- * Results:
- *	A standard Tcl result
- *
- * Side effects:
- *	None.
- *
- *----------------------------------------------------------------------
- */
+}
 
-static int
-Sha1_Cmd(
-    ClientData clientData,	/* Not used. */
-    Tcl_Interp *interp,		/* Current interpreter */
-    int objc,			/* Number of arguments */
-    Tcl_Obj *const objv[]	/* Argument strings */
-    )
-{
-    /*
-     * The default base is hex
-     */
+my c_tclproc_raw {::sha1} {
+  /*
+   *----------------------------------------------------------------------
+   *
+   * Sha1 --
+   *
+   *	 Implements the new Tcl "sha1" command.
+   *
+   * Results:
+   *	A standard Tcl result
+   *
+   * Side effects:
+   *	None.
+   *
+   *----------------------------------------------------------------------
+   * The default base is hex
+   */
 
     int log2base = 4;
     int a;
@@ -322,46 +318,32 @@ wrongArgs:
 	    (char *) NULL);
     return TCL_ERROR;
 }
-
-/*
- *----------------------------------------------------------------------
- *
- * Sample_Init --
- *
- *	Initialize the new package.  The string "Sample" in the
- *	function name must match the PACKAGE declaration at the top of
- *	configure.ac.
- *
- * Results:
- *	A standard Tcl result
- *
- * Side effects:
- *	The Sample package is created.
- *	One new command "sha1" is added to the Tcl interpreter.
- *
- *----------------------------------------------------------------------
- */
 
-int
-Sample_Init(Tcl_Interp *interp)
-{
-    /*
-     * This may work with 8.0, but we are using strictly stubs here,
-     * which requires 8.1.
-     */
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL) {
-	return TCL_ERROR;
-    }
-    if (Tcl_PkgProvide(interp, PACKAGE_NAME, PACKAGE_VERSION) != TCL_OK) {
-	return TCL_ERROR;
-    }
-    Tcl_CreateObjCommand(interp, "sha1", (Tcl_ObjCmdProc *) Sha1_Cmd,
-	    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+###
+# Sample_Init --
+#
+#	Initialize the new package.  The string "Sample" in the
+#	function name must match the PACKAGE declaration at the top of
+#	configure.ac.
+#
+# Results:
+#	A standard Tcl result
+#
+# Side effects:
+#	The Sample package is created.
+#	One new command "sha1" is added to the Tcl interpreter.
+#
+###
+my define set initfunc Sample_Init
 
+##
+# Code in the "cinit" section is executed after stubs have been initialized
+# but before we start defining Tcl commands and OO methods
+##
+my code cinit {
     numcontexts = 1;
     sha1Contexts = (SHA1_CTX *) malloc(sizeof(SHA1_CTX));
     ctxtotalRead = (int *) malloc(sizeof(int));
     ctxtotalRead[0] = 0;
-
-    return TCL_OK;
 }
+

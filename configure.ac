@@ -19,7 +19,7 @@ dnl	to configure the system for the local environment.
 # so that we create the export library with the dll.
 #-----------------------------------------------------------------------
 
-AC_INIT([sample], [0.5])
+AC_INIT([sample], [0.6])
 
 #--------------------------------------------------------------------
 # Call TEA_INIT as the first TEA_ macro to set up initial vars.
@@ -28,7 +28,15 @@ AC_INIT([sample], [0.5])
 #--------------------------------------------------------------------
 
 TEA_INIT([3.10])
-
+AC_PROG_LN_S
+CONFIG_CLEAN_FILES=
+if test ! -d $srcdir/tclconfig ; then
+    if test -d $srcdir/../tclconfig ; then
+        $LN_S $srcdir/../tclconfig tclconfig
+        CONFIG_CLEAN_FILES=tclconfig
+    fi
+fi
+AC_SUBST(CONFIG_CLEAN_FILES)
 AC_CONFIG_AUX_DIR(tclconfig)
 
 #--------------------------------------------------------------------
@@ -71,7 +79,7 @@ TEA_SETUP_COMPILER
 # and PKG_TCL_SOURCES.
 #-----------------------------------------------------------------------
 
-TEA_ADD_SOURCES([sample.c tclsample.c])
+TEA_ADD_SOURCES([])
 TEA_ADD_HEADERS([])
 TEA_ADD_INCLUDES([])
 TEA_ADD_LIBS([])
@@ -173,4 +181,5 @@ TEA_PROG_TCLSH
 # which require substituting th AC variables in.  Include these here.
 #--------------------------------------------------------------------
 
-AC_OUTPUT([Makefile pkgIndex.tcl])
+AC_OUTPUT([Makefile pkgIndex.tcl config.tcl:tclconfig/config.tcl.in])
+${TCLSH_PROG} ${srcdir}/make.tcl autoconf

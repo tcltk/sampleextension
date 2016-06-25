@@ -84,8 +84,11 @@ if {$make(autoconf)} {
   #puts $mkout [::practcl::build::Makefile $::project(builddir) LIBRARY]
   #close $mkout
   LIBRARY generate-decls [LIBRARY define get name] $::project(builddir)
-  set fout [open make.tcl w]
-  puts $fout [list source [file join $::project(srcdir) make.tcl]]
+  if {![file exists make.tcl]} {
+    set fout [open make.tcl w]
+    puts $fout [list source [file join $::project(srcdir) make.tcl]]
+    close $fout
+  }
 }
 
 if {$make(library)} {

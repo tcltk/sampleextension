@@ -9,7 +9,6 @@ if {[file exists [file join $CWD $::project(sandbox) tclconfig practcl.tcl]]} {
   source [file join $SRCPATH tclconfig practcl.tcl]
 }
 
-
 array set ::project [::practcl::config.tcl $CWD]
 ::practcl::library create LIBRARY [array get ::project]
 LIBRARY add [file join $::project(srcdir) generic sample.c]
@@ -23,16 +22,17 @@ LIBRARY define add public-verbatim [file join $::project(srcdir) generic sample.
   triggers implement
 }
 ::practcl::target all {
-  triggers library
+  depends library
 }
 ::practcl::target binaries {
-  triggers library
+  depends library
 }
 ::practcl::target libraries {
-  triggers library
+  depends library
 }
 ::practcl::target library {
   triggers implement
+  filename [LIBRARY define get libfile]
 }
 ::practcl::target doc {}
 
@@ -84,11 +84,6 @@ if {$make(autoconf)} {
   #puts $mkout [::practcl::build::Makefile $::project(builddir) LIBRARY]
   #close $mkout
   LIBRARY generate-decls [LIBRARY define get name] $::project(builddir)
-  if {![file exists make.tcl]} {
-    set fout [open make.tcl w]
-    puts $fout [list source [file join $::project(srcdir) make.tcl]]
-    close $fout
-  }
 }
 
 if {$make(library)} {
@@ -143,11 +138,7 @@ if {$make(install)} {
   #========================================================================
   puts "Installing documentation in ${mandir}"
   foreach file [glob -nocomplain [file join $srcdir doc *.n]] {
-    if {$DESTDIR ne {}} {
-      ::practcl::installDir $file [file join ${DESTDIR} ${mandir} mann]
-    } else {
-      ::practcl::installDir $file [file join ${mandir} mann]
-    }
+    ::practcl::installDir $file [file join ${mandir} mann]
   }
 }
 
@@ -163,22 +154,12 @@ if {$make(install-package)} {
   # You should not have to modify this target.
   #========================================================================
   puts "Installing Library to ${pkglibdir}"
-  if {$DESTDIR ne {}} {
-    ::practcl::installDir [LIBRARY define get libfile] [file join ${DESTDIR} $pkglibdir]
-    foreach file [glob -nocomplain *.lib] {
-      ::practcl::installDir $file [file join ${DESTDIR} $pkglibdir]
-    }
-    if {[LIBRARY define get output_tcl] ne {}} {
-      ::practcl::installDir [LIBRARY define get output_tcl] [file join ${DESTDIR} $pkglibdir] 
-    }
-  } else {
-    ::practcl::installDir [LIBRARY define get libfile] $pkglibdir
-    foreach file [glob -nocomplain *.lib] {
-      ::practcl::installDir $file $pkglibdir
-    }
-    ::practcl::installDir pkgIndex.tcl $pkglibdir
-    if {[LIBRARY define get output_tcl] ne {}} {
-      ::practcl::installDir [LIBRARY define get output_tcl] $pkglibdir
-    }
+  ::practcl::installDir [LIBRARY define get libfile] $pkglibdir
+  foreach file [glob -nocomplain *.lib] {
+    ::practcl::installDir $file $pkglibdir
+  }
+  ::practcl::installDir pkgIndex.tcl $pkglibdir
+  if {[LIBRARY define get output_tcl] ne {}} {
+    ::practcl::installDir [LIBRARY define get output_tcl] $pkglibdir
   }
 }

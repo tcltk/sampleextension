@@ -165,22 +165,7 @@ PROJECT = sample
 
 # Uncomment the following line if this is a Tk extension.
 #PROJECT_REQUIRES_TK=1
-!include "rules.vc"
-
-# nmakehelp -V <file> <tag> will search the file for tag, skips until a
-#	number and returns all character until a character not in [0-9.ab]
-#	is read.
-
-!if [echo REM = This file is generated from Makefile.vc > versions.vc]
-!endif
-# get project version from row "AC_INIT([project], [????])"
-!if [echo DOTVERSION = \>> versions.vc] \
-   && [nmakehlp -V ..\configure.ac sample >> versions.vc]
-!endif
-!include "versions.vc"
-
-VERSION         = $(DOTVERSION:.=)
-STUBPREFIX      = $(PROJECT)stub
+!include "rules-ext.vc"
 
 DLLOBJS = \
 	$(TMP_DIR)\tclsample.obj \
@@ -188,8 +173,6 @@ DLLOBJS = \
 !if !$(STATIC_BUILD)
 	$(TMP_DIR)\sample.res
 !endif
-
-PRJHEADERS =
 
 #-------------------------------------------------------------------------
 # Target names and paths ( shouldn't need changing )
@@ -205,133 +188,11 @@ PRJLIB		= $(OUT_DIR)\$(PRJLIBNAME)
 PRJSTUBLIBNAME	= $(STUBPREFIX)$(VERSION).lib
 PRJSTUBLIB	= $(OUT_DIR)\$(PRJSTUBLIBNAME)
 
-### Make sure we use backslash only.
-PRJ_INSTALL_DIR         = $(_INSTALLDIR)\$(PROJECT)$(DOTVERSION)
-LIB_INSTALL_DIR		= $(PRJ_INSTALL_DIR)
-BIN_INSTALL_DIR		= $(PRJ_INSTALL_DIR)
-DOC_INSTALL_DIR		= $(PRJ_INSTALL_DIR)
-SCRIPT_INSTALL_DIR	= $(PRJ_INSTALL_DIR)
-INCLUDE_INSTALL_DIR	= $(_TCLDIR)\include
+PRJ_DEFINES = -DMODULE_SCOPE=extern \
+	      -DPACKAGE_NAME="\"$(PROJECT)\"" \
+              -DPACKAGE_VERSION="\"$(DOTVERSION)\"" \
+              -D_CRT_SECURE_NO_WARNINGS
 
-### The following paths CANNOT have spaces in them.
-GENERICDIR	= $(ROOT)\generic
-WINDIR		= $(ROOT)\win
-LIBDIR          = $(ROOT)\library
-DOCDIR		= $(ROOT)\doc
-TOOLSDIR	= $(ROOT)\tools
-COMPATDIR	= $(ROOT)\compat
-
-#---------------------------------------------------------------------
-# Compile flags
-#---------------------------------------------------------------------
-
-!if !$(DEBUG)
-!if $(OPTIMIZING)
-### This cranks the optimization level to maximize speed
-cdebug	= $(OPTIMIZATIONS)
-!else
-cdebug	=
-!endif
-!else if "$(MACHINE)" == "IA64"
-### Warnings are too many, can't support warnings into errors.
-cdebug	= -Zi -Od $(DEBUGFLAGS)
-!else
-cdebug	= -Zi -WX $(DEBUGFLAGS)
-!endif
-
-### Declarations common to all compiler options
-cwarn = $(WARNINGS) -D _CRT_SECURE_NO_DEPRECATE -D _CRT_NONSTDC_NO_DEPRECATE
-cflags = -nologo -c $(COMPILERFLAGS) $(cwarn) -Fp$(TMP_DIR)^\
-
-!if $(MSVCRT)
-!if $(DEBUG) && !$(UNCHECKED)
-crt = -MDd
-!else
-crt = -MD
-!endif
-!else
-!if $(DEBUG) && !$(UNCHECKED)
-crt = -MTd
-!else
-crt = -MT
-!endif
-!endif
-
-cflags = $(cflags) -DMODULE_SCOPE=extern
-
-!if !$(STATIC_BUILD)
-cflags = $(cflags) -DUSE_TCL_STUBS
-!if defined(TKSTUBLIB)
-cflags = $(cflags) -DUSE_TK_STUBS
-!endif
-!endif
-
-INCLUDES	= $(TCL_INCLUDES) -I"$(WINDIR)" -I"$(GENERICDIR)"
-BASE_CFLAGS	= $(cflags) $(cdebug) $(crt) $(INCLUDES)
-CON_CFLAGS	= $(cflags) $(cdebug) $(crt) -DCONSOLE
-TCL_CFLAGS	= -DPACKAGE_NAME="\"$(PROJECT)\"" \
-		  -DPACKAGE_VERSION="\"$(DOTVERSION)\"" \
-		  -DBUILD_$(PROJECT) \
-		  $(BASE_CFLAGS) $(OPTDEFINES)
-
-#---------------------------------------------------------------------
-# Link flags
-#---------------------------------------------------------------------
-
-!if $(DEBUG)
-ldebug	= -debug -debugtype:cv
-!if $(MSVCRT)
-ldebug = $(ldebug) -nodefaultlib:msvcrt
-!endif
-!else
-ldebug	= -release -opt:ref -opt:icf,3
-!endif
-
-### Declarations common to all linker options
-lflags	= -nologo -machine:$(MACHINE) $(LINKERFLAGS) $(ldebug)
-
-!if $(PROFILE)
-lflags	= $(lflags) -profile
-!endif
-
-!if $(MSVCRT) && !($(DEBUG) && !$(UNCHECKED)) && $(VCVERSION) >= 1900
-lflags	= $(lflags) -nodefaultlib:libucrt.lib
-!endif
-
-!if $(ALIGN98_HACK) && !$(STATIC_BUILD)
-### Align sections for PE size savings.
-lflags	= $(lflags) -opt:nowin98
-!else if !$(ALIGN98_HACK) && $(STATIC_BUILD)
-### Align sections for speed in loading by choosing the virtual page size.
-lflags	= $(lflags) -align:4096
-!endif
-
-!if $(LOIMPACT)
-lflags	= $(lflags) -ws:aggressive
-!endif
-
-dlllflags = $(lflags) -dll
-conlflags = $(lflags) -subsystem:console
-guilflags = $(lflags) -subsystem:windows
-!if !$(STATIC_BUILD)
-baselibs  = $(TCLSTUBLIB)
-!if defined(TKSTUBLIB)
-baselibs  = $(baselibs) $(TKSTUBLIB)
-!endif
-!endif
-
-# Avoid 'unresolved external symbol __security_cookie' errors.
-# c.f. http://support.microsoft.com/?id=894573
-!if "$(MACHINE)" == "IA64" || "$(MACHINE)" == "AMD64"
-!if $(VCVERSION) > 1399 && $(VCVERSION) < 1500
-baselibs   = $(baselibs) bufferoverflowU.lib
-!endif
-!endif
-!if $(MSVCRT) && !($(DEBUG) && !$(UNCHECKED)) && $(VCVERSION) >= 1900
-baselibs   = $(baselibs) ucrt.lib
-!endif
-
-baselibs   = $(baselibs) user32.lib gdi32.lib
 
 #---------------------------------------------------------------------
 # TclTest flags
@@ -371,64 +232,19 @@ shell: setup $(PROJECT)
 !endif
 	$(DEBUGGER) $(TCLSH) $(SCRIPT)
 
-setup:
-	@if not exist $(OUT_DIR)\nul mkdir $(OUT_DIR)
-	@if not exist $(TMP_DIR)\nul mkdir $(TMP_DIR)
-
 # See <tcl>/win/coffbase.txt for extension base addresses.
 $(PRJLIB): $(DLLOBJS)
-!if $(STATIC_BUILD)
-	$(lib32) -nologo -out:$@ @<<
-$**
-<<
-!else
-	$(link32) $(dlllflags) -base:@$(COFFBASE),thread -out:$@ $(baselibs) @<<
-$**
-<<
+	$(MAKEBINCMD) $**
 	$(_VC_MANIFEST_EMBED_DLL)
 	-@del $*.exp
-!endif
-
-$(PRJSTUBLIB): $(PRJSTUBOBJS)
-	$(lib32) -nologo -out:$@ $(PRJSTUBOBJS)
 
 #---------------------------------------------------------------------
 # Implicit rules
 #---------------------------------------------------------------------
 
-{$(WINDIR)}.c{$(TMP_DIR)}.obj::
-    $(cc32) $(TCL_CFLAGS) -DBUILD_$(PROJECT) -Fo$(TMP_DIR)\ @<<
-$<
-<<
-
-{$(GENERICDIR)}.c{$(TMP_DIR)}.obj::
-    $(cc32) $(TCL_CFLAGS) -DBUILD_$(PROJECT) -Fo$(TMP_DIR)\ @<<
-$<
-<<
-
-{$(COMPATDIR)}.c{$(TMP_DIR)}.obj::
-    $(cc32) $(TCL_CFLAGS) -DBUILD_$(PROJECT) -Fo$(TMP_DIR)\ @<<
-$<
-<<
-
 {$(WINDIR)}.rc{$(TMP_DIR)}.res:
-	$(rc32) -fo $@ -r -i "$(GENERICDIR)" -D__WIN32__ \
-		-DCOMMAVERSION=$(DOTVERSION:.=,),0 \
-		-DDOTVERSION=\"$(DOTVERSION)\" \
-		-DVERSION=\"$(VERSION)$(SUFX)\" \
-!if $(DEBUG)
-	-d DEBUG \
-!endif
-!if $(TCL_THREADS)
-	-d TCL_THREADS \
-!endif
-!if $(STATIC_BUILD)
-	-d STATIC_BUILD \
-!endif
-	$<
+	$(MAKERESCMD)
 
-.SUFFIXES:
-.SUFFIXES:.c .rc
 
 #-------------------------------------------------------------------------
 # Explicit dependency rules

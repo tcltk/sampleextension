@@ -167,27 +167,14 @@ PROJECT = sample
 #PROJECT_REQUIRES_TK=1
 !include "rules-ext.vc"
 
-DLLOBJS = \
+PRJ_OBJS = \
 	$(TMP_DIR)\tclsample.obj \
 	$(TMP_DIR)\sample.obj \
 !if !$(STATIC_BUILD)
 	$(TMP_DIR)\sample.res
 !endif
 
-#-------------------------------------------------------------------------
-# Target names and paths ( shouldn't need changing )
-#-------------------------------------------------------------------------
-
-BINROOT		= $(MAKEDIR)
-ROOT            = $(MAKEDIR)\..
-
-PRJIMPLIB	= $(OUT_DIR)\$(PROJECT)$(VERSION)$(SUFX).lib
-PRJLIBNAME	= $(PROJECT)$(VERSION)$(SUFX).$(EXT)
-PRJLIB		= $(OUT_DIR)\$(PRJLIBNAME)
-
-PRJSTUBLIBNAME	= $(STUBPREFIX)$(VERSION).lib
-PRJSTUBLIB	= $(OUT_DIR)\$(PRJSTUBLIBNAME)
-
+# Additional compiler defines needed for this project
 PRJ_DEFINES = -DMODULE_SCOPE=extern \
 	      -DPACKAGE_NAME="\"$(PROJECT)\"" \
               -DPACKAGE_VERSION="\"$(DOTVERSION)\"" \
@@ -206,9 +193,13 @@ TESTFLAGS = $(TESTFLAGS) -file $(TESTPAT)
 # Project specific targets (EDIT)
 #---------------------------------------------------------------------
 
-all:	    setup $(PROJECT)
-$(PROJECT): setup pkgIndex $(PRJLIB)
-install:    install-binaries install-libraries install-docs
+all:	    setup pkgIndex $(PRJLIB)
+
+$(PRJLIB): $(PRJ_OBJS)
+       $(MAKEBINCMD) $**
+       $(_VC_MANIFEST_EMBED_DLL)
+       -@del $*.exp
+
 pkgIndex:   $(OUT_DIR)\pkgIndex.tcl
 
 test: setup $(PROJECT)
@@ -231,19 +222,6 @@ shell: setup $(PROJECT)
 	@set PATH=$(_TCLDIR)\win\$(BUILDDIRTOP);$(PATH)
 !endif
 	$(DEBUGGER) $(TCLSH) $(SCRIPT)
-
-# See <tcl>/win/coffbase.txt for extension base addresses.
-$(PRJLIB): $(DLLOBJS)
-	$(MAKEBINCMD) $**
-	$(_VC_MANIFEST_EMBED_DLL)
-	-@del $*.exp
-
-#---------------------------------------------------------------------
-# Implicit rules
-#---------------------------------------------------------------------
-
-{$(WINDIR)}.rc{$(TMP_DIR)}.res:
-	$(MAKERESCMD)
 
 
 #-------------------------------------------------------------------------
@@ -268,36 +246,10 @@ $(OUT_DIR)\pkgIndex.tcl: $(ROOT)\pkgIndex.tcl.in
 #
 #---------------------------------------------------------------------
 
-install-binaries:
-	@echo Installing binaries to '$(SCRIPT_INSTALL_DIR)'
-	@if not exist "$(SCRIPT_INSTALL_DIR)" mkdir "$(SCRIPT_INSTALL_DIR)"
-	@$(CPY) $(PRJLIB) "$(SCRIPT_INSTALL_DIR)" >NUL
-
-install-libraries: $(OUT_DIR)\pkgIndex.tcl
-	@echo Installing libraries to '$(SCRIPT_INSTALL_DIR)'
-	@if exist $(LIBDIR) $(CPY) $(LIBDIR)\*.tcl "$(SCRIPT_INSTALL_DIR)"
-	@echo Installing package index in '$(SCRIPT_INSTALL_DIR)'
-	@$(CPY) $(OUT_DIR)\pkgIndex.tcl $(SCRIPT_INSTALL_DIR)
+install: install-docs
 
 install-docs:
 	@echo Installing documentation files to '$(DOC_INSTALL_DIR)'
 	@if exist $(DOCDIR) $(CPY) $(DOCDIR)\*.n "$(DOC_INSTALL_DIR)"
 
-#---------------------------------------------------------------------
-# Clean up
-#---------------------------------------------------------------------
 
-clean:
-	@if exist $(TMP_DIR)\nul $(RMDIR) $(TMP_DIR)
-	@if exist $(WINDIR)\version.vc del $(WINDIR)\version.vc
-	@if exist $(WINDIR)\versions.vc del $(WINDIR)\versions.vc
-	@if exist $(WINDIR)\vercl.i del $(WINDIR)\vercl.i
-	@if exist $(WINDIR)\vercl.x del $(WINDIR)\vercl.x
-	@if exist $(WINDIR)\_junk.pch del $(WINDIR)\_junk.pch
-
-realclean: clean
-	@if exist $(OUT_DIR)\nul $(RMDIR) $(OUT_DIR)
-
-distclean: realclean
-	@if exist $(WINDIR)\nmakehlp.exe del $(WINDIR)\nmakehlp.exe
-	@if exist $(WINDIR)\nmakehlp.obj del $(WINDIR)\nmakehlp.obj

@@ -28,6 +28,7 @@ typedef unsigned int sha_uint32_t;
 #   endif
 #endif
 
+
 /*
  * For C++ compilers, use extern "C"
  */

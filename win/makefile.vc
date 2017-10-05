@@ -139,34 +139,17 @@ the build instructions.
 #==============================================================================
 #------------------------------------------------------------------------------
 
-!if !exist("makefile.vc")
-MSG = ^
-You must run this makefile only from the directory it is in.^
-Please `cd` to its location first.
-!error $(MSG)
-!endif
-
-#-------------------------------------------------------------------------
-# Project specific information (EDIT)
-#
-# You should edit this with the name and version of your project. This
-# information is used to generate the name of the package library and
-# it's install location.
-#
-# For example, the sample extension is  going to build sample05.dll and
-# would install it into $(INSTALLDIR)\lib\sample05
-#
-# You need to specify the object files that need to be linked into your
-# binary here.
-#
-#-------------------------------------------------------------------------
-
+# The name of the package
 PROJECT = sample
 
 # Uncomment the following line if this is a Tk extension.
 #PROJECT_REQUIRES_TK=1
 !include "rules-ext.vc"
 
+# Define the object files and resource file that make up the extension.
+# Note the resource file does not makes sense if doing a static library build
+# hence it is under that condition. TMP_DIR is the output directory
+# defined by rules for object files.
 PRJ_OBJS = \
 	$(TMP_DIR)\tclsample.obj \
 	$(TMP_DIR)\sample.obj \
@@ -174,78 +157,25 @@ PRJ_OBJS = \
 	$(TMP_DIR)\sample.res
 !endif
 
-# Additional compiler defines needed for this project
-PRJ_DEFINES = -DMODULE_SCOPE=extern \
-	      -DPACKAGE_NAME="\"$(PROJECT)\"" \
-              -DPACKAGE_VERSION="\"$(DOTVERSION)\"" \
-              -D_CRT_SECURE_NO_WARNINGS
+# Define any additional compiler flags that might be required for the project
+PRJ_DEFINES = -D_CRT_SECURE_NO_DEPRECATE
 
+# Default target is all which in turn uses the setup and pkgindex generation
+# targets from rules.
+all:	    setup pkgindex $(PRJLIB)
 
-#---------------------------------------------------------------------
-# TclTest flags
-#---------------------------------------------------------------------
-
-!if "$(TESTPAT)" != ""
-TESTFLAGS = $(TESTFLAGS) -file $(TESTPAT)
-!endif
-
-#---------------------------------------------------------------------
-# Project specific targets (EDIT)
-#---------------------------------------------------------------------
-
-all:	    setup pkgIndex $(PRJLIB)
-
+# MAKEBINCMD will do shared, static and debug links as appropriate
+# _VC_MANIFEST_EMBED_DLL embeds the manifest for shared libraries
+# and is a no-op for static libraries
 $(PRJLIB): $(PRJ_OBJS)
        $(MAKEBINCMD) $**
        $(_VC_MANIFEST_EMBED_DLL)
        -@del $*.exp
 
-pkgIndex:   $(OUT_DIR)\pkgIndex.tcl
-
-test: setup $(PROJECT)
-	@set TCL_LIBRARY=$(TCL_LIBRARY:\=/)
-	@set TCLLIBPATH=$(OUT_DIR_PATH:\=/)
-!if $(TCLINSTALL)
-	@set PATH=$(_TCLDIR)\bin;$(PATH)
-!else
-	@set PATH=$(_TCLDIR)\win\$(BUILDDIRTOP);$(PATH)
-!endif
-	$(DEBUGGER) $(TCLSH) "$(ROOT)/tests/all.tcl" $(TESTFLAGS)
-
-shell: setup $(PROJECT)
-	@set VLERQ_LIBRARY=$(LIBDIR:\=/)
-	@set TCL_LIBRARY=$(TCL_LIBRARY:\=/)
-	@set TCLLIBPATH=$(OUT_DIR_PATH:\=/)
-!if $(TCLINSTALL)
-	@set PATH=$(_TCLDIR)\bin;$(PATH)
-!else
-	@set PATH=$(_TCLDIR)\win\$(BUILDDIRTOP);$(PATH)
-!endif
-	$(DEBUGGER) $(TCLSH) $(SCRIPT)
-
-
-#-------------------------------------------------------------------------
-# Explicit dependency rules
-#
-#-------------------------------------------------------------------------
-
-$(OUT_DIR)\pkgIndex.tcl: $(ROOT)\pkgIndex.tcl.in
-	@nmakehlp -s << $** > $@
-@PACKAGE_VERSION@    $(DOTVERSION)
-@PACKAGE_NAME@       $(PROJECT)
-@PKG_LIB_FILE@       $(PRJLIBNAME)
-<<
-	@echo package ifneeded sample $(DOTVERSION) \
-	    [list load [file join $$dir $(PRJLIBNAME)] Sample] >> $@
-
-#---------------------------------------------------------------------
-# Installation. (EDIT)
-#
-# You may need to modify this section to reflect the final distribution
-# of your files and possibly to generate documentation.
-#
-#---------------------------------------------------------------------
-
+# The default install target only installs binaries and scripts so add
+# an additional target for our documentation. Note this *adds* a target
+# since no commands are listed after it. The original targets for
+# install (from rules.vc) will remain.
 install: install-docs
 
 install-docs:

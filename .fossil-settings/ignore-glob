@@ -18,3 +18,5 @@ pkgIndex.tcl
 win/Release*
 win/Debug*
 win/nmhlp-out.txt
+tclconfig/*
+*~

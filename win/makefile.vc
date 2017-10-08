@@ -163,6 +163,9 @@ PRJ_DEFINES = -D_CRT_SECURE_NO_DEPRECATE
 # Define the standard targets
 !include "$(_RULESDIR)\targets.vc"
 
+# We will use the standard resource template instead of writing our own
+$(TMP_DIR)\$(PROJECT).res: default-rc
+
 # We must define a pkgindex target that will create a pkgIndex.tcl
 # file in the $(OUT_DIR) directory. We can just redirect to the
 # default-pkgindex target for our sample extension.

@@ -152,19 +152,13 @@ PROJECT = sample
 # defined by rules for object files.
 PRJ_OBJS = \
 	$(TMP_DIR)\tclsample.obj \
-	$(TMP_DIR)\sample.obj \
-!if !$(STATIC_BUILD)
-	$(TMP_DIR)\sample.res
-!endif
+	$(TMP_DIR)\sample.obj
 
 # Define any additional compiler flags that might be required for the project
 PRJ_DEFINES = -D_CRT_SECURE_NO_DEPRECATE
 
 # Define the standard targets
 !include "$(_RULESDIR)\targets.vc"
-
-# We will use the standard resource template instead of writing our own
-$(TMP_DIR)\$(PROJECT).res: default-rc
 
 # We must define a pkgindex target that will create a pkgIndex.tcl
 # file in the $(OUT_DIR) directory. We can just redirect to the

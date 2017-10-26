@@ -1,149 +1,25 @@
-#-------------------------------------------------------------
-# makefile.vc --
+#------------------------------------------------------------- -*- makefile -*-
 #
-#	Microsoft Visual C++ makefile for use with nmake.exe v1.62+ (VC++ 5.0+)
+# Sample makefile for building Tcl extensions.
 #
-# This makefile is based upon the Tcl 8.6 Makefile.vc and modified to
-# make it suitable as a general package makefile. Look for the word EDIT
-# which marks sections that may need modification. As a minumum you will
-# need to change the PROJECT, DOTVERSION and DLLOBJS variables to values
-# relevant to your package.
+# Basic build, test and install
+#   nmake /s /nologo /f makefile.vc INSTALLDIR=c:\path\to\tcl
+#   nmake /s /nologo /f makefile.vc INSTALLDIR=c:\path\to\tcl test
+#   nmake /s /nologo /f makefile.vc INSTALLDIR=c:\path\to\tcl install
 #
+# For other build options (debug, static etc.)
+# See TIP 477 (https://core.tcl.tk/tips/doc/trunk/tip/477.md) for
+# detailed documentation.
+# 
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# Copyright (c) 1995-1996 Sun Microsystems, Inc.
-# Copyright (c) 1998-2000 Ajuba Solutions.
-# Copyright (c) 2001-2005 ActiveState Corporation.
-# Copyright (c) 2001-2004 David Gravereaux.
-# Copyright (c) 2003-2008 Pat Thoyts.
-#------------------------------------------------------------------------------
-
-# Check to see we are configured to build with MSVC (MSDEVDIR, MSVCDIR or
-# VCINSTALLDIR) or with the MS Platform SDK (MSSDK or WindowsSDKDir)
-!if !defined(MSDEVDIR) && !defined(MSVCDIR) && !defined(VCINSTALLDIR) && !defined(MSSDK) && !defined(WINDOWSSDKDIR)
-MSG = ^
-You need to run vcvars32.bat from Developer Studio or setenv.bat from the^
-Platform SDK first to setup the environment.  Jump to this line to read^
-the build instructions.
-!error $(MSG)
-!endif
-
-#------------------------------------------------------------------------------
-# HOW TO USE this makefile:
-#
-# 1)  It is now necessary to have MSVCDir, MSDevDir or MSSDK set in the
-#     environment.  This is used as a check to see if vcvars32.bat had been
-#     run prior to running nmake or during the installation of Microsoft
-#     Visual C++, MSVCDir had been set globally and the PATH adjusted.
-#     Either way is valid.
-#
-#     You'll need to run vcvars32.bat contained in the MsDev's vc(98)/bin
-#     directory to setup the proper environment, if needed, for your
-#     current setup.  This is a needed bootstrap requirement and allows the
-#     swapping of different environments to be easier.
-#
-# 2)  To use the Platform SDK (not expressly needed), run setenv.bat after
-#     vcvars32.bat according to the instructions for it.  This can also
-#     turn on the 64-bit compiler, if your SDK has it.
-#
-# 3)  Targets are:
-#	all       -- Builds everything.
-#	<project> -- Builds the project (eg: nmake sample)
-#	test      -- Builds and runs the test suite.
-#	install   -- Installs the built binaries and libraries to $(INSTALLDIR)
-#		     in an appropriate subdirectory.
-#	clean/realclean/distclean -- varying levels of cleaning.
-#
-# 4)  Macros usable on the commandline:
-#	INSTALLDIR=<path>
-#		Sets where to install Tcl from the built binaries.
-#		C:\Progra~1\Tcl is assumed when not specified.
-#
-#	OPTS=loimpact,msvcrt,nothreads,pdbs,profile,static,symbols,unchecked,none
-#		Sets special options for the core.  The default is for none.
-#		Any combination of the above may be used (comma separated).
-#		'none' will over-ride everything to nothing.
-#
-#		loimpact = Adds a flag for how NT treats the heap to keep memory
-#			   in use, low.  This is said to impact alloc performance.
-#		msvcrt   = Affects the static option only to switch it from
-#			   using libcmt(d) as the C runtime [by default] to
-#			   msvcrt(d). This is useful for static embedding
-#			   support.
-#		nothreads = Turns off multithreading support (not recommended)
-#		static  =  Builds a static library of the core instead of a
-#			   dll.  The shell will be static (and large), as well.
-#		pdbs     = Build detached symbols for release builds.
-#		profile  = Adds profiling hooks.  Map file is assumed.
-#		symbols  = Debug build. Links to the debug C runtime, disables
-#			   optimizations and creates pdb symbols files.
-#		unchecked= Allows a symbols build to not use the debug
-#			   enabled runtime (msvcrt.dll not msvcrtd.dll
-#			   or libcmt.lib not libcmtd.lib).
-#
-#	STATS=compdbg,memdbg,none
-#		Sets optional memory and bytecode compiler debugging code added
-#		to the core.  The default is for none.  Any combination of the
-#		above may be used (comma separated).  'none' will over-ride
-#		everything to nothing.
-#
-#		compdbg  = Enables byte compilation logging.
-#		memdbg   = Enables the debugging memory allocator.
-#
-#	CHECKS=64bit,fullwarn,nodep,none
-#		Sets special macros for checking compatability.
-#
-#		64bit    = Enable 64bit portability warnings (if available)
-#		fullwarn = Builds with full compiler and link warnings enabled.
-#			    Very verbose.
-#		nodep	 = Turns off compatability macros to ensure the extension
-#			    isn't being built with deprecated functions.
-#
-#	MACHINE=(ALPHA|AMD64|IA64|IX86)
-#		Set the machine type used for the compiler, linker, and
-#		resource compiler.  This hook is needed to tell the tools
-#		when alternate platforms are requested.  IX86 is the default
-#		when not specified. If the CPU environment variable has been
-#		set (ie: recent Platform SDK) then MACHINE is set from CPU.
-#
-#	TMP_DIR=<path>
-#	OUT_DIR=<path>
-#		Hooks to allow the intermediate and output directories to be
-#		changed.  $(OUT_DIR) is assumed to be
-#		$(BINROOT)\(Release|Debug) based on if symbols are requested.
-#		$(TMP_DIR) will de $(OUT_DIR)\<buildtype> by default.
-#
-#	TESTPAT=<file>
-#		Reads the tests requested to be run from this file.
-#
-# 5)  Examples:
-#
-#	Basic syntax of calling nmake looks like this:
-#	nmake [-nologo] -f makefile.vc [target|macrodef [target|macrodef] [...]]
-#
-#                        Standard (no frills)
-#       c:\tcl_src\win\>c:\progra~1\micros~1\vc98\bin\vcvars32.bat
-#       Setting environment for using Microsoft Visual C++ tools.
-#       c:\tcl_src\win\>nmake -f makefile.vc all
-#       c:\tcl_src\win\>nmake -f makefile.vc install INSTALLDIR=c:\progra~1\tcl
-#
-#                         Building for Win64
-#       c:\tcl_src\win\>c:\progra~1\micros~1\vc98\bin\vcvars32.bat
-#       Setting environment for using Microsoft Visual C++ tools.
-#       c:\tcl_src\win\>c:\progra~1\platfo~1\setenv.bat /pre64 /RETAIL
-#       Targeting Windows pre64 RETAIL
-#       c:\tcl_src\win\>nmake -f makefile.vc MACHINE=IA64
-#
-#------------------------------------------------------------------------------
-#==============================================================================
 #------------------------------------------------------------------------------
 
 # The name of the package
 PROJECT = sample
 
 # Uncomment the following line if this is a Tk extension.
-#PROJECT_REQUIRES_TK=1
 !include "rules-ext.vc"
 
 # Define the object files and resource file that make up the extension.
@@ -169,10 +45,4 @@ pkgindex: default-pkgindex
 # an additional target for our documentation. Note this *adds* a target
 # since no commands are listed after it. The original targets for
 # install (from targets.vc) will remain.
-install: install-docs
-
-install-docs:
-	@echo Installing documentation files to '$(DOC_INSTALL_DIR)'
-	@if exist $(DOCDIR) $(CPY) $(DOCDIR)\*.n "$(DOC_INSTALL_DIR)"
-
-
+install: default-install-docs-n

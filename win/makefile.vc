@@ -19,7 +19,6 @@
 # The name of the package
 PROJECT = sample
 
-# Uncomment the following line if this is a Tk extension.
 !include "rules-ext.vc"
 
 # Define the object files and resource file that make up the extension.

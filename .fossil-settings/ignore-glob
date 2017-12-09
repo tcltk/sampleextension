@@ -15,3 +15,8 @@ config.log
 config.status
 pkgIndex.tcl
 */versions.vc
+win/Release*
+win/Debug*
+win/nmhlp-out.txt
+tclconfig/*
+*~

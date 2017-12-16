@@ -86,7 +86,7 @@ pkgincludedir	= $(includedir)/$(PKG_DIR)
 top_builddir	= .
 
 INSTALL_OPTIONS	=
-INSTALL		= @INSTALL@ ${INSTALL_OPTIONS}
+INSTALL		= @INSTALL@ $(INSTALL_OPTIONS)
 INSTALL_DATA_DIR = @INSTALL_DATA_DIR@
 INSTALL_DATA	= @INSTALL_DATA@
 INSTALL_PROGRAM	= @INSTALL_PROGRAM@
@@ -238,7 +238,7 @@ install-doc: doc
 
 test: binaries libraries
 	$(TCLSH) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS) \
-		-load "package ifneeded ${PACKAGE_NAME} ${PACKAGE_VERSION} \
+		-load "package ifneeded $(PACKAGE_NAME) $(PACKAGE_VERSION) \
 			[list load `@CYGPATH@ $(PKG_LIB_FILE)` $(PACKAGE_NAME)]"
 
 shell: binaries libraries

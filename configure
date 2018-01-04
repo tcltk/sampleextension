@@ -653,12 +653,6 @@ EGREP
 GREP
 RANLIB
 SET_MAKE
-INSTALL_LIBRARY
-INSTALL_SCRIPT
-INSTALL_PROGRAM
-INSTALL_DATA
-INSTALL_DATA_DIR
-INSTALL
 CPP
 TCL_SHLIB_LD_LIBS
 TCL_LD_FLAGS
@@ -692,6 +686,12 @@ PKG_STUB_SOURCES
 PKG_STUB_LIB_FILE
 PKG_LIB_FILE
 EXEEXT
+INSTALL_LIBRARY
+INSTALL_SCRIPT
+INSTALL_PROGRAM
+INSTALL_DATA
+INSTALL_DATA_DIR
+INSTALL
 CYGPATH
 target_alias
 host_alias
@@ -2179,9 +2179,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 #--------------------------------------------------------------------
 
 
-    # TEA extensions pass this us the version of TEA they think they
-    # are compatible with.
-    TEA_VERSION="3.12"
+    TEA_VERSION="3.13"
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking TEA configuration" >&5
 $as_echo_n "checking TEA configuration... " >&6; }
@@ -2270,8 +2268,22 @@ fi
 	exec_prefix=$prefix
     fi
 
+    INSTALL='$(SHELL) $(srcdir)/tclconfig/install-sh -c'
+    INSTALL_DATA_DIR='${INSTALL} -d -m 755'
+    INSTALL_DATA='${INSTALL} -m 644'
+    INSTALL_PROGRAM='${INSTALL} -m 755'
+    INSTALL_SCRIPT='${INSTALL} -m 755'
+    INSTALL_LIBRARY='${INSTALL} -m 644'
+
     { $as_echo "$as_me:${as_lineno-$LINENO}: configuring ${PACKAGE_NAME} ${PACKAGE_VERSION}" >&5
 $as_echo "$as_me: configuring ${PACKAGE_NAME} ${PACKAGE_VERSION}" >&6;}
+
+
+
+
+
+
+
 
 
 
@@ -4151,20 +4163,6 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
-
-    INSTALL='$(SHELL) $(srcdir)/tclconfig/install-sh -c'
-    INSTALL_DATA_DIR='${INSTALL} -d -m 755'
-    INSTALL_DATA='${INSTALL} -m 644'
-    INSTALL_PROGRAM='${INSTALL} -m 755'
-    INSTALL_SCRIPT='${INSTALL} -m 755'
-    INSTALL_LIBRARY='${INSTALL} -m 644'
-
-
-
-
-
-
 
 
     #--------------------------------------------------------------------

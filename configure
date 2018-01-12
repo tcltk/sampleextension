@@ -676,6 +676,12 @@ TCL_SRC_DIR
 TCL_BIN_DIR
 TCL_PATCH_LEVEL
 TCL_VERSION
+INSTALL_LIBRARY
+INSTALL_SCRIPT
+INSTALL_PROGRAM
+INSTALL_DATA
+INSTALL_DATA_DIR
+INSTALL
 PKG_CFLAGS
 PKG_LIBS
 PKG_INCLUDES
@@ -686,12 +692,6 @@ PKG_STUB_SOURCES
 PKG_STUB_LIB_FILE
 PKG_LIB_FILE
 EXEEXT
-INSTALL_LIBRARY
-INSTALL_SCRIPT
-INSTALL_PROGRAM
-INSTALL_DATA
-INSTALL_DATA_DIR
-INSTALL
 CYGPATH
 target_alias
 host_alias
@@ -2268,22 +2268,8 @@ fi
 	exec_prefix=$prefix
     fi
 
-    INSTALL='$(SHELL) $(srcdir)/tclconfig/install-sh -c'
-    INSTALL_DATA_DIR='${INSTALL} -d -m 755'
-    INSTALL_DATA='${INSTALL} -m 644'
-    INSTALL_PROGRAM='${INSTALL} -m 755'
-    INSTALL_SCRIPT='${INSTALL} -m 755'
-    INSTALL_LIBRARY='${INSTALL} -m 644'
-
     { $as_echo "$as_me:${as_lineno-$LINENO}: configuring ${PACKAGE_NAME} ${PACKAGE_VERSION}" >&5
 $as_echo "$as_me: configuring ${PACKAGE_NAME} ${PACKAGE_VERSION}" >&6;}
-
-
-
-
-
-
-
 
 
 
@@ -2295,6 +2281,55 @@ $as_echo "$as_me: configuring ${PACKAGE_NAME} ${PACKAGE_VERSION}" >&6;}
 
     # We AC_SUBST these here to ensure they are subst'ed,
     # in case the user doesn't call TEA_ADD_...
+
+
+
+
+
+
+
+
+    # Configure the installer.
+
+    INSTALL='$(SHELL) $(srcdir)/tclconfig/install-sh -c'
+    INSTALL_DATA_DIR='${INSTALL} -d -m 755'
+    INSTALL_DATA='${INSTALL} -m 644'
+    INSTALL_PROGRAM='${INSTALL} -m 755'
+    INSTALL_SCRIPT='${INSTALL} -m 755'
+
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking system version" >&5
+$as_echo_n "checking system version... " >&6; }
+if ${tcl_cv_sys_version+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+	# TEA specific:
+	if test "${TEA_PLATFORM}" = "windows" ; then
+	    tcl_cv_sys_version=windows
+	else
+	    tcl_cv_sys_version=`uname -s`-`uname -r`
+	    if test "$?" -ne 0 ; then
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: can't find uname command" >&5
+$as_echo "$as_me: WARNING: can't find uname command" >&2;}
+		tcl_cv_sys_version=unknown
+	    else
+		if test "`uname -s`" = "AIX" ; then
+		    tcl_cv_sys_version=AIX-`uname -v`.`uname -r`
+		fi
+	    fi
+	fi
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $tcl_cv_sys_version" >&5
+$as_echo "$tcl_cv_sys_version" >&6; }
+    system=$tcl_cv_sys_version
+
+    case $system in
+	HP-UX-*) INSTALL_LIBRARY='${INSTALL} -m 755' ;;
+	      *) INSTALL_LIBRARY='${INSTALL} -m 644' ;;
+    esac
+
 
 
 

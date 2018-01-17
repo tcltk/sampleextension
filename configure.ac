@@ -27,7 +27,7 @@ AC_INIT([sample], [0.6])
 # as well as PKG_LIB_FILE and PKG_STUB_LIB_FILE.
 #--------------------------------------------------------------------
 
-TEA_INIT([3.10])
+TEA_INIT(4.0])
 AC_PROG_LN_S
 CONFIG_CLEAN_FILES=
 if test ! -d $srcdir/tclconfig ; then

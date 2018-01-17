@@ -1,63 +1,34 @@
 set CWD [pwd]
 set ::project(builddir) $::CWD
-set ::project(srcdir) [file dirname [file normalize [info script]]]
-set ::project(sandbox)  [file dirname $::project(srcdir)]
+set ::SRCDIR   [file dirname [file normalize [info script]]]
+set ::SANDBOX  [file dirname $::SRCDIR]
 
-if {[file exists [file join $CWD $::project(sandbox) tclconfig practcl.tcl]]} {
-  source [file join $CWD $::project(sandbox) tclconfig practcl.tcl]
+if {[file exists [file join $::SANDBOX tclconfig practcl.tcl]]} {
+  source [file join $::SANDBOX tclconfig practcl.tcl]
 } else {
-  source [file join $SRCPATH tclconfig practcl.tcl]
+  source [file join $SRCDIR tclconfig practcl.tcl]
 }
 
 array set ::project [::practcl::config.tcl $CWD]
 ::practcl::library create LIBRARY [array get ::project]
-LIBRARY add [file join $::project(srcdir) generic sample.c]
-LIBRARY add [file join $::project(srcdir) generic sample.tcl]
-LIBRARY define add public-verbatim [file join $::project(srcdir) generic sample.h]
+LIBRARY define set builddir $CWD
+LIBRARY define set srcdir $SRCDIR
+LIBRARY add [file join $::SRCDIR generic sample.c]
+LIBRARY add [file join $::SRCDIR generic sample.tcl]
+LIBRARY define add public-verbatim [file join $::SRCDIR generic sample.h]
+
+if {![LIBRARY define exists TCL_SRC_DIR]} {
+  # Did not detect the Tcl source directory. Run autoconf
+  ::practcl::doexec sh [file join $::SRCDIR configure]
+  array set ::project [::practcl::config.tcl $CWD]
+  LIBRARY define set [array get ::project]
+}
 ###
 # Create build targets
 ###
-::practcl::target implement {}
-::practcl::target autoconf {
-  triggers implement
-}
-::practcl::target all {
-  depends library
-}
-::practcl::target binaries {
-  depends library
-}
-::practcl::target libraries {
-  depends library
-}
-::practcl::target library {
-  triggers implement
-  filename [LIBRARY define get libfile]
-}
-::practcl::target doc {}
-
-::practcl::target install {
-  depends {library doc}
-  triggers {install-package}
-}
-::practcl::target install-package {
-  depends {library doc}
-}
-switch [lindex $argv 0] {
-  install {
-    ::practcl::trigger install
-    set DESTDIR [file normalize [string trimright [lindex $argv 1]]]
-  }
-  install-package {
-    ::practcl::trigger install
-    set DESTDIR [file normalize [string trimright [lindex $argv 1]]]
-  }
-  default {
-    ::practcl::trigger {*}$argv
-  }
-}
-
-if {$make(implement)} {
+LIBRARY target add implement {
+  filename sample.c
+} {
   LIBRARY go
   LIBRARY implement $::project(builddir)
   set fout [open pkgIndex.tcl w]
@@ -71,7 +42,7 @@ if {$make(implement)} {
   if {![file exists make.tcl]} {
     set fout [open make.tcl w]
     puts $fout "# Redirect to the make file that lives in the project's source dir"
-    puts $fout [list source [file join $::project(srcdir) make.tcl]]
+    puts $fout [list source [file join $::SRCDIR make.tcl]]
     close $fout
     if {$::tcl_platform(platform)!="windows"} {
       file attributes -permission a+x make.tcl
@@ -79,59 +50,58 @@ if {$make(implement)} {
   }
 }
 
-if {$make(autoconf)} {
-  #set mkout [open sample.mk w]
-  #puts $mkout [::practcl::build::Makefile $::project(builddir) LIBRARY]
-  #close $mkout
-  LIBRARY generate-decls [LIBRARY define get name] $::project(builddir)
+LIBRARY target add all {
+  aliases {binaries libraries}
+  depends library
 }
 
-if {$make(library)} {
-  puts "BUILDING [LIBRARY define get libfile]"
-  ::practcl::build::library [LIBRARY define get libfile] LIBRARY
+LIBRARY target add library {
+  aliases {all libraries}
+  triggers implement
+  filename [LIBRARY define get libfile]
+} {
+  puts "BUILDING [my define get libfile]"
+  my build-library [my define get libfile] [self]
 }
 
-# Generate documentation
-if {$make(doc)} {
-
-}
-
-if {![info exists DESTDIR] && [info exists ::env(DESTDIR)]} {
-  set DESTDIR $::env(DESTDIR)
-} else {
-  set DESTDIR {}
-}
-
-###
-# Build local variables needed for install
-###
-set dat [LIBRARY define dump]
-set PKG_DIR [dict get $dat name][dict get $dat version]
-dict with dat {}
-if {$DESTDIR ne {}} {
-  foreach path {
-    includedir
-    mandir
-    datadir
-    libdir
-  } {
-    set $path [file join [string trimright $DESTDIR /] [string trimleft [set $path] /]]
+LIBRARY target add install-info {
+} {
+  ###
+  # Build local variables needed for install
+  ###
+  
+  set dat [my define dump]
+  set PKG_DIR [dict get $dat name][dict get $dat version]
+  
+  dict with dat {}
+  if {$DESTDIR ne {}} {
+    foreach path {
+      includedir
+      mandir
+      datadir
+      libdir
+    } {
+      set $path [file join [string trimright $DESTDIR /] [string trimleft [set $path] /]]
+    }
   }
+  
+  set pkgdatadir [file join $datadir $PKG_DIR]
+  set pkglibdir [file join $libdir $PKG_DIR]
+  set pkgincludedir [file join $includedir $PKG_DIR]
 }
-set pkgdatadir [file join $datadir $PKG_DIR]
-set pkglibdir [file join $libdir $PKG_DIR]
-set pkgincludedir [file join $includedir $PKG_DIR]
 
-if {$make(install)} {
+LIBRARY target add install {
+  depends {library doc}
+  triggers {install-info install-package}
+} {
   #========================================================================
   # This rule installs platform-independent files, such as header files.
   #========================================================================
   puts "Installing header files in ${includedir}"
   set result {}
-  foreach hfile [LIBRARY install-headers] {
+  foreach hfile [my install-headers] {
     ::practcl::installDir [file join $srcdir $hfile] ${includedir}
   }
-  
   #========================================================================
   # Install documentation.  Unix manpages should go in the $(mandir)
   # directory.
@@ -142,7 +112,10 @@ if {$make(install)} {
   }
 }
 
-if {$make(install-package)} {
+LIBRARY target add install-package {
+  depends {library doc}
+  triggers {install-info}
+} {
   #========================================================================
   # Install binary object libraries.  On Windows this includes both .dll and
   # .lib files.  Because the .lib files are not explicitly listed anywhere,
@@ -154,12 +127,31 @@ if {$make(install-package)} {
   # You should not have to modify this target.
   #========================================================================
   puts "Installing Library to ${pkglibdir}"
-  ::practcl::installDir [LIBRARY define get libfile] $pkglibdir
+  ::practcl::installDir [my define get libfile] $pkglibdir
   foreach file [glob -nocomplain *.lib] {
     ::practcl::installDir $file $pkglibdir
   }
   ::practcl::installDir pkgIndex.tcl $pkglibdir
-  if {[LIBRARY define get output_tcl] ne {}} {
-    ::practcl::installDir [LIBRARY define get output_tcl] $pkglibdir
+  if {[my define get output_tcl] ne {}} {
+    ::practcl::installDir [my define get output_tcl] $pkglibdir
   }
 }
+
+
+if {[info exists ::env(DESTDIR)]} {
+  LIBRARY define set DESTDIR $::env(DESTDIR)
+}
+switch [lindex $argv 0] {
+  install {
+    LIBRARY target trigger install
+    LIBRARY define set DESTDIR [file normalize [string trimright [lindex $argv 1]]]
+  }
+  install-package {
+    LIBRARY target trigger install
+    LIBRARY define set DESTDIR [file normalize [string trimright [lindex $argv 1]]]
+  }
+  default {
+    LIBRARY target trigger {*}$argv
+  }
+}
+LIBRARY target do

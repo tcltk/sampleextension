@@ -174,6 +174,7 @@ TEA_MAKE_LIB
 
 TEA_PROG_TCLSH
 #TEA_PROG_WISH
+TEA_CONFIG_TEAPOT
 
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.

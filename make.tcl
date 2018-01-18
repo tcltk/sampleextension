@@ -13,6 +13,8 @@ array set ::project [::practcl::config.tcl $CWD]
 ::practcl::library create LIBRARY [array get ::project]
 LIBRARY define set builddir $CWD
 LIBRARY define set srcdir $SRCDIR
+LIBRARY define set author {{Tcl Core}}
+LIBRARY define set license BSD
 LIBRARY add [file join $::SRCDIR generic sample.c]
 LIBRARY add [file join $::SRCDIR generic sample.tcl]
 LIBRARY define add public-verbatim [file join $::SRCDIR generic sample.h]
@@ -64,94 +66,144 @@ LIBRARY target add library {
   my build-library [my define get libfile] [self]
 }
 
-LIBRARY target add install-info {
-} {
-  ###
-  # Build local variables needed for install
-  ###
-  
-  set dat [my define dump]
-  set PKG_DIR [dict get $dat name][dict get $dat version]
-  
-  dict with dat {}
-  if {$DESTDIR ne {}} {
-    foreach path {
-      includedir
-      mandir
-      datadir
-      libdir
-    } {
-      set $path [file join [string trimright $DESTDIR /] [string trimleft [set $path] /]]
-    }
-  }
-  
-  set pkgdatadir [file join $datadir $PKG_DIR]
-  set pkglibdir [file join $libdir $PKG_DIR]
-  set pkgincludedir [file join $includedir $PKG_DIR]
-}
-
-LIBRARY target add install {
-  depends {library doc}
-  triggers {install-info install-package}
-} {
-  #========================================================================
-  # This rule installs platform-independent files, such as header files.
-  #========================================================================
-  puts "Installing header files in ${includedir}"
-  set result {}
-  foreach hfile [my install-headers] {
-    ::practcl::installDir [file join $srcdir $hfile] ${includedir}
-  }
-  #========================================================================
-  # Install documentation.  Unix manpages should go in the $(mandir)
-  # directory.
-  #========================================================================
-  puts "Installing documentation in ${mandir}"
-  foreach file [glob -nocomplain [file join $srcdir doc *.n]] {
-    ::practcl::installDir $file [file join ${mandir} mann]
-  }
-}
-
-LIBRARY target add install-package {
-  depends {library doc}
-  triggers {install-info}
-} {
-  #========================================================================
-  # Install binary object libraries.  On Windows this includes both .dll and
-  # .lib files.  Because the .lib files are not explicitly listed anywhere,
-  # we need to deduce their existence from the .dll file of the same name.
-  # Library files go into the lib directory.
-  # In addition, this will generate the pkgIndex.tcl
-  # file in the install location (assuming it can find a usable tclsh shell)
-  #
-  # You should not have to modify this target.
-  #========================================================================
-  puts "Installing Library to ${pkglibdir}"
-  ::practcl::installDir [my define get libfile] $pkglibdir
-  foreach file [glob -nocomplain *.lib] {
-    ::practcl::installDir $file $pkglibdir
-  }
-  ::practcl::installDir pkgIndex.tcl $pkglibdir
-  if {[my define get output_tcl] ne {}} {
-    ::practcl::installDir [my define get output_tcl] $pkglibdir
-  }
-}
-
-
-if {[info exists ::env(DESTDIR)]} {
-  LIBRARY define set DESTDIR $::env(DESTDIR)
-}
 switch [lindex $argv 0] {
   install {
-    LIBRARY target trigger install
-    LIBRARY define set DESTDIR [file normalize [string trimright [lindex $argv 1]]]
+    if {[info exists ::env(DESTDIR)]} {
+      set DESTDIR $::env(DESTDIR)
+    }
+    LIBRARY target depends library doc
+    LIBRARY target do
+    if {[llength $argv]>1} {
+      set DESTDIR [file normalize [string trimright [lindex $argv 1]]]
+    }
+    set dat [LIBRARY target pkginfo]
+    dict with dat {}
+    if {$DESTDIR ne {}} {
+      foreach path {
+        includedir
+        mandir
+        datadir
+        libdir
+      } {
+        set $path [file join [string trimright $DESTDIR /] [string trimleft [set $path] /]]
+      }
+    }
+    set pkgdatadir [file join $datadir $PKG_DIR]
+    set pkglibdir [file join $libdir $PKG_DIR]
+    set pkgincludedir [file join $includedir $PKG_DIR]
+    #========================================================================
+    # This rule installs platform-independent files, such as header files.
+    #========================================================================
+    puts "Installing header files in ${includedir}"
+    foreach hfile [LIBRARY install-headers] {
+      ::practcl::copyDir [file join $srcdir $hfile] ${includedir}
+    }
+    #========================================================================
+    # Install documentation.  Unix manpages should go in the $(mandir)
+    # directory.
+    #========================================================================
+    puts "Installing documentation in ${mandir}"
+    foreach file [glob -nocomplain [file join $srcdir doc *.n]] {
+      ::practcl::copyDir $file [file join ${mandir} mann]
+    }
+    #========================================================================
+    # Install binary object libraries.  On Windows this includes both .dll and
+    # .lib files.  Because the .lib files are not explicitly listed anywhere,
+    # we need to deduce their existence from the .dll file of the same name.
+    # Library files go into the lib directory.
+    # In addition, this will generate the pkgIndex.tcl
+    # file in the install location (assuming it can find a usable tclsh shell)
+    #========================================================================
+    puts "Installing Package to ${pkglibdir}"
+    ::practcl::copyDir [LIBRARY define get libfile] $pkglibdir
+    foreach file [glob -nocomplain *.lib] {
+      ::practcl::copyDir $file $pkglibdir
+    }
+    ::practcl::copyDir pkgIndex.tcl $pkglibdir
+    if {[LIBRARY define get output_tcl] ne {}} {
+      ::practcl::copyDir [LIBRARY define get output_tcl] $pkglibdir
+    }
   }
   install-package {
-    LIBRARY target trigger install
-    LIBRARY define set DESTDIR [file normalize [string trimright [lindex $argv 1]]]
+    if {[llength $argv]<1} {
+      error "Usage: install DESTINATION"
+    }
+    LIBRARY target depends library doc
+    LIBRARY target do
+    set dat [LIBRARY target pkginfo]
+    dict with dat {}
+    set pkglibdir [file join [lindex $argv 1] $PKG_DIR]
+    #========================================================================
+    # Install binary object libraries.  On Windows this includes both .dll and
+    # .lib files.  Because the .lib files are not explicitly listed anywhere,
+    # we need to deduce their existence from the .dll file of the same name.
+    # Library files go into the lib directory.
+    # In addition, this will generate the pkgIndex.tcl
+    # file in the install location (assuming it can find a usable tclsh shell)
+    #========================================================================
+    puts "Installing Package to ${pkglibdir}"
+    ::practcl::copyDir [LIBRARY define get libfile] $pkglibdir
+    foreach file [glob -nocomplain *.lib] {
+      ::practcl::copyDir $file $pkglibdir
+    }
+    ::practcl::copyDir pkgIndex.tcl $pkglibdir
+    if {[LIBRARY define get output_tcl] ne {}} {
+      ::practcl::copyDir [LIBRARY define get output_tcl] $pkglibdir
+    }
+  }
+  info {
+    set dat [LIBRARY target pkginfo]
+    foreach {field value} $dat {
+      puts [list $field: $value]
+    }
+    exit 0
+  }
+  teapot {
+    LIBRARY target depends library doc
+    LIBRARY target do
+    set dat [LIBRARY target pkginfo]
+    dict with dat {}
+    set teapotvfs [file join $CWD teapot.vfs]
+    if {[file exists $teapotvfs]} {
+      file delete -force $teapotvfs
+    }
+    file mkdir $teapotvfs
+    file copy -force [LIBRARY define get libfile] $teapotvfs
+    foreach file [glob -nocomplain *.lib] {
+      file copy -force $file $teapotvfs
+    }
+    file copy -force pkgIndex.tcl $teapotvfs
+    if {[LIBRARY define get output_tcl] ne {}} {
+      file copy -force [LIBRARY define get output_tcl] $teapotvfs
+    }
+    ###
+    # Generate the teapot meta file
+    ###
+    set fout [open [file join $teapotvfs teapot.txt] w]
+    puts $fout [list Package $name $version]
+    puts $fout [list Meta platform [LIBRARY define get TEACUP_PROFILE]]
+    foreach field {
+      description license platform subject summary
+    } {
+      if {[dict exists $dat $field]} {
+        puts $fout [list Meta $field [dict get $dat $field]]
+      }
+    }
+    foreach field {
+      author category require
+    } {
+      if {[dict exists $dat $field]} {
+        foreach entry [dict get $dat $field] {
+          puts $fout [list Meta $field $entry]
+        }
+      }
+    }
+    close $fout
+    ::practcl::tcllib_require zipfile::mkzip
+    ::zipfile::mkzip::mkzip ${name}-${version}-[LIBRARY define get TEACUP_PROFILE].zip -directory $teapotvfs
   }
   default {
     LIBRARY target trigger {*}$argv
+    LIBRARY target do
   }
 }
-LIBRARY target do

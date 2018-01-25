@@ -13,8 +13,15 @@ array set ::project [::practcl::config.tcl $CWD]
 ::practcl::library create LIBRARY [array get ::project]
 LIBRARY define set builddir $CWD
 LIBRARY define set srcdir $SRCDIR
-LIBRARY define set author {{Tcl Core}}
-LIBRARY define set license BSD
+LIBRARY meta set license BSD
+LIBRARY meta set description {The Reference TEA Extension for Developers}
+###
+# Generate List of Authors
+###
+foreach match [::practcl::grep \<.*\@ [file join $SRCDIR ChangeLog]] {
+  LIBRARY meta add authors [lrange $match 1 end]
+}
+
 LIBRARY add [file join $::SRCDIR generic sample.c]
 LIBRARY add [file join $::SRCDIR generic sample.tcl]
 LIBRARY define add public-verbatim [file join $::SRCDIR generic sample.h]
@@ -24,27 +31,11 @@ if {![LIBRARY define exists TCL_SRC_DIR]} {
   ::practcl::doexec sh [file join $::SRCDIR configure]
   array set ::project [::practcl::config.tcl $CWD]
   LIBRARY define set [array get ::project]
-}
-###
-# Create build targets
-###
-LIBRARY target add implement {
-  filename sample.c
-} {
-  LIBRARY go
-  LIBRARY implement $::project(builddir)
-  set fout [open pkgIndex.tcl w]
-  puts $fout "
-  #
-  # Tcl package index file
-  #
-  "
-  puts $fout [LIBRARY package-ifneeded]
-  close $fout
+  # Generate a make.tcl in this directory
   if {![file exists make.tcl]} {
     set fout [open make.tcl w]
     puts $fout "# Redirect to the make file that lives in the project's source dir"
-    puts $fout [list source [file join $::SRCDIR make.tcl]]
+    puts $fout [list source [file join $srcdir make.tcl]]
     close $fout
     if {$::tcl_platform(platform)!="windows"} {
       file attributes -permission a+x make.tcl
@@ -52,31 +43,84 @@ LIBRARY target add implement {
   }
 }
 
-LIBRARY target add all {
+###
+# Create build targets
+###
+
+# Virtual target to mimic the behavior of "make all"
+LIBRARY make target all {
   aliases {binaries libraries}
   depends library
 }
 
-LIBRARY target add library {
-  aliases {all libraries}
+
+# Generate the dynamic library and pkgIndex.tcl
+LIBRARY make target library {
   triggers implement
-  filename [LIBRARY define get libfile]
+  files {sample.c sample.h pkgIndex.tcl [LIBRARY define get libfile]}
 } {
+  # Collect configuration
+  my go
+  
+  ##
+  # Generate dynamic C files
+  ##
+  set builddir [my define get builddir]
+  my implement $builddir
+
+  ###
+  # Compile the library
+  ###
   puts "BUILDING [my define get libfile]"
-  my build-library [my define get libfile] [self]
+  my build-library [file join $builddir [my define get libfile]] [self]
+  
+  ##
+  # Generate pkgIndex.tcl
+  ##
+  set fout [open [file join $builddir pkgIndex.tcl] w]
+  puts $fout "
+#
+# Tcl package index file
+#
+  "
+  puts $fout [my package-ifneeded]
+  close $fout
+}
+
+if {"clean" in $argv} {
+  # Clean is a little weird because it screws with dependencies
+  # We do it as a separate action
+  foreach {name obj} [LIBRARY make objects] {
+    set files [$obj output]
+    foreach file $files {
+      file delete -force [file join $CWD $file]
+    }
+  }
+  foreach pattern {*.lib *.zip *.vfs objs/*} {
+    foreach file [glob -nocomplain [file join $CWD $file]] {
+      file delete -force $pattern
+    }
+  }
 }
 
 switch [lindex $argv 0] {
+  info {
+    set dat [LIBRARY make pkginfo]
+    foreach {field value} $dat {
+      puts [list $field: $value]
+    }
+    exit 0
+  }
   install {
     if {[info exists ::env(DESTDIR)]} {
       set DESTDIR $::env(DESTDIR)
     }
-    LIBRARY target depends library doc
-    LIBRARY target do
+    LIBRARY make depends library doc
+    LIBRARY make do
     if {[llength $argv]>1} {
       set DESTDIR [file normalize [string trimright [lindex $argv 1]]]
     }
-    set dat [LIBRARY target pkginfo]
+    set dat [LIBRARY make pkginfo]
     dict with dat {}
     if {$DESTDIR ne {}} {
       foreach path {
@@ -128,9 +172,9 @@ switch [lindex $argv 0] {
     if {[llength $argv]<1} {
       error "Usage: install DESTINATION"
     }
-    LIBRARY target depends library doc
-    LIBRARY target do
-    set dat [LIBRARY target pkginfo]
+    LIBRARY make depends library doc
+    LIBRARY make do
+    set dat [LIBRARY make pkginfo]
     dict with dat {}
     set pkglibdir [file join [lindex $argv 1] $PKG_DIR]
     #========================================================================
@@ -151,17 +195,10 @@ switch [lindex $argv 0] {
       ::practcl::copyDir [LIBRARY define get output_tcl] $pkglibdir
     }
   }
-  info {
-    set dat [LIBRARY target pkginfo]
-    foreach {field value} $dat {
-      puts [list $field: $value]
-    }
-    exit 0
-  }
   teapot {
-    LIBRARY target depends library doc
-    LIBRARY target do
-    set dat [LIBRARY target pkginfo]
+    LIBRARY make depends library doc
+    LIBRARY make do
+    set dat [LIBRARY make pkginfo]
     dict with dat {}
     set teapotvfs [file join $CWD teapot.vfs]
     if {[file exists $teapotvfs]} {
@@ -182,28 +219,33 @@ switch [lindex $argv 0] {
     set fout [open [file join $teapotvfs teapot.txt] w]
     puts $fout [list Package $name $version]
     puts $fout [list Meta platform [LIBRARY define get TEACUP_PROFILE]]
-    foreach field {
-      description license platform subject summary
-    } {
-      if {[dict exists $dat $field]} {
-        puts $fout [list Meta $field [dict get $dat $field]]
-      }
+    puts $fout [list Meta practcl::build_date [clock format [file mtime [LIBRARY define get libfile]]]]
+    # Pull SCM checkout info
+    ::practcl::distribution select LIBRARY
+    set info [LIBRARY scm_info]
+    foreach item {scm hash isodate tags} {
+      if {![dict exists $info $item]} continue
+      set value [dict get $info $item]
+      if {$value eq {}} continue     
+      puts $fout [list Meta practcl::scm_$item $value]
     }
-    foreach field {
-      author category require
-    } {
-      if {[dict exists $dat $field]} {
-        foreach entry [dict get $dat $field] {
-          puts $fout [list Meta $field $entry]
+
+    set mdat [LIBRARY meta dump]
+    foreach {field value} $mdat {
+      if {[string index $field end] eq ":"} {
+        puts $fout [list Meta [string trimright $field :] $value]
+      } else {
+        foreach item $value {
+          puts $fout [list Meta $field $item]
         }
       }
     }
     close $fout
     ::practcl::tcllib_require zipfile::mkzip
-    ::zipfile::mkzip::mkzip ${name}-${version}-[LIBRARY define get TEACUP_PROFILE].zip -directory $teapotvfs
+    ::zipfile::mkzip::mkzip [dict get $dat zipfile] -directory $teapotvfs
   }
   default {
-    LIBRARY target trigger {*}$argv
-    LIBRARY target do
+    LIBRARY make trigger {*}$argv
+    LIBRARY make do
   }
 }

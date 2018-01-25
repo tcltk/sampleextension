@@ -1,3 +1,7 @@
+2018-01-19  Sean Woods    <yoda@etoyoc.com>
+
+    * Rewrote build system to use practcl
+
 2015-08-28  Jan Nijtmans  <nijtmans@users.sf.net>
 
 	* configure:          Rfe [00189c4afc]: Allow semi-static UCRT build on

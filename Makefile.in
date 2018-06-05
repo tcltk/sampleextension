@@ -83,7 +83,7 @@ pkgdatadir	= $(datadir)/$(PKG_DIR)
 pkglibdir	= $(libdir)/$(PKG_DIR)
 pkgincludedir	= $(includedir)/$(PKG_DIR)
 
-top_builddir	= .
+top_builddir	= @abs_top_builddir@
 
 INSTALL_OPTIONS	=
 INSTALL		= @INSTALL@ $(INSTALL_OPTIONS)
@@ -251,7 +251,7 @@ VALGRINDARGS =	--tool=memcheck --num-callers=8 --leak-resolution=high \
 		--leak-check=yes --show-reachable=yes -v
 
 valgrind: binaries libraries
-	$(TCLSH_ENV) valgrind $(VALGRINDARGS) $(TCLSH_PROG) \
+	$(PKG_ENV) $(TCLSH_ENV) valgrind $(VALGRINDARGS) $(TCLSH_PROG) \
 		`@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
 
 valgrindshell: binaries libraries

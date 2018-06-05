@@ -134,9 +134,10 @@ TCLSH_ENV	= TCL_LIBRARY=`@CYGPATH@ $(TCL_SRC_DIR)/library`
 PKG_ENV		= @LD_LIBRARY_PATH_VAR@="$(EXTRA_PATH):$(@LD_LIBRARY_PATH_VAR@)" \
 		  PATH="$(EXTRA_PATH):$(PATH)" \
 		  TCLLIBPATH="$(TCLLIBPATH)"
+EXEC_ENV   = $(TCLSH_ENV) $(PKG_ENV)
 
 TCLSH_PROG	= @TCLSH_PROG@
-TCLSH		= $(PKG_ENV) $(TCLSH_ENV) $(TCLSH_PROG)
+TCLSH		= $(EXEC_ENV) $(TCLSH_PROG)
 
 #WISH_ENV	= TK_LIBRARY=`@CYGPATH@ $(TK_SRC_DIR)/library`
 #WISH_PROG	= @WISH_PROG@
@@ -245,18 +246,18 @@ shell: binaries libraries
 	@$(TCLSH) $(SCRIPT)
 
 gdb:
-	$(TCLSH_ENV) gdb $(TCLSH_PROG) $(SCRIPT)
+	$(EXEC_ENV) gdb $(TCLSH_PROG) $(SCRIPT)
 
-VALGRIND     =  $(PKG_ENV) $(TCLSH_ENV) valgrind
+VALGRIND     =  valgrind
 VALGRINDARGS =	--tool=memcheck --num-callers=8 --leak-resolution=high \
 		--leak-check=yes --show-reachable=yes -v
 
 valgrind: binaries libraries
-	$(VALGRIND) $(VALGRINDARGS) $(TCLSH_PROG) \
+	$(EXEC_ENV) $(VALGRIND) $(VALGRINDARGS) $(TCLSH_PROG) \
 		`@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
 
 valgrindshell: binaries libraries
-	$(VALGRIND) valgrind $(VALGRINDARGS) $(TCLSH_PROG) $(SCRIPT)
+	$(EXEC_ENV) $(VALGRIND) $(VALGRINDARGS) $(TCLSH_PROG) $(SCRIPT)
 
 depend:
 

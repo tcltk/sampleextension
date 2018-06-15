@@ -387,13 +387,6 @@ install-lib-binaries: binaries
 	@$(INSTALL_DATA_DIR) $(DESTDIR)$(pkglibdir)
 	@list='$(lib_BINARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
-	    if test "x$$stub" = "xstub"; then \
-		echo " $(RANLIB_STUB) $$p"; \
-		$(RANLIB_STUB) $$p; \
-	    else \
-		echo " $(RANLIB) $$p"; \
-		$(RANLIB) $$p; \
-	    fi; \
 	    echo " $(INSTALL_LIBRARY) $$p $(DESTDIR)$(pkglibdir)/$$p"; \
 	    $(INSTALL_LIBRARY) $$p $(DESTDIR)$(pkglibdir)/$$p; \
 	    stub=`echo $$p|sed -e "s/.*\(stub\).*/\1/"`; \

@@ -326,11 +326,10 @@ dist-clean:
 
 dist: dist-clean
 	$(INSTALL_DATA_DIR) $(DIST_DIR)
-	$(DIST_INSTALL_DATA) $(srcdir)/license.terms \
-		$(srcdir)/ChangeLog $(srcdir)/README \
+
+	# TEA files
+	$(DIST_INSTALL_DATA) $(srcdir)/Makefile.in \
 		$(srcdir)/aclocal.m4 $(srcdir)/configure.ac \
-		$(srcdir)/Makefile.in $(srcdir)/pkgIndex.tcl.in \
-		$(srcdir)/README.sha \
 		$(DIST_DIR)/
 	$(DIST_INSTALL_SCRIPT) $(srcdir)/configure $(DIST_DIR)/
 
@@ -339,11 +338,20 @@ dist: dist-clean
 		$(srcdir)/tclconfig/tcl.m4 $(srcdir)/tclconfig/install-sh \
 		$(DIST_DIR)/tclconfig/
 
+	# Extension files
+	$(DIST_INSTALL_DATA) \
+		$(srcdir)/ChangeLog \
+		$(srcdir)/README.sha \
+		$(srcdir)/license.terms \
+		$(srcdir)/README \
+		$(srcdir)/pkgIndex.tcl.in \
+		$(DIST_DIR)/
+
 	list='demos doc generic library mac tests unix win'; \
 	for p in $$list; do \
 	    if test -d $(srcdir)/$$p ; then \
 		$(INSTALL_DATA_DIR) $(DIST_DIR)/$$p; \
-		$(DIST_INSTALL_DATA) $(srcdir)/$$p/*.* $(DIST_DIR)/$$p/; \
+		$(DIST_INSTALL_DATA) $(srcdir)/$$p/* $(DIST_DIR)/$$p/; \
 	    fi; \
 	done
 

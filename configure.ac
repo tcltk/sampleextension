@@ -170,7 +170,7 @@ TEA_PROG_TCLSH
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the Makefile.
 # You may alternatively have a special pkgIndex.tcl.in or other files
-# which require substituting th AC variables in.  Include these here.
+# which require substituting the AC variables in. Include these here.
 #--------------------------------------------------------------------
 
 AC_OUTPUT([Makefile pkgIndex.tcl])

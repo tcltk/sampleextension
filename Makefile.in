@@ -243,8 +243,8 @@ install-doc: doc
 
 test: binaries libraries
 	$(TCLSH) `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS) \
-		-load "package ifneeded $(PACKAGE_NAME) $(PACKAGE_VERSION) \
-			[list load `@CYGPATH@ $(PKG_LIB_FILE)` $(PACKAGE_NAME)]"
+	    -load "package ifneeded $(PACKAGE_NAME) $(PACKAGE_VERSION) \
+		[list load `@CYGPATH@ $(PKG_LIB_FILE)` $(PACKAGE_NAME)]"
 
 shell: binaries libraries
 	@$(TCLSH) $(SCRIPT)
@@ -254,14 +254,14 @@ gdb:
 
 gdb-test: binaries libraries 
 	$(TCLSH_ENV) $(PKG_ENV) $(GDB) \
-		--args $(TCLSH_PROG) `@CYGPATH@ $(srcdir)/tests/all.tcl` \
-		$(TESTFLAGS) -singleproc 1 \
-		-load "package ifneeded $(PACKAGE_NAME) $(PACKAGE_VERSION) \
-			[list load `@CYGPATH@ $(PKG_LIB_FILE)` $(PACKAGE_NAME)]"
+	    --args $(TCLSH_PROG) `@CYGPATH@ $(srcdir)/tests/all.tcl` \
+	    $(TESTFLAGS) -singleproc 1 \
+	    -load "package ifneeded $(PACKAGE_NAME) $(PACKAGE_VERSION) \
+		[list load `@CYGPATH@ $(PKG_LIB_FILE)` $(PACKAGE_NAME)]"
 
 valgrind: binaries libraries
 	$(TCLSH_ENV) $(PKG_ENV) $(VALGRIND) $(VALGRINDARGS) $(TCLSH_PROG) \
-		`@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
+	    `@CYGPATH@ $(srcdir)/tests/all.tcl` $(TESTFLAGS)
 
 valgrindshell: binaries libraries
 	$(TCLSH_ENV) $(PKG_ENV) $(VALGRIND) $(VALGRINDARGS) $(TCLSH_PROG) $(SCRIPT)
@@ -329,23 +329,23 @@ dist: dist-clean
 
 	# TEA files
 	$(DIST_INSTALL_DATA) $(srcdir)/Makefile.in \
-		$(srcdir)/aclocal.m4 $(srcdir)/configure.ac \
-		$(DIST_DIR)/
+	    $(srcdir)/aclocal.m4 $(srcdir)/configure.ac \
+	    $(DIST_DIR)/
 	$(DIST_INSTALL_SCRIPT) $(srcdir)/configure $(DIST_DIR)/
 
 	$(INSTALL_DATA_DIR) $(DIST_DIR)/tclconfig
 	$(DIST_INSTALL_DATA) $(srcdir)/tclconfig/README.txt \
-		$(srcdir)/tclconfig/tcl.m4 $(srcdir)/tclconfig/install-sh \
-		$(DIST_DIR)/tclconfig/
+	    $(srcdir)/tclconfig/tcl.m4 $(srcdir)/tclconfig/install-sh \
+	    $(DIST_DIR)/tclconfig/
 
 	# Extension files
 	$(DIST_INSTALL_DATA) \
-		$(srcdir)/ChangeLog \
-		$(srcdir)/README.sha \
-		$(srcdir)/license.terms \
-		$(srcdir)/README \
-		$(srcdir)/pkgIndex.tcl.in \
-		$(DIST_DIR)/
+	    $(srcdir)/ChangeLog \
+	    $(srcdir)/README.sha \
+	    $(srcdir)/license.terms \
+	    $(srcdir)/README \
+	    $(srcdir)/pkgIndex.tcl.in \
+	    $(DIST_DIR)/
 
 	list='demos doc generic library mac tests unix win'; \
 	for p in $$list; do \

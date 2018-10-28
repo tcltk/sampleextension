@@ -13,14 +13,16 @@ array set ::project [::practcl::config.tcl $CWD]
 ::practcl::library create LIBRARY [array get ::project]
 LIBRARY define set builddir $CWD
 LIBRARY define set srcdir $SRCDIR
-LIBRARY meta set license BSD
-LIBRARY meta set description {The Reference TEA Extension for Developers}
+LIBRARY clay set meta license BSD
+LIBRARY clay set meta description {The Reference TEA Extension for Developers}
 ###
 # Generate List of Authors
 ###
+set authors {}
 foreach match [::practcl::grep \<.*\@ [file join $SRCDIR ChangeLog]] {
-  LIBRARY meta add authors [lrange $match 1 end]
+  lappend authors [lrange $match 1 end]
 }
+LIBRARY clay set meta authors $authors
 
 LIBRARY add [file join $::SRCDIR generic sample.c]
 LIBRARY add [file join $::SRCDIR generic sample.tcl]
@@ -61,7 +63,7 @@ LIBRARY make target library {
 } {
   # Collect configuration
   my go
-  
+
   ##
   # Generate dynamic C files
   ##
@@ -73,7 +75,7 @@ LIBRARY make target library {
   ###
   puts "BUILDING [my define get libfile]"
   my build-library [file join $builddir [my define get libfile]] [self]
-  
+
   ##
   # Generate pkgIndex.tcl
   ##
@@ -226,18 +228,18 @@ switch [lindex $argv 0] {
     foreach item {scm hash isodate tags} {
       if {![dict exists $info $item]} continue
       set value [dict get $info $item]
-      if {$value eq {}} continue     
+      if {$value eq {}} continue
       puts $fout [list Meta practcl::scm_$item $value]
     }
 
-    set mdat [LIBRARY meta dump]
+    set mdat [LIBRARY clay get meta]
     foreach {field value} $mdat {
-      if {[string index $field end] eq ":"} {
-        puts $fout [list Meta [string trimright $field :] $value]
-      } else {
+      if {$field in {authors requires}} {
         foreach item $value {
           puts $fout [list Meta $field $item]
         }
+      } else {
+        puts $fout [list Meta [string trimright $field :] $value]
       }
     }
     close $fout

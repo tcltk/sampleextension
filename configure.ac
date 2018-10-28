@@ -26,7 +26,6 @@ AC_INIT([sample], [0.6])
 # This will define a ${TEA_PLATFORM} variable == "unix" or "windows"
 # as well as PKG_LIB_FILE and PKG_STUB_LIB_FILE.
 #--------------------------------------------------------------------
-
 TEA_INIT(4.0])
 AC_PROG_LN_S
 CONFIG_CLEAN_FILES=
@@ -37,6 +36,7 @@ if test ! -d $srcdir/tclconfig ; then
     fi
 fi
 AC_SUBST(CONFIG_CLEAN_FILES)
+
 AC_CONFIG_AUX_DIR(tclconfig)
 
 #--------------------------------------------------------------------
@@ -177,10 +177,24 @@ TEA_PROG_TCLSH
 TEA_CONFIG_TEAPOT
 
 #--------------------------------------------------------------------
-# Finally, substitute all of the various values into the Makefile.
-# You may alternatively have a special pkgIndex.tcl.in or other files
-# which require substituting th AC variables in.  Include these here.
+# Setup a *Config.sh.in configuration file.
 #--------------------------------------------------------------------
 
-AC_OUTPUT([Makefile pkgIndex.tcl config.tcl:tclconfig/config.tcl.in])
-${TCLSH_PROG} ${srcdir}/make.tcl autoconf
+#TEA_EXPORT_CONFIG([sample])
+#AC_SUBST(SAMPLE_VAR)
+
+#--------------------------------------------------------------------
+# Specify files to substitute AC variables in. You may alternatively
+# have a special pkgIndex.tcl.in or other files which require
+# substituting the AC variables in. Include these here.
+#--------------------------------------------------------------------
+
+AC_CONFIG_FILES([Makefile pkgIndex.tcl])
+#AC_CONFIG_FILES([sampleConfig.sh])
+
+#--------------------------------------------------------------------
+# Finally, substitute all of the various values into the files
+# specified with AC_CONFIG_FILES.
+#--------------------------------------------------------------------
+AC_OUTPUT([config.tcl:tclconfig/config.tcl.in])
+

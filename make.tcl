@@ -3,11 +3,7 @@ set ::project(builddir) $::CWD
 set ::SRCDIR   [file dirname [file normalize [info script]]]
 set ::SANDBOX  [file dirname $::SRCDIR]
 
-if {[file exists [file join $::SANDBOX tclconfig practcl.tcl]]} {
-  source [file join $::SANDBOX tclconfig practcl.tcl]
-} else {
-  source [file join $SRCDIR tclconfig practcl.tcl]
-}
+source [file join $SRCDIR tools practcl.tcl]
 
 array set ::project [::practcl::config.tcl $CWD]
 ::practcl::library create LIBRARY [array get ::project]

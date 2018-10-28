@@ -1,3 +1,7 @@
+2018-10-28  Sean Woods    <yoda@etoyoc.com>
+
+    * Implemented a Practcl build utilizing autosetup instead of autoconf
+
 2018-01-19  Sean Woods    <yoda@etoyoc.com>
 
     * Rewrote build system to use practcl

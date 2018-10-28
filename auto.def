@@ -1,0 +1,154 @@
+# Initial auto.def created by 'autosetup --init=make'
+puts "AUTO.DEF"
+use cc cc-shared
+
+cc-check-tools ar ranlib strip
+
+define PACKAGE_NAME sample
+define PACKAGE_VERSION 0.6
+
+define PACKAGE_DEFS {}
+define PKG_LIBS {}
+define PKG_CFLAGS {}
+define TEA_TK_EXTENSION 0
+define TEA_PRIVATE_TCL_HEADERS 0
+define TEA_PRIVATE_TK_HEADERS 0
+define VERSION [get-define PACKAGE_VERSION]
+
+# Add any user options here
+options {
+    with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
+    with-tcl-stubs=0     => {Enable Tcl integration via stubs library mechanism}
+    with-tcl-private-stubs=1 => {Use Tcl private stubs}
+    enable-shared=1 => {Perform a shared or static build}
+}
+
+use pkg-config
+pkg-config TCL
+
+# Find tclsh for the test suite and practcl
+#
+# We can't use jimsh for this: the test suite uses features of Tcl that
+# Jim doesn't support, either statically or due to the way it's built by
+# autosetup.  For example, Jim supports `file normalize`, but only if
+# you build it with HAVE_REALPATH, which won't ever be defined in this
+# context because autosetup doesn't try to discover platform-specific
+# details like that before it decides to build jimsh0.  Besides which,
+# autosetup won't build jimsh0 at all if it can find tclsh itself.
+# Ironically, this means we may right now be running under either jimsh0
+# or a version of tclsh that we find unsuitable below!
+cc-check-progs tclsh
+set mptd /opt/local
+set hbtd /usr/local/Cellar/tcl-tk
+if {[string equal false [get-define TCLSH]]} {
+    msg-result "WARNING: 'make test' will not run here."
+} else {
+    set v [exec /bin/sh -c "echo 'puts \$tcl_version' | tclsh"]
+    if {[expr $v >= 8.6]} {
+        msg-result "Found Tclsh version $v in the PATH."
+        define TCLSH tclsh
+    } elseif {[file isdirectory $mptd]} {
+        # This is a macOS system with the Macports version of Tcl/Tk
+        # installed.  Select the newest version in /opt/local/bin
+        foreach shver {tclsh8.6 tclsh8.7 tclsh9.0 tclsh8.5} {
+          if {[file exists [file join $mptd bin $shver]]} {
+            msg-result "Using Macports Tcl/Tk version $path."
+            define TCLSH [file join $mptd bin $shver]
+            break
+          }
+        }
+    } elseif {[file isdirectory $hbtd]} {
+        # This is a macOS system with the Homebrew version of Tcl/Tk
+        # installed.  Select the newest version.  It won't normally be
+        # in the PATH to avoid shadowing /usr/bin/tclsh, and even if it
+        # were in the PATH, it's bad practice to put /usr/local/bin (the
+        # Homebrew default) ahead of /usr/bin, especially given that
+        # it's user-writeable by default with Homebrew.  Thus, we can be
+        # pretty sure the only way to call it is with an absolute path.
+        set v [exec ls -tr $hbtd | tail -1]
+        set path "$hbtd/$v/bin/tclsh"
+        define TCLSH $path
+        msg-result "Using Homebrew Tcl/Tk version $path."
+    } else {
+        msg-result "WARNING: tclsh $v found; need >= 8.6 for 'make test'."
+        define TCLSH false     ;# force "make test" failure via /usr/bin/false
+    }
+}
+
+if {[is_mingw]} {
+    define-append EXTRA_CFLAGS -DBROKEN_MINGW_CMDLINE
+    define-append LIBS -lkernel32 -lws2_32
+}
+
+if {[string match *-solaris* [get-define host]]} {
+    define-append EXTRA_CFLAGS {-D_XOPEN_SOURCE=500 -D__EXTENSIONS__}
+}
+
+set tclpath [opt-val with-tcl]
+if {$tclpath eq ""} {
+  # Find Tcl
+  foreach path {pkg/tcl ../tcl ~/tcl ~/.local /opt/local /usr/local /usr} {
+    if {[file exists [file join $path tclConfig.sh]]} {
+      set tclpath $path
+      break
+    }
+    if {[file exists [file join $path unix tclConfig.sh]]} {
+      set tclpath [file join $path unix]
+      break
+    }
+    if {[file exists [file join $path win tclConfig.sh]]} {
+      set tclpath [file join $path win]
+      break
+    }
+    if {[file exists [file join $path lib tclConfig.sh]]} {
+      set tclpath [file join $path lib]
+      break
+    }
+  }
+}
+if {$tclpath eq ""} {
+  error "Could not find Tcl"
+}
+
+###
+# Deposit the contents of tclconfig where TEA needs it
+###
+tea-generate $tclpath
+
+set NAME    [get-define PACKAGE_NAME]
+set VERSION [get-define PACKAGE_VERSION]
+if {[get-define TEA_PLATFORM] eq "windows"} {
+  define PRACTCL_NAME_LIBRARY "%LIBRARY_PREFIX%%LIBRARY_NAME%%LIBRARY_VERSION_NODOTS%"
+  define RANLIB :
+  define RANLIB_STUB :
+  if {[opt-bool enable-shared]} {
+    define PKG_LIB_FILE [subst "[get-define PACKAGE_LIB_PREFIX][get-define PACKAGE_NAME][get-define SHARED_LIB_SUFFIX]"]
+  } else {
+    define PKG_LIB_FILE [subst "[get-define PACKAGE_LIB_PREFIX][get-define PACKAGE_NAME][get-define UNSHARED_LIB_SUFFIX]"]
+  }
+  define PKG_STUB_LIB_FILE [subst "[get-define PACKAGE_LIB_PREFIX][get-define PACKAGE_NAME]stub[get-define UNSHARED_LIB_SUFFIX]"]
+} else {
+  define PRACTCL_NAME_LIBRARY "lib%LIBRARY_PREFIX%%LIBRARY_NAME%%LIBRARY_VERSION%"
+  if {[opt-bool enable-shared]} {
+    define PKG_LIB_FILE [subst "lib[get-define PACKAGE_LIB_PREFIX][get-define PACKAGE_NAME][get-define SHARED_LIB_SUFFIX]"]
+  } else {
+    define PKG_LIB_FILE [subst "lib[get-define PACKAGE_LIB_PREFIX][get-define PACKAGE_NAME][get-define UNSHARED_LIB_SUFFIX]"]
+  }
+  define PKG_STUB_LIB_FILE [subst "lib[get-define PACKAGE_LIB_PREFIX][get-define PACKAGE_NAME]stub[get-define UNSHARED_LIB_SUFFIX]"]
+}
+
+
+
+# Finally, append -ldl to make sure it's the last in the list.
+# The library order matters in case of static linking.
+if {[check-function-in-lib dlopen dl]} {
+    # Some platforms (*BSD) have the dl functions already in libc and no libdl.
+    # In such case we can link directly without -ldl.
+    define-append LIBS [get-define lib_dlopen]
+}
+
+
+make-config-header autoconfig.h -auto {USE_* MIGRATE_*}
+make-template config.tcl.in config.tcl
+make-template Makefile.in Makefile
+puts "/AUTO.DEF"

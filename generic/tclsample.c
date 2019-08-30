@@ -24,7 +24,7 @@
 
 #define TCL_READ_CHUNK_SIZE 4096
 
-static unsigned char itoa64f[] =
+static const unsigned char itoa64f[] =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,";
 
 static int numcontexts = 0;
@@ -54,7 +54,7 @@ static int Sha1_Cmd(ClientData clientData, Tcl_Interp *interp,
 
 static int
 Sha1_Cmd(
-    ClientData clientData,	/* Not used. */
+    ClientData dummy,	/* Not used. */
     Tcl_Interp *interp,		/* Current interpreter */
     int objc,			/* Number of arguments */
     Tcl_Obj *const objv[]	/* Argument strings */
@@ -79,6 +79,7 @@ Sha1_Cmd(
     Tcl_Obj *descriptorObj = NULL;
     int totalRead = 0;
     int i, j, n, mask, bits, offset;
+    (void)dummy;
 
     /*
      * For binary representation + null char
@@ -124,13 +125,13 @@ Sha1_Cmd(
 		numcontexts++;
 		sha1Contexts = (SHA1_CTX *) realloc((void *) sha1Contexts,
 			numcontexts * sizeof(SHA1_CTX));
-		ctxtotalRead = realloc((void *) ctxtotalRead,
+		ctxtotalRead = (int *)realloc(ctxtotalRead,
 			numcontexts * sizeof(int));
 	    }
 	    ctxtotalRead[contextnum] = 0;
 	    SHA1Init(&sha1Context);
 	    sprintf(buf, "sha1%d", contextnum);
-	    Tcl_AppendResult(interp, buf, (char *)NULL);
+	    Tcl_AppendResult(interp, buf, NULL);
 	    return TCL_OK;
 	case SHAOPT_CHAN:
 	    chan = Tcl_GetChannel(interp, Tcl_GetString(objv[a]), &mode);
@@ -206,7 +207,7 @@ Sha1_Cmd(
 	string = Tcl_GetStringFromObj(stringObj, &totalRead);
 	SHA1Update(&sha1Context, (unsigned char *) string, totalRead);
     } else if (chan != (Tcl_Channel) NULL) {
-	bufPtr = ckalloc((unsigned) TCL_READ_CHUNK_SIZE);
+	bufPtr = (char *)ckalloc(TCL_READ_CHUNK_SIZE);
 	totalRead = 0;
 	while ((n = Tcl_Read(chan, bufPtr,
 		maxbytes == 0
@@ -292,14 +293,14 @@ Sha1_Cmd(
     }
     buf[j++] = itoa64f[(bits>>8)&mask];
     buf[j++] = '\0';
-    Tcl_AppendResult (interp, buf, (char *)NULL);
+    Tcl_AppendResult(interp, buf, NULL);
     if (contextnum > 0) {
 	ctxtotalRead[contextnum] = -1;
     }
     return TCL_OK;
 
 wrongArgs:
-    Tcl_AppendResult (interp, "wrong # args: should be either:\n",
+    Tcl_AppendResult(interp, "wrong # args: should be either:\n",
 	    "  ",
 	    Tcl_GetString(objv[0]),
 	    " ?-log2base log2base? -string string\n",
@@ -342,7 +343,10 @@ wrongArgs:
  *----------------------------------------------------------------------
  */
 
-int
+#ifdef __cplusplus
+extern "C" {
+#endif  /* __cplusplus */
+DLLEXPORT int
 Sample_Init(Tcl_Interp *interp)
 {
     /*
@@ -365,3 +369,6 @@ Sample_Init(Tcl_Interp *interp)
 
     return TCL_OK;
 }
+#ifdef __cplusplus
+}
+#endif  /* __cplusplus */

@@ -94,9 +94,9 @@
  */
 
 void
-SHA1Transform(state, buffer)
-    sha_uint32_t state[5];	/* State variable */
-    unsigned char buffer[64];	/* Modified buffer */
+SHA1Transform(
+    sha_uint32_t state[5],	/* State variable */
+    unsigned char buffer[64])	/* Modified buffer */
 {
 #if (!defined(BIG_ENDIAN) && !defined(LITTLE_ENDIAN))
     unsigned char *p;
@@ -188,8 +188,8 @@ SHA1Transform(state, buffer)
  *----------------------------------------------------------------------
  */
 
-void SHA1Init(context)
-    SHA1_CTX* context;		/* Context to initialize */
+void SHA1Init(
+    SHA1_CTX* context)		/* Context to initialize */
 {
     /*
      * SHA1 initialization constants
@@ -222,10 +222,10 @@ void SHA1Init(context)
  */
 
 void
-SHA1Update(context, data, len)
-    SHA1_CTX* context;		/* Context to update */
-    unsigned char* data;	/* Data used for update */
-    unsigned int len;		/* Length of data */
+SHA1Update(
+    SHA1_CTX* context,		/* Context to update */
+    unsigned char* data,	/* Data used for update */
+    unsigned int len)		/* Length of data */
 {
     unsigned int i, j;
 
@@ -276,9 +276,9 @@ SHA1Update(context, data, len)
  *----------------------------------------------------------------------
  */
 
-void SHA1Final(context, digest)
-    SHA1_CTX* context;		/* Context to pad */
-    unsigned char digest[20];	/* Returned message digest */
+void SHA1Final(
+    SHA1_CTX* context,		/* Context to pad */
+    unsigned char digest[20])	/* Returned message digest */
 {
     sha_uint32_t i, j;
     unsigned char finalcount[8];

@@ -135,7 +135,6 @@ jobs:
       dist: focal
       compiler: gcc
       script:
-        - touch ../doc/man.macros
         - make dist
 before_install:
   - |-

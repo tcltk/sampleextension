@@ -32,7 +32,7 @@ static int numcontexts = 0;
 static SHA1_CTX *sha1Contexts = NULL;
 static size_t *ctxtotalRead = NULL;
 
-static int Sha1_Cmd(ClientData clientData, Tcl_Interp *interp,
+static int Sha1_Cmd(void *clientData, Tcl_Interp *interp,
 		int onjc, Tcl_Obj *const objv[]);
 
 #define DIGESTSIZE 20
@@ -55,7 +55,7 @@ static int Sha1_Cmd(ClientData clientData, Tcl_Interp *interp,
 
 static int
 Sha1_Cmd(
-    ClientData dummy,	/* Not used. */
+    void *dummy,	/* Not used. */
     Tcl_Interp *interp,		/* Current interpreter */
     int objc,			/* Number of arguments */
     Tcl_Obj *const objv[]	/* Argument strings */
@@ -430,8 +430,8 @@ Sample_Init(
     if (Tcl_PkgProvideEx(interp, PACKAGE_NAME, PACKAGE_VERSION, NULL) != TCL_OK) {
 	return TCL_ERROR;
     }
-    Tcl_CreateObjCommand(interp, "sha1", (Tcl_ObjCmdProc *) Sha1_Cmd,
-	    (ClientData)NULL, (Tcl_CmdDeleteProc *)NULL);
+    Tcl_CreateObjCommand(interp, "sha1", (Tcl_ObjCmdProc *)Sha1_Cmd,
+	    NULL, NULL);
 
     numcontexts = 1;
     sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));

@@ -146,7 +146,7 @@ TCLSH		= $(TCLSH_ENV) $(PKG_ENV) $(TCLSH_PROG)
 
 SHARED_BUILD	= @SHARED_BUILD@
 
-INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@
+INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ -I.
 #INCLUDES	= @PKG_INCLUDES@ @TCL_INCLUDES@ @TK_INCLUDES@ @TK_XINCLUDES@
 
 PKG_CFLAGS	= @PKG_CFLAGS@
@@ -313,6 +313,20 @@ VPATH = $(srcdir):$(srcdir)/generic:$(srcdir)/unix:$(srcdir)/win:$(srcdir)/macos
 .c.@OBJEXT@:
 	$(COMPILE) -c `@CYGPATH@ $<` -o $@
 
+tclsample.@OBJEXT@:	sampleUuid.h
+
+$(srcdir)/manifest.uuid:
+	printf "git-" >$(srcdir)/manifest.uuid
+	(cd $(srcdir); git rev-parse HEAD >>$(srcdir)/manifest.uuid || \
+	    (printf "svn-r" >$(srcdir)/manifest.uuid ; \
+	    svn info --show-item last-changed-revision >>$(srcdir)/manifest.uuid) || \
+	    printf "unknown" >$(srcdir)/manifest.uuid)
+
+sampleUuid.h:	$(srcdir)/manifest.uuid
+	echo "#define SAMPLE_VERSION_UUID \\" >$@
+	cat $(srcdir)/manifest.uuid >>$@
+	echo "" >>$@
+
 #========================================================================
 # Distribution creation
 # You may need to tweak this target to make it work correctly.
@@ -329,7 +343,7 @@ DIST_INSTALL_SCRIPT	= CPPROG='cp -p' $(INSTALL) -m 755
 dist-clean:
 	rm -rf $(DIST_DIR) $(DIST_ROOT)/$(PKG_DIR).tar.*
 
-dist: dist-clean
+dist: dist-clean $(srcdir)/manifest.uuid
 	$(INSTALL_DATA_DIR) $(DIST_DIR)
 
 	# TEA files
@@ -340,6 +354,7 @@ dist: dist-clean
 
 	$(INSTALL_DATA_DIR) $(DIST_DIR)/tclconfig
 	$(DIST_INSTALL_DATA) $(srcdir)/tclconfig/README.txt \
+	    $(srcdir)/manifest.uuid \
 	    $(srcdir)/tclconfig/tcl.m4 $(srcdir)/tclconfig/install-sh \
 	    $(DIST_DIR)/tclconfig/
 
@@ -352,7 +367,7 @@ dist: dist-clean
 	    $(srcdir)/pkgIndex.tcl.in \
 	    $(DIST_DIR)/
 
-	list='demos doc generic library mac tests unix win'; \
+	list='demos doc generic library macosx tests unix win'; \
 	for p in $$list; do \
 	    if test -d $(srcdir)/$$p ; then \
 		$(INSTALL_DATA_DIR) $(DIST_DIR)/$$p; \

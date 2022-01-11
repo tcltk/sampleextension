@@ -44,7 +44,7 @@ typedef struct {
 } SHA1_CTX;
 
 MODULE_SCOPE void SHA1Init(SHA1_CTX* context);
-MODULE_SCOPE void SHA1Update(SHA1_CTX* context, unsigned char* data, unsigned int len);
+MODULE_SCOPE void SHA1Update(SHA1_CTX* context, unsigned char* data, size_t len);
 MODULE_SCOPE void SHA1Final(SHA1_CTX* context, unsigned char digest[20]);
 
 /*

@@ -225,9 +225,9 @@ void
 SHA1Update(
     SHA1_CTX* context,		/* Context to update */
     unsigned char* data,	/* Data used for update */
-    unsigned int len)		/* Length of data */
+    size_t len)		/* Length of data */
 {
-    unsigned int i, j;
+    size_t i, j;
 
     j = (context->count[0] >> 3) & 63;
     if ((context->count[0] += len << 3) < (len << 3)) {

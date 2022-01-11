@@ -7,7 +7,7 @@
 .SH NAME
 sha1 \- manipulate sha1 message digests
 .SH SYNOPSIS
-\fBpackage require sample\fR ?\fB0.5\fR?
+\fBpackage require sample\fR ?\fB0.6\fR?
 .sp
 \fBsha1\fR ?\fB\-log2base \fIlog2base\fR? \fB\-string \fIstring\fR
 .br

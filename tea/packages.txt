@@ -190,17 +190,17 @@ combination of the minor version and the patchlevel. From the file
    PACKAGE=sample
 
    MAJOR_VERSION=0
-   MINOR_VERSION=5
+   MINOR_VERSION=6
    PATCHLEVEL=
 
    VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
    NODOT_VERSION=${MAJOR_VERSION}${MINOR_VERSION}
 }]
 
-So, the above would result in a macro VERSION with the value 0.5
+So, the above would result in a macro VERSION with the value 0.6
 [para]
 The version number is also used to construct a distinguishing name for
-the library, like: libsample0.5.so or sample05.dll.
+the library, like: libsample0.6.so or sample06.dll.
 This way there is much less chance of a conflict between versions.
 
 

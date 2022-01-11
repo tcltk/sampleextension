@@ -33,7 +33,7 @@ static SHA1_CTX *sha1Contexts = NULL;
 static size_t *ctxtotalRead = NULL;
 
 static int Sha1_Cmd(void *clientData, Tcl_Interp *interp,
-		int onjc, Tcl_Obj *const objv[]);
+		int objc, Tcl_Obj *const objv[]);
 
 #define DIGESTSIZE 20
 

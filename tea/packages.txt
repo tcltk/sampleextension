@@ -113,16 +113,16 @@ From the example extension (Sample):
 int
 Sample_Init(Tcl_Interp *interp)
 {
-    if (Tcl_InitStubs(interp, "8.0", 0) == NULL) {
+    if (Tcl_InitStubs(interp, "8.6-", 0) == NULL) {
         return TCL_ERROR;
     }
-    if (Tcl_PkgRequire(interp, "Tcl", "8.0", 0) == NULL) {
+    if (Tcl_PkgRequire(interp, "Tcl", "8.6-", 0) == NULL) {
         return TCL_ERROR;
     }
     if (Tcl_PkgProvide(interp, "sample", VERSION) != TCL_OK) {
         return TCL_ERROR;
     }
-    Tcl_CreateCommand(interp, "sha1", Sha1, NULL, NULL);
+    Tcl_CreateObjCommand(interp, "sha1", Sha1, NULL, NULL);
 
     ...
 }

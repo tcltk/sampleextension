@@ -131,7 +131,7 @@ Sha1_Cmd(
 	    }
 	    ctxtotalRead[contextnum] = 0;
 	    SHA1Init(&sha1Context);
-	    sprintf(buf, "sha1%d", contextnum);
+	    snprintf(buf, sizeof(buf), "sha1%d", contextnum);
 	    Tcl_AppendResult(interp, buf, NULL);
 	    return TCL_OK;
 	case SHAOPT_CHAN:

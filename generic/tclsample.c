@@ -30,7 +30,7 @@ static const unsigned char itoa64f[] =
 
 static int numcontexts = 0;
 static SHA1_CTX *sha1Contexts = NULL;
-static size_t *ctxtotalRead = NULL;
+static Tcl_Size *ctxtotalRead = NULL;
 
 static int Sha1_Cmd(void *clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *const objv[]);
@@ -78,7 +78,7 @@ Sha1_Cmd(
     int doinit = 1;
     int dofinal = 1;
     Tcl_Obj *descriptorObj = NULL;
-    size_t totalRead = 0, n;
+    Tcl_Size totalRead = 0, n;
     int i, j, mask, bits, offset;
     (void)dummy;
 
@@ -114,7 +114,7 @@ Sha1_Cmd(
 	switch ((enum ShaOpts) index) {
 	case SHAOPT_INIT:
 	    for (contextnum = 1; contextnum < numcontexts; contextnum++) {
-		if (ctxtotalRead[contextnum] == (size_t)-1) {
+		if (ctxtotalRead[contextnum] == -1) {
 		    break;
 		}
 	    }
@@ -126,8 +126,8 @@ Sha1_Cmd(
 		numcontexts++;
 		sha1Contexts = (SHA1_CTX *) ckrealloc((void *) sha1Contexts,
 			numcontexts * sizeof(SHA1_CTX));
-		ctxtotalRead = (size_t *)ckrealloc(ctxtotalRead,
-			numcontexts * sizeof(size_t));
+		ctxtotalRead = (Tcl_Size *)ckrealloc(ctxtotalRead,
+			numcontexts * sizeof(Tcl_Size));
 	    }
 	    ctxtotalRead[contextnum] = 0;
 	    SHA1Init(&sha1Context);
@@ -189,7 +189,7 @@ Sha1_Cmd(
     if (descriptorObj != NULL) {
 	if ((sscanf(Tcl_GetString(descriptorObj), "sha1%d",
 		&contextnum) != 1) || (contextnum >= numcontexts) ||
-		(ctxtotalRead[contextnum] == (size_t)-1)) {
+		(ctxtotalRead[contextnum] == -1)) {
 	    Tcl_AppendResult(interp, "invalid sha1 descriptor \"",
 		    Tcl_GetString(descriptorObj), "\"", NULL);
 	    return TCL_ERROR;
@@ -205,19 +205,18 @@ Sha1_Cmd(
 	if (chan != NULL) {
 	    goto wrongArgs;
 	}
-	string = Tcl_GetString(stringObj);
-	totalRead = stringObj->length;
+	string = Tcl_GetStringFromObj(stringObj, &totalRead);
 	SHA1Update(&sha1Context, (unsigned char *) string, totalRead);
     } else if (chan != NULL) {
 	bufPtr = (char *)ckalloc(TCL_READ_CHUNK_SIZE);
 	totalRead = 0;
-	while ((n = (size_t)Tcl_Read(chan, bufPtr,
+	while ((n = Tcl_Read(chan, bufPtr,
 		maxbytes == 0
 		? TCL_READ_CHUNK_SIZE
-		: (TCL_READ_CHUNK_SIZE < (size_t)maxbytes
+		: (TCL_READ_CHUNK_SIZE < maxbytes
 		? TCL_READ_CHUNK_SIZE
-		: (size_t)maxbytes))) != 0) {
-	    if (n == (size_t)-1) {
+		: maxbytes))) != 0) {
+	    if (n == -1) {
 		ckfree(bufPtr);
 		Tcl_AppendResult(interp, Tcl_GetString(objv[0]), ": ",
 			Tcl_GetChannelName(chan), Tcl_PosixError(interp),
@@ -230,8 +229,8 @@ Sha1_Cmd(
 	    SHA1Update(&sha1Context, (unsigned char *) bufPtr, n);
 
 	    if (copychan != NULL) {
-		n = (size_t)Tcl_Write(copychan, bufPtr, n);
-		if (n == (size_t)-1) {
+		n = Tcl_Write(copychan, bufPtr, n);
+		if (n == -1) {
 		    ckfree(bufPtr);
 		    Tcl_AppendResult(interp, Tcl_GetString(objv[0]), ": ",
 			    Tcl_GetChannelName(copychan),
@@ -240,7 +239,7 @@ Sha1_Cmd(
 		}
 	    }
 
-	    if ((maxbytes > 0) && ((size_t)maxbytes <= n)) {
+	    if ((maxbytes > 0) && (maxbytes <= n)) {
 		break;
 	    }
 	    maxbytes -= n;
@@ -298,7 +297,7 @@ Sha1_Cmd(
     buf[j++] = '\0';
     Tcl_AppendResult(interp, buf, NULL);
     if (contextnum > 0) {
-	ctxtotalRead[contextnum] = (size_t)-1;
+	ctxtotalRead[contextnum] = -1;
     }
     return TCL_OK;
 
@@ -435,7 +434,7 @@ Sample_Init(
 
     numcontexts = 1;
     sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));
-    ctxtotalRead = (size_t *) ckalloc(sizeof(size_t));
+    ctxtotalRead = (Tcl_Size *) ckalloc(sizeof(Tcl_Size));
     ctxtotalRead[0] = 0;
 
     return TCL_OK;

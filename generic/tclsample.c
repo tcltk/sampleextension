@@ -433,6 +433,9 @@ Sample_Init(
 	    NULL, NULL);
 
     numcontexts = 1;
+    /* FIXME: the memory management is not multi thread or multi
+     * interpreter save.
+     */
     sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));
     ctxtotalRead = (Tcl_Size *) ckalloc(sizeof(Tcl_Size));
     ctxtotalRead[0] = 0;
@@ -470,6 +473,14 @@ Sample_Unload(
     Tcl_Interp* interp,		/* Tcl interpreter */
     int flags)			/* interpreter or process detach */
 {
+    /* Remove created commands */
+    Tcl_DeleteCommand(interp, "::sample::build-info");
+    Tcl_DeleteCommand(interp, "sha1");
+
+    /* Undo any memory creation of the init procedure
+     * FIXME: the memory management is not multi thread or multi
+     * interpreter save.
+     */
     if (sha1Contexts != NULL) {
 	ckfree(sha1Contexts);
 	sha1Contexts = NULL;

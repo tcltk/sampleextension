@@ -360,10 +360,13 @@ Sample_Init(
     Tcl_CmdInfo info;
 
     /*
-     * This may work with 8.0, but we are using strictly stubs here,
-     * which requires 8.1.
+     * Require compatible TCL version.
+     * Possible version requirement strings:
+     * - "8.1-": 8.1 and any higher version
+     * - "8.1": 8.1.x to 8.7.x
+     * - "8.1 9": allow 8.1.x to 8.7.x and 9.x.x, but not 10.x.x
      */
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL) {
+    if (Tcl_InitStubs(interp, "8.1-", 0) == NULL) {
 	return TCL_ERROR;
     }
 

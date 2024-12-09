@@ -442,3 +442,45 @@ Sample_Init(
 #ifdef __cplusplus
 }
 #endif  /* __cplusplus */
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * Sample_Unload --
+ *
+ *	Allow to unload the new package.  The string "Sample" in the
+ *	function name must match the PACKAGE declaration at the top of
+ *	configure.ac.
+ *
+ * Results:
+ *	A standard Tcl result
+ *
+ * Side effects:
+ *	The Sample package is created.
+ *	One new command "sha1" is added to the Tcl interpreter.
+ *
+ *----------------------------------------------------------------------
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif  /* __cplusplus */
+DLLEXPORT int
+Sample_Unload(
+    Tcl_Interp* interp,		/* Tcl interpreter */
+    int flags)			/* interpreter or process detach */
+{
+    if (sha1Contexts != NULL) {
+	ckfree(sha1Contexts);
+	sha1Contexts = NULL;
+    }
+    if (ctxtotalRead != NULL) {
+	ckfree(ctxtotalRead);
+	ctxtotalRead = NULL;
+    }
+    return TCL_OK;
+}
+#ifdef __cplusplus
+}
+#endif  /* __cplusplus */

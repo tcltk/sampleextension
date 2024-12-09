@@ -366,7 +366,12 @@ Sample_Init(
      * - "8.1": 8.1.x to 8.7.x
      * - "8.1 9": allow 8.1.x to 8.7.x and 9.x.x, but not 10.x.x
      */
-    if (Tcl_InitStubs(interp, "8.1-", 0) == NULL) {
+#ifdef USE_TCL_STUBS
+    if (Tcl_InitStubs(interp, "8.1-", 0) == NULL)
+#else
+    if (Tcl_PkgRequire(interp, "Tcl", "8.1-", 0) == NULL)
+#endif
+    {
 	return TCL_ERROR;
     }
 

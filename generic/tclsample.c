@@ -457,8 +457,7 @@ Sample_Init(
  *	A standard Tcl result
  *
  * Side effects:
- *	The Sample package is created.
- *	One new command "sha1" is added to the Tcl interpreter.
+ *	Library is unloaded.
  *
  *----------------------------------------------------------------------
  */

@@ -28,33 +28,40 @@
 static const unsigned char itoa64f[] =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,";
 
+#define DIGESTSIZE 20
+
 /*
- * Create struct with thread local data.
- * This mechanism is called "clientData" in Tcl.
- * We use two of them. One for the sha1 command which holds the context queue.
- * Another for the init command to store the command tolkens to delete them on
- * unload.
+ * The procedure needs interpreter local state. This is called
+ * "Command client data" in TCL. Typically, a struct is allocated and
+ * the pointer to it is made available on each operation by TCL.
+ * Here is the struct for the sha1 procedure.
  */
 
 struct Sha1ClientData {
-    /* State of sha1 command */
     int numcontexts;
     SHA1_CTX *sha1Contexts;
     Tcl_Size *ctxtotalRead;
 };
 
-struct CmdClientData {
-    /* Tokens of the created commands to delete them on unload */
+/*
+ * The DLL needs interpreter local storage to get the command tolkens to the
+ * DLL unload procedure.
+ * This is a pointer to the following struct.
+ * This memory is called assoc data and has a name for identification.
+ */
+
+struct DllAssocData {
     Tcl_Command sha1CmdTolken;
     Tcl_Command buildInfoCmdTolken;
 };
 
-/* Prototype of the function executed by command "sha1" */
+/*
+ * The name of the assoc data. This should be unique over packages and is
+ * typically the module prefix of the package.
+ */
 
-static int Sha1_Cmd(void *clientData, Tcl_Interp *interp,
-		int objc, Tcl_Obj *const objv[]);
+#define ASSOC_DATA_KEY "sha1"
 
-#define DIGESTSIZE 20
 
 /*
  *----------------------------------------------------------------------
@@ -399,6 +406,66 @@ Sha1_CmdDeleteProc(ClientData clientData)
 /*
  *----------------------------------------------------------------------
  *
+ * removeCommands --
+ *
+ *	remove the created commands and free assoc data
+ *
+ * Results:
+ *	None
+ *
+ * Side effects:
+ *	None
+ *
+ *----------------------------------------------------------------------
+ */
+
+void
+removeCommands(
+	struct DllAssocData *dllAssocDataPtr,
+	Tcl_Interp *interp)
+{
+
+    /* Remove the sha1 command */
+    Tcl_DeleteCommandFromToken(interp, dllAssocDataPtr->sha1CmdTolken); 
+
+    /* if created, also remove the build-info command */
+    if (NULL != dllAssocDataPtr->buildInfoCmdTolken) {
+	Tcl_DeleteCommandFromToken(interp, dllAssocDataPtr->buildInfoCmdTolken); 
+    }
+    
+    /* free the client data */
+    ckfree(dllAssocDataPtr);
+}
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * pkgInterpDeleted --
+ *
+ *	Clean-up on interpreter deletion.
+ *
+ * Results:
+ *	None
+ *
+ * Side effects:
+ *	Library is unloaded.
+ *
+ *----------------------------------------------------------------------
+ */
+
+static void
+pkgInterpDeleted (
+	ClientData clientData,
+	Tcl_Interp *interp)
+{
+    /* remove the commands and clear the associated data */
+    removeCommands(clientData, interp);
+}
+
+/*
+ *----------------------------------------------------------------------
+ *
  * Sample_Init --
  *
  *	Initialize the new package.  The string "Sample" in the
@@ -428,7 +495,7 @@ Sample_Init(
     Tcl_Interp* interp)		/* Tcl interpreter */
 {
     Tcl_CmdInfo info;
-    struct CmdClientData *cmdClientDataPtr;
+    struct DllAssocData *dllAssocDataPtr;
     struct Sha1ClientData *sha1ClientDataPtr;
 
     /*
@@ -440,20 +507,22 @@ Sample_Init(
      * Note that Tcl_InitStubs is a macro, which is replaced by a Tcl version
      * check only, if TCL_STUBS is not defined (e.g. direct link, static build)
      */
+
     if (Tcl_InitStubs(interp, "8.1-", 0) == NULL) {
 	return TCL_ERROR;
     }
     
     /*
-     * Create and init my client data
+     * Create my DLL associated data and register it to the interpreter
      */
-    cmdClientDataPtr = ckalloc(sizeof(struct Sha1ClientData));
-    cmdClientDataPtr->sha1CmdTolken = NULL;
-    cmdClientDataPtr->buildInfoCmdTolken = NULL;
+
+    dllAssocDataPtr = ckalloc(sizeof(struct DllAssocData));
+    Tcl_SetAssocData(interp, ASSOC_DATA_KEY, pkgInterpDeleted, dllAssocDataPtr); 
 
     /*
      * Init the sha1 context queues
      */
+
     sha1ClientDataPtr = ckalloc(sizeof(struct Sha1ClientData));
     sha1ClientDataPtr->numcontexts = 1;
     sha1ClientDataPtr->sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));
@@ -461,11 +530,12 @@ Sample_Init(
 
     /*
      * Create the sha1 command.
-     * Pass the client data pointer to the procedure, so the que data is available.
+     * Pass the client data pointer to the procedure, so the queue data is
+     * available.
      * Also, register a delete proc to clear the sha1 queue on deletion.
      */
 
-    cmdClientDataPtr->sha1CmdTolken = Tcl_CreateObjCommand(
+    dllAssocDataPtr->sha1CmdTolken = Tcl_CreateObjCommand(
 	    interp, "sha1", (Tcl_ObjCmdProc *)Sha1_Cmd,
 	    sha1ClientDataPtr, Sha1_CmdDeleteProc);
 
@@ -474,7 +544,7 @@ Sample_Init(
      */
 
     if (Tcl_GetCommandInfo(interp, "::tcl::build-info", &info)) {
-	cmdClientDataPtr->buildInfoCmdTolken = Tcl_CreateObjCommand(
+	dllAssocDataPtr->buildInfoCmdTolken = Tcl_CreateObjCommand(
 		interp,
 		"::sample::build-info",
 		info.objProc, (void *)(
@@ -531,17 +601,14 @@ Sample_Init(
 #endif
 		), NULL);
     } else {
+
 	/*
-	 * No build-info command created. Save a NULL tolken.
+	 * No build-info command created. Save a NULL command tolken.
 	 */
-	cmdClientDataPtr->buildInfoCmdTolken = NULL;
+
+	dllAssocDataPtr->buildInfoCmdTolken = NULL;
     }
     
-    /*
-     * FIXME: Now I have to beam cmdClientDataPtr to the unload procedure below.
-     * I have no idea, how to do that. Thanks for any help.
-     */
-
     /* Provide the current package */
 
     if (Tcl_PkgProvideEx(interp, PACKAGE_NAME, PACKAGE_VERSION, NULL) != TCL_OK) {
@@ -581,21 +648,25 @@ Sample_Unload(
     Tcl_Interp* interp,		/* Tcl interpreter */
     int flags)			/* interpreter or process detach */
 {
+    struct DllAssocData *dllAssocDataPtr;
 
-    /* CLient data of the DLL */
-    /* FIXME: this has to be beamed from the init procedure to this procedure */
-    struct CmdClientData *cmdClientDataPtr = NULL;
-
-    /* Remove the sha1 command */
-    Tcl_DeleteCommandFromToken(interp, cmdClientDataPtr->sha1CmdTolken); 
-
-    /* if created, also remove the build-info command */
-    if (NULL != cmdClientDataPtr->buildInfoCmdTolken) {
-	Tcl_DeleteCommandFromToken(interp, cmdClientDataPtr->buildInfoCmdTolken); 
-    }
+    /*
+     * Get the command tolkens from the assoc data and check, if present.
+     * Delete it directly, so no action will happen on interpreter deletion.
+     */
     
-    /* free the client data */
-    ckfree(cmdClientDataPtr);
+    dllAssocDataPtr = Tcl_GetAssocData(interp, ASSOC_DATA_KEY, NULL);
+    if (NULL == dllAssocDataPtr) {
+	return TCL_OK;
+    }
+    Tcl_DeleteAssocData(interp, ASSOC_DATA_KEY);
+
+    /*
+     * Now, remove the commands and free the assoc data memory
+     */
+
+    removeCommands(dllAssocDataPtr, interp);
+    
     return TCL_OK;
 }
 #ifdef __cplusplus

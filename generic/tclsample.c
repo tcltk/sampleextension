@@ -28,9 +28,28 @@
 static const unsigned char itoa64f[] =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,";
 
-static int numcontexts = 0;
-static SHA1_CTX *sha1Contexts = NULL;
-static Tcl_Size *ctxtotalRead = NULL;
+/*
+ * Create struct with thread local data.
+ * This mechanism is called "clientData" in Tcl.
+ * We use two of them. One for the sha1 command which holds the context queue.
+ * Another for the init command to store the command tolkens to delete them on
+ * unload.
+ */
+
+struct SHA1ClientData {
+    /* State of sha1 command */
+    int numcontexts;
+    SHA1_CTX *sha1Contexts;
+    Tcl_Size *ctxtotalRead;
+}
+
+struct CmdClientData {
+    /* Tokens of the created commands to delete them on unload */
+    Tcl_Command sha1CmdTolken;
+    Tcl_Command buildInfoCmdTolken;
+}
+
+/* Prototype of the function executed by command "sha1" */
 
 static int Sha1_Cmd(void *clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *const objv[]);
@@ -55,7 +74,7 @@ static int Sha1_Cmd(void *clientData, Tcl_Interp *interp,
 
 static int
 Sha1_Cmd(
-    void *dummy,	/* Not used. */
+    ClientData clientData,	/* Client data with thread local state */
     Tcl_Interp *interp,		/* Current interpreter */
     int objc,			/* Number of arguments */
     Tcl_Obj *const objv[]	/* Argument strings */
@@ -325,6 +344,43 @@ wrongArgs:
 	    NULL);
     return TCL_ERROR;
 }
+
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * Sha1_CmdDeleteProc --
+ *
+ *	 Clear all thread data of the Sha1 command.
+ *
+ * Results:
+ *	No result
+ *
+ * Side effects:
+ *	None.
+ *
+ *----------------------------------------------------------------------
+ */
+
+static void
+Sha1_CmdDeleteProc(ClientData clientData)
+{
+    struct SHA1ClientData *sha1ClientDataPointer = ClientData;
+    
+    /*
+     * Release the sha1 queue
+     */
+    
+    ckfree(sha1ClientDataPointer->sha1Contexts);
+    ckfree(sha1ClientDataPointer->ctxtotalRead);
+
+    /*
+     * Release the procedure client data
+     */
+
+    ckfree(sha1ClientDataPointer);
+}
+
 
 /*
  *----------------------------------------------------------------------
@@ -358,6 +414,8 @@ Sample_Init(
     Tcl_Interp* interp)		/* Tcl interpreter */
 {
     Tcl_CmdInfo info;
+    struct CmdClientData *cmdClientDataPointer;
+    struct SHA1ClientData *sha1ClientDataPointer;
 
     /*
      * Require compatible TCL version.
@@ -371,9 +429,40 @@ Sample_Init(
     if (Tcl_InitStubs(interp, "8.1-", 0) == NULL) {
 	return TCL_ERROR;
     }
+    
+    /*
+     * Create and init my client data
+     */
+    CmdClientDataPointer = ckalloc(sizeof(struct Sha1ClientData));
+    CmdClientDataPointer->sha1CmdTolken = NULL;
+    CmdClientDataPointer->buildInfoCmdTolken = NULL;
+
+    /*
+     * Init the sha1 context queues
+     */
+    sha1ClientDataPointer = ckalloc(sizeof(struct Sha1ClientData));
+    sha1ClientDataPointer->numcontexts = 1;
+    sha1ClientDataPointer->SHA1_CTX = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));
+    sha1ClientDataPointer->ctxtotalRead = (Tcl_Size *) ckalloc(sizeof(Tcl_Size));
+
+    /*
+     * Create the sha1 command.
+     * Pass the client data pointer to the procedure, so the que data is available.
+     * Also, register a delete proc to clear the sha1 queue on deletion.
+     */
+
+    cmdClientDataPointer->sha1CmdTolken = Tcl_CreateObjCommand(
+	    interp, "sha1", (Tcl_ObjCmdProc *)Sha1_Cmd,
+	    sha1ClientDataPointer, Sha1_CmdDeleteProc);
+
+    /*
+     * Create the buildinfo command if tcl supports it
+     */
 
     if (Tcl_GetCommandInfo(interp, "::tcl::build-info", &info)) {
-	Tcl_CreateObjCommand(interp, "::sample::build-info",
+	myClientDataPointer->buildInfoCmdTolken = Tcl_CreateObjCommand(
+		interp,
+		"::sample::build-info",
 		info.objProc, (void *)(
 		    PACKAGE_VERSION "+" STRINGIFY(SAMPLE_VERSION_UUID)
 #if defined(__clang__) && defined(__clang_major__)
@@ -427,6 +516,11 @@ Sample_Init(
 			    ".static"
 #endif
 		), NULL);
+    } else {
+	/*
+	 * No build-info command created. Save a NULL tolken.
+	 */
+	CmdClientDataPointer->buildInfoCmdTolken = NULL;
     }
 
     /* Provide the current package */
@@ -434,16 +528,6 @@ Sample_Init(
     if (Tcl_PkgProvideEx(interp, PACKAGE_NAME, PACKAGE_VERSION, NULL) != TCL_OK) {
 	return TCL_ERROR;
     }
-    Tcl_CreateObjCommand(interp, "sha1", (Tcl_ObjCmdProc *)Sha1_Cmd,
-	    NULL, NULL);
-
-    numcontexts = 1;
-    /* FIXME: the memory management is not multi thread or multi
-     * interpreter save.
-     */
-    sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));
-    ctxtotalRead = (Tcl_Size *) ckalloc(sizeof(Tcl_Size));
-    ctxtotalRead[0] = 0;
 
     return TCL_OK;
 }
@@ -481,19 +565,6 @@ Sample_Unload(
     /* Remove created commands */
     Tcl_DeleteCommand(interp, "::sample::build-info");
     Tcl_DeleteCommand(interp, "sha1");
-
-    /* Undo any memory creation of the init procedure
-     * FIXME: the memory management is not multi thread or multi
-     * interpreter save.
-     */
-    if (sha1Contexts != NULL) {
-	ckfree(sha1Contexts);
-	sha1Contexts = NULL;
-    }
-    if (ctxtotalRead != NULL) {
-	ckfree(ctxtotalRead);
-	ctxtotalRead = NULL;
-    }
     return TCL_OK;
 }
 #ifdef __cplusplus

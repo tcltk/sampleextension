@@ -358,6 +358,7 @@ Sample_Init(
     Tcl_Interp* interp)		/* Tcl interpreter */
 {
     Tcl_CmdInfo info;
+	Tcl_Namespace *myNamespacePtr;
 
     /*
      * Require compatible TCL version.
@@ -372,6 +373,12 @@ Sample_Init(
 	return TCL_ERROR;
     }
 
+	/*
+	 * Create the package namespace
+	 */
+	
+	myNamespacePtr = Tcl_CreateNamespace(interp, "::sample", NULL, NULL);
+	
     if (Tcl_GetCommandInfo(interp, "::tcl::build-info", &info)) {
 	Tcl_CreateObjCommand(interp, "::sample::build-info",
 		info.objProc, (void *)(
@@ -434,8 +441,15 @@ Sample_Init(
     if (Tcl_PkgProvideEx(interp, PACKAGE_NAME, PACKAGE_VERSION, NULL) != TCL_OK) {
 	return TCL_ERROR;
     }
-    Tcl_CreateObjCommand(interp, "sha1", (Tcl_ObjCmdProc *)Sha1_Cmd,
+    Tcl_CreateObjCommand(interp, "::sample::sha1", (Tcl_ObjCmdProc *)Sha1_Cmd,
 	    NULL, NULL);
+
+	
+	/*
+	 * Append sha1 command to the namespace export list
+	 */
+
+	Tcl_Export(interp, myNamespacePtr, "sha1", 0);
 
     numcontexts = 1;
     sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));

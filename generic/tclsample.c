@@ -28,20 +28,14 @@
 static const unsigned char itoa64f[] =
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,";
 
+static int numcontexts = 0;
+static SHA1_CTX *sha1Contexts = NULL;
+static Tcl_Size *ctxtotalRead = NULL;
+
+static int Sha1_Cmd(void *clientData, Tcl_Interp *interp,
+		int objc, Tcl_Obj *const objv[]);
+
 #define DIGESTSIZE 20
-
-/*
- * The procedure needs interpreter local state. This is called
- * "Command client data" in TCL. Typically, a struct is allocated and
- * the pointer to it is made available on each operation by TCL.
- * Here is the struct for the sha1 procedure.
- */
-
-struct Sha1ClientData {
-    int numcontexts;
-    SHA1_CTX *sha1Contexts;
-    Tcl_Size *ctxtotalRead;
-};
 
 /*
  * The DLL needs interpreter local storage to get the command tolkens to the
@@ -81,18 +75,12 @@ struct DllAssocData {
 
 static int
 Sha1_Cmd(
-    ClientData clientData,	/* Client data with thread local state */
+    void *dummy,	/* Not used. */
     Tcl_Interp *interp,		/* Current interpreter */
     int objc,			/* Number of arguments */
     Tcl_Obj *const objv[]	/* Argument strings */
     )
 {
-    /*
-     * Get my thread local memory
-     */
-
-    struct Sha1ClientData *sha1ClientDataPtr = clientData;
-
     /*
      * The default base is hex
      */
@@ -104,6 +92,7 @@ Sha1_Cmd(
     Tcl_Channel copychan = NULL;
     int mode;
     int contextnum = 0;
+#define sha1Context (sha1Contexts[contextnum])
     char *bufPtr;
     Tcl_WideInt maxbytes = 0;
     int doinit = 1;
@@ -111,6 +100,7 @@ Sha1_Cmd(
     Tcl_Obj *descriptorObj = NULL;
     Tcl_Size totalRead = 0, n;
     int i, j, mask, bits, offset;
+    (void)dummy;
 
     /*
      * For binary representation + null char
@@ -143,26 +133,24 @@ Sha1_Cmd(
 	}
 	switch ((enum ShaOpts) index) {
 	case SHAOPT_INIT:
-	    for (contextnum = 1; contextnum < sha1ClientDataPtr->numcontexts; contextnum++) {
-		if (sha1ClientDataPtr->ctxtotalRead[contextnum] == -1) {
+	    for (contextnum = 1; contextnum < numcontexts; contextnum++) {
+		if (ctxtotalRead[contextnum] == -1) {
 		    break;
 		}
 	    }
-	    if (contextnum == sha1ClientDataPtr->numcontexts) {
+	    if (contextnum == numcontexts) {
 		/*
 		 * Allocate a new context.
 		 */
 
-		sha1ClientDataPtr->numcontexts++;
-		sha1ClientDataPtr->sha1Contexts = (SHA1_CTX *) ckrealloc(
-			(void *) sha1ClientDataPtr->sha1Contexts,
-			sha1ClientDataPtr->numcontexts * sizeof(SHA1_CTX));
-		sha1ClientDataPtr->ctxtotalRead = (Tcl_Size *)ckrealloc(
-			sha1ClientDataPtr->ctxtotalRead,
-			sha1ClientDataPtr->numcontexts * sizeof(Tcl_Size));
+		numcontexts++;
+		sha1Contexts = (SHA1_CTX *) ckrealloc((void *) sha1Contexts,
+			numcontexts * sizeof(SHA1_CTX));
+		ctxtotalRead = (Tcl_Size *)ckrealloc(ctxtotalRead,
+			numcontexts * sizeof(Tcl_Size));
 	    }
-	    sha1ClientDataPtr->ctxtotalRead[contextnum] = 0;
-	    SHA1Init(&sha1ClientDataPtr->sha1Contexts[contextnum]);
+	    ctxtotalRead[contextnum] = 0;
+	    SHA1Init(&sha1Context);
 	    snprintf(buf, sizeof(buf), "sha1%d", contextnum);
 	    Tcl_AppendResult(interp, buf, NULL);
 	    return TCL_OK;
@@ -220,8 +208,8 @@ Sha1_Cmd(
 
     if (descriptorObj != NULL) {
 	if ((sscanf(Tcl_GetString(descriptorObj), "sha1%d",
-		&contextnum) != 1) || (contextnum >= sha1ClientDataPtr->numcontexts) ||
-		(sha1ClientDataPtr->ctxtotalRead[contextnum] == -1)) {
+		&contextnum) != 1) || (contextnum >= numcontexts) ||
+		(ctxtotalRead[contextnum] == -1)) {
 	    Tcl_AppendResult(interp, "invalid sha1 descriptor \"",
 		    Tcl_GetString(descriptorObj), "\"", NULL);
 	    return TCL_ERROR;
@@ -229,7 +217,7 @@ Sha1_Cmd(
     }
 
     if (doinit) {
-	SHA1Init(&sha1ClientDataPtr->sha1Contexts[contextnum]);
+	SHA1Init(&sha1Context);
     }
 
     if (stringObj != NULL) {
@@ -238,17 +226,10 @@ Sha1_Cmd(
 	    goto wrongArgs;
 	}
 	string = Tcl_GetStringFromObj(stringObj, &totalRead);
-	SHA1Update(&sha1ClientDataPtr->sha1Contexts[contextnum],
-		(unsigned char *) string, totalRead);
+	SHA1Update(&sha1Context, (unsigned char *) string, totalRead);
     } else if (chan != NULL) {
 	bufPtr = (char *)ckalloc(TCL_READ_CHUNK_SIZE);
 	totalRead = 0;
-	/*
-	 * FIXME: MS-VC 2015 gives the following warning in the next line I
-	 * was not able to fix (translated from German):
-	 * warning C4244: "Function": Conversion of "Tcl_WideInt" to "int",
-	 * possible data loss
-	 */
 	while ((n = Tcl_Read(chan, bufPtr,
 		maxbytes == 0
 		? TCL_READ_CHUNK_SIZE
@@ -265,8 +246,7 @@ Sha1_Cmd(
 
 	    totalRead += n;
 
-	    SHA1Update(&sha1ClientDataPtr->sha1Contexts[contextnum],
-		    (unsigned char *) bufPtr, n);
+	    SHA1Update(&sha1Context, (unsigned char *) bufPtr, n);
 
 	    if (copychan != NULL) {
 		n = Tcl_Write(copychan, bufPtr, n);
@@ -290,17 +270,17 @@ Sha1_Cmd(
     }
 
     if (!dofinal) {
-	sha1ClientDataPtr->ctxtotalRead[contextnum] += totalRead;
+	ctxtotalRead[contextnum] += totalRead;
 	Tcl_SetObjResult(interp, Tcl_NewWideIntObj(totalRead));
 	return TCL_OK;
     }
 
     if (stringObj == NULL) {
-	totalRead += sha1ClientDataPtr->ctxtotalRead[contextnum];
+	totalRead += ctxtotalRead[contextnum];
 	Tcl_SetObjResult(interp, Tcl_NewWideIntObj(totalRead));
     }
 
-    SHA1Final(&sha1ClientDataPtr->sha1Contexts[contextnum], digest);
+    SHA1Final(&sha1Context, digest);
 
     /*
      * Take the 20 byte array and print it in the requested base
@@ -337,7 +317,7 @@ Sha1_Cmd(
     buf[j++] = '\0';
     Tcl_AppendResult(interp, buf, NULL);
     if (contextnum > 0) {
-	sha1ClientDataPtr->ctxtotalRead[contextnum] = -1;
+	ctxtotalRead[contextnum] = -1;
     }
     return TCL_OK;
 
@@ -364,42 +344,6 @@ wrongArgs:
 	    " The default log2base is 4 (hex)",
 	    NULL);
     return TCL_ERROR;
-}
-
-
-/*
- *----------------------------------------------------------------------
- *
- * Sha1_CmdDeleteProc --
- *
- *	 Clear all thread data of the Sha1 command.
- *
- * Results:
- *	No result
- *
- * Side effects:
- *	None.
- *
- *----------------------------------------------------------------------
- */
-
-static void
-Sha1_CmdDeleteProc(ClientData clientData)
-{
-    struct Sha1ClientData *sha1ClientDataPtr = clientData;
-    
-    /*
-     * Release the sha1 contextes
-     */
-    
-    ckfree(sha1ClientDataPtr->sha1Contexts);
-    ckfree(sha1ClientDataPtr->ctxtotalRead);
-
-    /*
-     * Release the procedure client data
-     */
-
-    ckfree(sha1ClientDataPtr);
 }
 
 
@@ -496,7 +440,6 @@ Sample_Init(
 {
     Tcl_CmdInfo info;
     struct DllAssocData *dllAssocDataPtr;
-    struct Sha1ClientData *sha1ClientDataPtr;
 
     /*
      * Require compatible TCL version.
@@ -518,26 +461,6 @@ Sample_Init(
 
     dllAssocDataPtr = ckalloc(sizeof(struct DllAssocData));
     Tcl_SetAssocData(interp, ASSOC_DATA_KEY, pkgInterpDeleted, dllAssocDataPtr); 
-
-    /*
-     * Init the sha1 context queues
-     */
-
-    sha1ClientDataPtr = ckalloc(sizeof(struct Sha1ClientData));
-    sha1ClientDataPtr->numcontexts = 1;
-    sha1ClientDataPtr->sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));
-    sha1ClientDataPtr->ctxtotalRead = (Tcl_Size *) ckalloc(sizeof(Tcl_Size));
-
-    /*
-     * Create the sha1 command.
-     * Pass the client data pointer to the procedure, so the queue data is
-     * available.
-     * Also, register a delete proc to clear the sha1 queue on deletion.
-     */
-
-    dllAssocDataPtr->sha1CmdTolken = Tcl_CreateObjCommand(
-	    interp, "sha1", (Tcl_ObjCmdProc *)Sha1_Cmd,
-	    sha1ClientDataPtr, Sha1_CmdDeleteProc);
 
     /*
      * Create the buildinfo command if tcl supports it
@@ -608,12 +531,19 @@ Sample_Init(
 
 	dllAssocDataPtr->buildInfoCmdTolken = NULL;
     }
-    
+  
     /* Provide the current package */
 
     if (Tcl_PkgProvideEx(interp, PACKAGE_NAME, PACKAGE_VERSION, NULL) != TCL_OK) {
 	return TCL_ERROR;
     }
+    dllAssocDataPtr->sha1CmdTolken = Tcl_CreateObjCommand(interp, "sha1", (Tcl_ObjCmdProc *)Sha1_Cmd,
+	    NULL, NULL);
+
+    numcontexts = 1;
+    sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));
+    ctxtotalRead = (Tcl_Size *) ckalloc(sizeof(Tcl_Size));
+    ctxtotalRead[0] = 0;
 
     return TCL_OK;
 }

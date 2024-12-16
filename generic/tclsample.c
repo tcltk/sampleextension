@@ -359,16 +359,11 @@ Sample_Init(
 {
     Tcl_CmdInfo info;
 
-/*
-     * This may work with 8.0, but we are using strictly stubs here,
-     * which requires 8.1.
-     */
     /*
-     * FIXME: The "-" in "8.1-" is for Tcl 9 and is not correct following the manpage:
-     ' "A version string consisting of one or more decimal numbers separated by dots."
-     * Nevertheless, it worked for TCL 8.6.13 and pre-9.0.1.
+     * Support any TCL version starting with 8.5.0.
+     * The "-" stands for "min-unbound" and thus includes TCL 9
      */
-    if (Tcl_InitStubs(interp, "8.1-", 0) == NULL) {
+    if (Tcl_InitStubs(interp, "8.5-", 0) == NULL) {
 	return TCL_ERROR;
     }
 

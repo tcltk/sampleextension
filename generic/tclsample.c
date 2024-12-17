@@ -360,10 +360,10 @@ Sample_Init(
     Tcl_CmdInfo info;
 
     /*
-     * Support any TCL version starting with 8.5.0.
-     * The "-" stands for "min-unbound" and thus includes TCL 9
+     * Support any TCL version from 8.5.0 to 9.x.x.
+     * The upper bound "10" is exclusive
      */
-    if (Tcl_InitStubs(interp, "8.5-", 0) == NULL) {
+    if (Tcl_InitStubs(interp, "8.5-10", 0) == NULL) {
 	return TCL_ERROR;
     }
 

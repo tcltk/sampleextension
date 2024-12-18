@@ -436,6 +436,7 @@ Sample_Init(
 
     numcontexts = 1;
     sha1CmdContexts = (sha1CmdContext *)ckalloc(sizeof(sha1CmdContext));
+    sha1CmdContexts[0].totalRead = 0;
 
     return TCL_OK;
 }

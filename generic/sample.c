@@ -235,11 +235,11 @@ SHA1Update(
     }
     context->count[1] += (len >> 29);
     if ((j + len) > 63) {
-        memcpy(&context->buffer[j], data, (i = 64-j));
-        SHA1Transform(context->state, context->buffer);
-        for ( ; i + 63 < len; i += 64) {
+	memcpy(&context->buffer[j], data, (i = 64-j));
+	SHA1Transform(context->state, context->buffer);
+	for ( ; i + 63 < len; i += 64) {
 #ifdef CANWRITEDATA
-            SHA1Transform(context->state, &data[i]);
+	    SHA1Transform(context->state, &data[i]);
 #else
 
 	    /*
@@ -247,10 +247,10 @@ SHA1Update(
 	     */
 
 	    memcpy(&context->buffer[0], &data[i], 64);
-            SHA1Transform(context->state, context->buffer);
+	    SHA1Transform(context->state, context->buffer);
 #endif
-        }
-        j = 0;
+	}
+	j = 0;
     } else {
 	i = 0;
     }
@@ -288,12 +288,12 @@ void SHA1Final(
 	 * This statement is independent of the endianness
 	 */
 
-        finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)]
+	finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)]
 		>> ((3-(i & 3)) * 8) ) & 255);
     }
     SHA1Update(context, (unsigned char *)"\200", 1);
     while ((context->count[0] & 504) != 448) {
-        SHA1Update(context, (unsigned char *)"\0", 1);
+	SHA1Update(context, (unsigned char *)"\0", 1);
     }
 
     /*
@@ -302,7 +302,7 @@ void SHA1Final(
 
     SHA1Update(context, finalcount, 8);
     for (i = 0; i < 20; i++) {
-        digest[i] = (unsigned char)
+	digest[i] = (unsigned char)
 		((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
     }
 

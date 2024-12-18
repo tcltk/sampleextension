@@ -114,13 +114,13 @@ int
 Sample_Init(Tcl_Interp *interp)
 {
     if (Tcl_InitStubs(interp, "8.6-", 0) == NULL) {
-        return TCL_ERROR;
+	return TCL_ERROR;
     }
     if (Tcl_PkgRequire(interp, "Tcl", "8.6-", 0) == NULL) {
-        return TCL_ERROR;
+	return TCL_ERROR;
     }
     if (Tcl_PkgProvide(interp, "sample", VERSION) != TCL_OK) {
-        return TCL_ERROR;
+	return TCL_ERROR;
     }
     Tcl_CreateObjCommand(interp, "sha1", Sha1, NULL, NULL);
 

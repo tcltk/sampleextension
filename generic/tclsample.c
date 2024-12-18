@@ -26,11 +26,15 @@
 #define TCL_READ_CHUNK_SIZE 4096
 
 static const unsigned char itoa64f[] =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,";
+	"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_,";
 
 static int numcontexts = 0;
-static SHA1_CTX *sha1Contexts = NULL;
-static Tcl_Size *ctxtotalRead = NULL;
+typedef struct {
+	SHA1_CTX ctx;
+	Tcl_Size totalRead;
+} sha1CmdContext;
+static sha1CmdContext *sha1CmdContexts = NULL;
+
 
 static int Sha1_Cmd(void *clientData, Tcl_Interp *interp,
 		int objc, Tcl_Obj *const objv[]);
@@ -72,7 +76,7 @@ Sha1_Cmd(
     Tcl_Channel copychan = NULL;
     int mode;
     int contextnum = 0;
-#define sha1Context (sha1Contexts[contextnum])
+#define sha1Context (sha1CmdContexts[contextnum].ctx)
     char *bufPtr;
     Tcl_WideInt maxbytes = 0;
     int doinit = 1;
@@ -89,7 +93,7 @@ Sha1_Cmd(
     char buf[129];
     unsigned char digest[DIGESTSIZE];
 
-    static const char *options[] = {
+    static const char *const options[] = {
 	"-chan", "-copychan", "-final", "-init", "-log2base", "-maxbytes",
 	"-string", "-update", NULL
     };
@@ -114,7 +118,7 @@ Sha1_Cmd(
 	switch ((enum ShaOpts) index) {
 	case SHAOPT_INIT:
 	    for (contextnum = 1; contextnum < numcontexts; contextnum++) {
-		if (ctxtotalRead[contextnum] == -1) {
+		if (sha1CmdContexts[contextnum].totalRead == -1) {
 		    break;
 		}
 	    }
@@ -124,15 +128,13 @@ Sha1_Cmd(
 		 */
 
 		numcontexts++;
-		sha1Contexts = (SHA1_CTX *) ckrealloc((void *) sha1Contexts,
-			numcontexts * sizeof(SHA1_CTX));
-		ctxtotalRead = (Tcl_Size *)ckrealloc(ctxtotalRead,
-			numcontexts * sizeof(Tcl_Size));
+		sha1CmdContexts = (sha1CmdContext *)ckrealloc((void *)sha1CmdContexts,
+			numcontexts * sizeof(sha1CmdContext));
 	    }
-	    ctxtotalRead[contextnum] = 0;
+	    sha1CmdContexts[contextnum].totalRead = 0;
 	    SHA1Init(&sha1Context);
 	    snprintf(buf, sizeof(buf), "sha1%d", contextnum);
-	    Tcl_AppendResult(interp, buf, NULL);
+	    Tcl_AppendResult(interp, buf, (char *)NULL);
 	    return TCL_OK;
 	case SHAOPT_CHAN:
 	    chan = Tcl_GetChannel(interp, Tcl_GetString(objv[a]), &mode);
@@ -141,7 +143,7 @@ Sha1_Cmd(
 	    }
 	    if ((mode & TCL_READABLE) == 0) {
 		Tcl_AppendResult(interp, "chan \"", Tcl_GetString(objv[a]),
-			"\" wasn't opened for reading", NULL);
+			"\" wasn't opened for reading", (char *)NULL);
 		return TCL_ERROR;
 	    }
 	    continue;
@@ -152,7 +154,7 @@ Sha1_Cmd(
 	    }
 	    if ((mode & TCL_WRITABLE) == 0) {
 		Tcl_AppendResult(interp, "copychan \"", Tcl_GetString(objv[a]),
-			"\" wasn't opened for writing", NULL);
+			"\" wasn't opened for writing", (char *)NULL);
 		return TCL_ERROR;
 	    }
 	    continue;
@@ -166,7 +168,7 @@ Sha1_Cmd(
 	    } else if ((log2base < 1) || (log2base > 6)) {
 		Tcl_AppendResult(interp, "parameter to -log2base \"",
 			Tcl_GetString(objv[a]),
-			"\" must be integer in range 1...6", NULL);
+			"\" must be integer in range 1...6", (char *)NULL);
 		return TCL_ERROR;
 	    }
 	    continue;
@@ -189,9 +191,9 @@ Sha1_Cmd(
     if (descriptorObj != NULL) {
 	if ((sscanf(Tcl_GetString(descriptorObj), "sha1%d",
 		&contextnum) != 1) || (contextnum >= numcontexts) ||
-		(ctxtotalRead[contextnum] == -1)) {
+		(sha1CmdContexts[contextnum].totalRead == -1)) {
 	    Tcl_AppendResult(interp, "invalid sha1 descriptor \"",
-		    Tcl_GetString(descriptorObj), "\"", NULL);
+		    Tcl_GetString(descriptorObj), "\"", (char *)NULL);
 	    return TCL_ERROR;
 	}
     }
@@ -220,13 +222,13 @@ Sha1_Cmd(
 		ckfree(bufPtr);
 		Tcl_AppendResult(interp, Tcl_GetString(objv[0]), ": ",
 			Tcl_GetChannelName(chan), Tcl_PosixError(interp),
-			NULL);
+			(char *)NULL);
 		return TCL_ERROR;
 	    }
 
 	    totalRead += n;
 
-	    SHA1Update(&sha1Context, (unsigned char *) bufPtr, n);
+	    SHA1Update(&sha1Context, (unsigned char *)bufPtr, n);
 
 	    if (copychan != NULL) {
 		n = Tcl_Write(copychan, bufPtr, n);
@@ -234,7 +236,7 @@ Sha1_Cmd(
 		    ckfree(bufPtr);
 		    Tcl_AppendResult(interp, Tcl_GetString(objv[0]), ": ",
 			    Tcl_GetChannelName(copychan),
-			     Tcl_PosixError(interp), NULL);
+			     Tcl_PosixError(interp), (char *)NULL);
 		    return TCL_ERROR;
 		}
 	    }
@@ -250,13 +252,13 @@ Sha1_Cmd(
     }
 
     if (!dofinal) {
-	ctxtotalRead[contextnum] += totalRead;
+	sha1CmdContexts[contextnum].totalRead += totalRead;
 	Tcl_SetObjResult(interp, Tcl_NewWideIntObj(totalRead));
 	return TCL_OK;
     }
 
     if (stringObj == NULL) {
-	totalRead += ctxtotalRead[contextnum];
+	totalRead += sha1CmdContexts[contextnum].totalRead;
 	Tcl_SetObjResult(interp, Tcl_NewWideIntObj(totalRead));
     }
 
@@ -282,22 +284,22 @@ Sha1_Cmd(
     }
     mask = (2 << (n-1)) - 1;
     while (1) {
-        bits <<= n;
-        if (offset <= n) {
-    	    if (i == DIGESTSIZE) {
+	bits <<= n;
+	if (offset <= n) {
+	    if (i == DIGESTSIZE) {
 		break;
 	    }
-    	    bits += (digest[i++] << (n - offset));
-    	    offset += 8;
-        }
-        offset -= n;
-        buf[j++] = itoa64f[(bits>>8)&mask];
+	    bits += (digest[i++] << (n - offset));
+	    offset += 8;
+	}
+	offset -= n;
+	buf[j++] = itoa64f[(bits>>8)&mask];
     }
     buf[j++] = itoa64f[(bits>>8)&mask];
     buf[j++] = '\0';
-    Tcl_AppendResult(interp, buf, NULL);
+    Tcl_AppendResult(interp, buf, (char *)NULL);
     if (contextnum > 0) {
-	ctxtotalRead[contextnum] = -1;
+	sha1CmdContexts[contextnum].totalRead = -1;
     }
     return TCL_OK;
 
@@ -322,7 +324,7 @@ wrongArgs:
 	    Tcl_GetString(objv[0]),
 	    " ?-log2base log2base? -final descriptor\n",
 	    " The default log2base is 4 (hex)",
-	    NULL);
+	    (char *)NULL);
     return TCL_ERROR;
 }
 
@@ -433,9 +435,7 @@ Sample_Init(
 	    NULL, NULL);
 
     numcontexts = 1;
-    sha1Contexts = (SHA1_CTX *) ckalloc(sizeof(SHA1_CTX));
-    ctxtotalRead = (Tcl_Size *) ckalloc(sizeof(Tcl_Size));
-    ctxtotalRead[0] = 0;
+    sha1CmdContexts = (sha1CmdContext *)ckalloc(sizeof(sha1CmdContext));
 
     return TCL_OK;
 }

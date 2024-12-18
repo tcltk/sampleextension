@@ -270,7 +270,7 @@
 	* Makefile.in: Subst TCLSH_PROG from PATH
 	as SYSTEM_TCLSH and subst BUILD_TCLSH and
 	BUILD_WISH. Use SYSTEM_TCLSH for the
- 	pkgIndex.tcl generation target.
+	pkgIndex.tcl generation target.
 	* configure: Regen.
 	* configure.in: Invoke new TEA_BUILD_TCLSH
 	and TEA_BUILD_WISH macros defined in tcl.m4.

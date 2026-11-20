@@ -1,7 +1,7 @@
 This is a sample extension showing an implementation of the Tcl Extension
 Architecture (TEA).  Please see the webpage
 
-	http://www.tcl.tk/doc/tea/
+	https://wiki.tcl-lang.org/page/TEA
 
 for more details on TEA.  You can also read the enclosed "tea.pdf" document
 for instructions on how to adapt this sample extension to your extension.

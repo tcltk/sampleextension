@@ -37,9 +37,13 @@ typedef unsigned int sha_uint32_t;
 extern "C" {
 #endif
 
+#if !defined(Tcl_Size) && TCL_MAJOR_VERSION < 9
+#   define Tcl_Size int
+#endif
+
 typedef struct {
+    Tcl_Size count[2];
     sha_uint32_t state[5];
-    sha_uint32_t count[2];
     unsigned char buffer[64];
 } SHA1_CTX;
 

@@ -83,7 +83,8 @@ Sha1_Cmd(
     int dofinal = 1;
     Tcl_Obj *descriptorObj = NULL;
     Tcl_Size totalRead = 0, n;
-    int i, j, mask, bits, offset;
+    int i, j, mask, bits;
+    Tcl_Size offset;
     (void)dummy;
 
     /*
